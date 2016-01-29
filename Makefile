@@ -49,9 +49,11 @@ OBJECTS_DIR   = obj/
 ####### Files
 
 SOURCES       = src/imagepanel.cxx \
-		src/main.cxx 
+		src/main.cxx \
+		src/metadatapanel.cxx 
 OBJECTS       = obj/imagepanel.o \
-		obj/main.o
+		obj/main.o \
+		obj/metadatapanel.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
 		/usr/lib/qt/mkspecs/common/linux.conf \
@@ -156,8 +158,10 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/features/exceptions.prf \
 		/usr/lib/qt/mkspecs/features/yacc.prf \
 		/usr/lib/qt/mkspecs/features/lex.prf \
-		metadata.pro include/imagepanel.hxx src/imagepanel.cxx \
-		src/main.cxx
+		metadata.pro include/imagepanel.hxx \
+		include/metadatapanel.hxx src/imagepanel.cxx \
+		src/main.cxx \
+		src/metadatapanel.cxx
 QMAKE_TARGET  = metadata
 DESTDIR       = bin/#avoid trailing-slash linebreak
 TARGET        = bin/metadata
@@ -420,8 +424,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents include/imagepanel.hxx $(DISTDIR)/
-	$(COPY_FILE) --parents src/imagepanel.cxx src/main.cxx $(DISTDIR)/
+	$(COPY_FILE) --parents include/imagepanel.hxx include/metadatapanel.hxx $(DISTDIR)/
+	$(COPY_FILE) --parents src/imagepanel.cxx src/main.cxx src/metadatapanel.cxx $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -463,8 +467,12 @@ compiler_clean:
 obj/imagepanel.o: src/imagepanel.cxx include/imagepanel.hxx
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/imagepanel.o src/imagepanel.cxx
 
-obj/main.o: src/main.cxx include/imagepanel.hxx
+obj/main.o: src/main.cxx include/imagepanel.hxx \
+		include/metadatapanel.hxx
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cxx
+
+obj/metadatapanel.o: src/metadatapanel.cxx include/metadatapanel.hxx
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/metadatapanel.o src/metadatapanel.cxx
 
 ####### Install
 

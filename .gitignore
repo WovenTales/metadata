@@ -28,5 +28,8 @@
 *.app
 bin/*
 
+# Temporary files
+*.swp
+
 # Test images
 *.png

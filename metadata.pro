@@ -14,5 +14,8 @@ INCLUDEPATH += include
 OBJECTS_DIR  = obj
 
 # Input
-HEADERS += include/imagepanel.hxx
-SOURCES += src/imagepanel.cxx src/main.cxx
+HEADERS += include/imagepanel.hxx\
+           include/metadatapanel.hxx
+SOURCES += src/imagepanel.cxx\
+           src/main.cxx\
+           src/metadatapanel.cxx

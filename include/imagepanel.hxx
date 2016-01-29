@@ -4,6 +4,9 @@
 
 #include <string>
 
+// core
+#include <Qt>
+
 // gui
 #include <QPixmap>
 
@@ -11,6 +14,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QLayout>
+#include <QWidget>
 
 
 class ImagePanel : public QFrame {
@@ -23,7 +27,7 @@ private:
 	QBoxLayout* layout;
 
 public:
-	ImagePanel(std::string);
+	ImagePanel(std::string, QWidget* = 0, Qt::WindowFlags = 0);
 
 	virtual void resizeEvent(QResizeEvent*);
 };

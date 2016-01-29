@@ -3,32 +3,29 @@
 #include <cstddef>
 
 // core
-#include <Qt>
 #include <QSize>
+#include <QString>
 
 // gui
 #include <QResizeEvent>
 
 // widgets
-#include <QWidget>
 #include <QVBoxLayout>
 
 
-ImagePanel::ImagePanel(std::string path) {
-	img = QPixmap(path.c_str());
+ImagePanel::ImagePanel(std::string path, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
+	img = QPixmap(QString(path.c_str()));
 
 	label  = new QLabel(this);
 	file   = new QLabel(this);
 	layout = new QVBoxLayout();
 
-	label->setAlignment(Qt::AlignHCenter);
 	label->setScaledContents(true);
 
-	file->setAlignment(Qt::AlignHCenter);
 	file->setText(path.c_str());
 
-	layout->addWidget(label);
-	layout->addWidget(file);
+	layout->addWidget(label, Qt::AlignHCenter);
+	layout->addWidget(file, Qt::AlignHCenter);
 	this->setLayout(layout);
 
 	// Setting label picture occurs in resizeEvent()
