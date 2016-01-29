@@ -4,21 +4,25 @@
 #include <QSize>
 
 
-PreviewPanel::PreviewPanel(const QPixmap& i, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f), img(i) {
-	label  = new QLabel(this);
+PreviewPanel::PreviewPanel(const QPixmap& i, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
+	label  = new PictureLabel(i, this);
 	layout = new QVBoxLayout();
+	cross  = new QHBoxLayout();
 
-	label->setScaledContents(true);
+	cross->addStretch();
+	cross->addWidget(label, Qt::AlignHCenter);
+	cross->addStretch();
 
-	layout->addWidget(label, Qt::AlignHCenter);
-	this->setLayout(layout);
-
-	// Setting label picture occurs in resizeEvent()
+	layout->addStretch();
+	layout->addLayout(cross);
+	layout->addStretch();
+	setLayout(layout);
 }
 
 
+// TODO: Rather hacky way of doing it, but aspect ratio doesn't work in a layout
 void PreviewPanel::resizeEvent(QResizeEvent* e) {
-	QWidget::resizeEvent(e);
+	QFrame::resizeEvent(e);
 
 	QSize s = e->size();
 
@@ -29,9 +33,19 @@ void PreviewPanel::resizeEvent(QResizeEvent* e) {
 	w = (s.width()  - l - r);
 	h = (s.height() - t - b - layout->spacing());  // Subtract any future widgets
 
-	// FIXME: Aspect ratio not maintained after encapsulation into layout
-	map = img.scaled(w, h, Qt::KeepAspectRatio);
+	int hAspect = label->heightForWidth(w);
+	// The available height is greater than that from stretching to max width
+	if (h >= hAspect) {
+		h = hAspect;
+	} else {
+		w = label->widthForHeight(h);
+	}
 
-	label->setPixmap(map);
-	label->adjustSize();
+	label->setFixedSize(w, h);
+}
+
+
+
+bool PreviewPanel::isValid() const {
+	return !label->isValid();
 }

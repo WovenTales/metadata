@@ -30,6 +30,8 @@ private:
 
 public:
 	MetadataPanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
+
+	bool isValid() const;
 };
 
 

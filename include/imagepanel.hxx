@@ -20,10 +20,10 @@
 
 class ImagePanel : public QFrame {
 private:
-	QPixmap img;
+	QPixmap  img;
 
-	PreviewPanel*  view;
-	MetadataPanel* data;
+	PreviewPanel*  pPanel;
+	MetadataPanel* mPanel;
 
 	QHBoxLayout* layout;
 

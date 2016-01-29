@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -O2 -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong -Wall -W -D_REENTRANT -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -O2 -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong -std=c++0x -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 INCPATH       = -I. -I. -Iinclude -isystem /usr/include/qt -isystem /usr/include/qt/QtWidgets -isystem /usr/include/qt/QtGui -isystem /usr/include/qt/QtCore -I. -I/usr/lib/qt/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt/bin/qmake
 DEL_FILE      = rm -f
@@ -51,10 +51,12 @@ OBJECTS_DIR   = obj/
 SOURCES       = src/imagepanel.cxx \
 		src/main.cxx \
 		src/metadatapanel.cxx \
+		src/picturelabel.cxx \
 		src/previewpanel.cxx 
 OBJECTS       = obj/imagepanel.o \
 		obj/main.o \
 		obj/metadatapanel.o \
+		obj/picturelabel.o \
 		obj/previewpanel.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
@@ -149,6 +151,7 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/features/default_pre.prf \
 		/usr/lib/qt/mkspecs/features/resolve_config.prf \
 		/usr/lib/qt/mkspecs/features/default_post.prf \
+		/usr/lib/qt/mkspecs/features/c++11.prf \
 		/usr/lib/qt/mkspecs/features/warn_on.prf \
 		/usr/lib/qt/mkspecs/features/qt.prf \
 		/usr/lib/qt/mkspecs/features/resources.prf \
@@ -162,9 +165,11 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/features/lex.prf \
 		metadata.pro include/imagepanel.hxx \
 		include/metadatapanel.hxx \
+		include/picturelabel.hxx \
 		include/previewpanel.hxx src/imagepanel.cxx \
 		src/main.cxx \
 		src/metadatapanel.cxx \
+		src/picturelabel.cxx \
 		src/previewpanel.cxx
 QMAKE_TARGET  = metadata
 DESTDIR       = bin/#avoid trailing-slash linebreak
@@ -290,6 +295,7 @@ Makefile: metadata.pro /usr/lib/qt/mkspecs/linux-g++/qmake.conf /usr/lib/qt/mksp
 		/usr/lib/qt/mkspecs/features/default_pre.prf \
 		/usr/lib/qt/mkspecs/features/resolve_config.prf \
 		/usr/lib/qt/mkspecs/features/default_post.prf \
+		/usr/lib/qt/mkspecs/features/c++11.prf \
 		/usr/lib/qt/mkspecs/features/warn_on.prf \
 		/usr/lib/qt/mkspecs/features/qt.prf \
 		/usr/lib/qt/mkspecs/features/resources.prf \
@@ -399,6 +405,7 @@ Makefile: metadata.pro /usr/lib/qt/mkspecs/linux-g++/qmake.conf /usr/lib/qt/mksp
 /usr/lib/qt/mkspecs/features/default_pre.prf:
 /usr/lib/qt/mkspecs/features/resolve_config.prf:
 /usr/lib/qt/mkspecs/features/default_post.prf:
+/usr/lib/qt/mkspecs/features/c++11.prf:
 /usr/lib/qt/mkspecs/features/warn_on.prf:
 /usr/lib/qt/mkspecs/features/qt.prf:
 /usr/lib/qt/mkspecs/features/resources.prf:
@@ -428,8 +435,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents include/imagepanel.hxx include/metadatapanel.hxx include/previewpanel.hxx $(DISTDIR)/
-	$(COPY_FILE) --parents src/imagepanel.cxx src/main.cxx src/metadatapanel.cxx src/previewpanel.cxx $(DISTDIR)/
+	$(COPY_FILE) --parents include/imagepanel.hxx include/metadatapanel.hxx include/picturelabel.hxx include/previewpanel.hxx $(DISTDIR)/
+	$(COPY_FILE) --parents src/imagepanel.cxx src/main.cxx src/metadatapanel.cxx src/picturelabel.cxx src/previewpanel.cxx $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -470,18 +477,27 @@ compiler_clean:
 
 obj/imagepanel.o: src/imagepanel.cxx include/imagepanel.hxx \
 		include/metadatapanel.hxx \
-		include/previewpanel.hxx
+		include/metadata.hxx \
+		include/previewpanel.hxx \
+		include/picturelabel.hxx
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/imagepanel.o src/imagepanel.cxx
 
 obj/main.o: src/main.cxx include/imagepanel.hxx \
 		include/metadatapanel.hxx \
-		include/previewpanel.hxx
+		include/metadata.hxx \
+		include/previewpanel.hxx \
+		include/picturelabel.hxx
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cxx
 
-obj/metadatapanel.o: src/metadatapanel.cxx include/metadatapanel.hxx
+obj/metadatapanel.o: src/metadatapanel.cxx include/metadatapanel.hxx \
+		include/metadata.hxx
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/metadatapanel.o src/metadatapanel.cxx
 
-obj/previewpanel.o: src/previewpanel.cxx include/previewpanel.hxx
+obj/picturelabel.o: src/picturelabel.cxx include/picturelabel.hxx
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/picturelabel.o src/picturelabel.cxx
+
+obj/previewpanel.o: src/previewpanel.cxx include/previewpanel.hxx \
+		include/picturelabel.hxx
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/previewpanel.o src/previewpanel.cxx
 
 ####### Install

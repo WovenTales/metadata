@@ -17,5 +17,10 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 		layout->addWidget(t, i, 1);
 	}
 
-	this->setLayout(layout);
+	setLayout(layout);
+}
+
+
+bool MetadataPanel::isValid() const {
+	return !img.isNull();
 }

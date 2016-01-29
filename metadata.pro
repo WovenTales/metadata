@@ -7,7 +7,7 @@ TARGET       = metadata
 INCLUDEPATH += .
 
 QT     += core gui widgets
-#CONFIG += c++11
+CONFIG += c++11
 
 DESTDIR      = bin
 INCLUDEPATH += include
@@ -16,8 +16,10 @@ OBJECTS_DIR  = obj
 # Input
 HEADERS += include/imagepanel.hxx \
            include/metadatapanel.hxx \
+           include/picturelabel.hxx \
            include/previewpanel.hxx
 SOURCES += src/imagepanel.cxx \
            src/main.cxx \
            src/metadatapanel.cxx \
+           src/picturelabel.cxx \
            src/previewpanel.cxx
