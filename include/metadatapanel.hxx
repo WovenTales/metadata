@@ -2,19 +2,21 @@
 #define METADATAPANEL_H
 
 
-#include <string>
 #include <utility>
 #include <vector>
 
 // core
 #include <Qt>
+#include <QString>
 #include <QStringList>
+
+// gui
+#include <QImage>
 
 // widgets
 #include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
-#include <QWidget>
 
 
 class MetadataPanel : public QFrame {
@@ -27,7 +29,7 @@ private:
 	std::vector< std::pair< QLabel*, QLabel* > > labels;
 
 public:
-	MetadataPanel(std::string, QWidget* = 0, Qt::WindowFlags = 0);
+	MetadataPanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
 };
 
 

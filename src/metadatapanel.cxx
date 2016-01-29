@@ -1,11 +1,8 @@
 #include <metadatapanel.hxx>
 
-// core
-#include <QString>
 
-
-MetadataPanel::MetadataPanel(std::string path, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
-	img = QImage(QString(path.c_str()));
+MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
+	img = QImage(path);
 	keys = img.textKeys();
 
 	layout = new QGridLayout;

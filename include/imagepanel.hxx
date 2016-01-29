@@ -2,34 +2,33 @@
 #define IMAGEPANEL_H
 
 
-#include <string>
+#include <metadatapanel.hxx>
+#include <previewpanel.hxx>
 
 // core
 #include <Qt>
+#include <QString>
 
 // gui
 #include <QPixmap>
 
 // widgets
 #include <QFrame>
-#include <QLabel>
-#include <QLayout>
+#include <QHBoxLayout>
 #include <QWidget>
 
 
 class ImagePanel : public QFrame {
 private:
-	QPixmap  img;
-	QPixmap  map;
+	QPixmap img;
 
-	QLabel*     label;
-	QLabel*     file;
-	QBoxLayout* layout;
+	PreviewPanel*  view;
+	MetadataPanel* data;
+
+	QHBoxLayout* layout;
 
 public:
-	ImagePanel(std::string, QWidget* = 0, Qt::WindowFlags = 0);
-
-	virtual void resizeEvent(QResizeEvent*);
+	ImagePanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
 };
 
 
