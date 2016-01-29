@@ -28,6 +28,9 @@
 *.app
 bin/*
 
+# System-specific files
+Makefile
+
 # Temporary files
 *.swp
 

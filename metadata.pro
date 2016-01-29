@@ -15,11 +15,13 @@ OBJECTS_DIR  = obj
 
 # Input
 HEADERS += include/imagepanel.hxx \
+           include/metadata.hxx \
            include/metadatapanel.hxx \
            include/picturelabel.hxx \
            include/previewpanel.hxx
 SOURCES += src/imagepanel.cxx \
            src/main.cxx \
+           src/metadata.cxx \
            src/metadatapanel.cxx \
            src/picturelabel.cxx \
            src/previewpanel.cxx

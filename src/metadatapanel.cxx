@@ -4,6 +4,7 @@
 MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
 	img = QImage(path);
 	keys = img.textKeys();
+	data = Metadata(path.toStdString());
 
 	layout = new QGridLayout;
 
@@ -22,5 +23,5 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 
 
 bool MetadataPanel::isValid() const {
-	return !img.isNull();
+	return data.isValid();
 }

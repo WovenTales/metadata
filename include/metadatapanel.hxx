@@ -2,6 +2,8 @@
 #define METADATAPANEL_H
 
 
+#include <metadata.hxx>
+
 #include <utility>
 #include <vector>
 
@@ -23,6 +25,7 @@ class MetadataPanel : public QFrame {
 private:
 	QImage      img;
 	QStringList keys;
+	Metadata    data;
 
 	QGridLayout* layout;
 
