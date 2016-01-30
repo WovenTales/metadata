@@ -14,12 +14,14 @@ INCLUDEPATH += include
 OBJECTS_DIR  = obj
 
 # Input
-HEADERS += include/imagepanel.hxx \
+HEADERS += include/chunk.hxx \
+           include/imagepanel.hxx \
            include/metadata.hxx \
            include/metadatapanel.hxx \
            include/picturelabel.hxx \
            include/previewpanel.hxx
-SOURCES += src/imagepanel.cxx \
+SOURCES += src/chunk.cxx \
+           src/imagepanel.cxx \
            src/main.cxx \
            src/metadata.cxx \
            src/metadatapanel.cxx \

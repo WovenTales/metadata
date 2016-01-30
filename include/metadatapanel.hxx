@@ -10,10 +10,6 @@
 // core
 #include <Qt>
 #include <QString>
-#include <QStringList>
-
-// gui
-#include <QImage>
 
 // widgets
 #include <QFrame>
@@ -23,8 +19,6 @@
 
 class MetadataPanel : public QFrame {
 private:
-	QImage      img;
-	QStringList keys;
 	Metadata    data;
 
 	QGridLayout* layout;
