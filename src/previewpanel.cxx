@@ -47,5 +47,5 @@ void PreviewPanel::resizeEvent(QResizeEvent* e) {
 
 
 bool PreviewPanel::isValid() const {
-	return !label->isValid();
+	return label->isValid();
 }

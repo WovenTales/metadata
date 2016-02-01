@@ -1,8 +1,29 @@
 #include <chunk.hxx>
 
+#include <cstdint>
 #include <iomanip>
 #include <ios>
+#include <locale>
 #include <sstream>
+
+
+std::map< std::string, Chunk::Type > Chunk::typeMap = {};
+
+
+std::string sanitize(std::string str) {
+	size_t i;
+	while ((i = str.find('\0')) != std::string::npos) {
+		str.replace(i, 1, "//");
+	}
+	while ((i = str.find("\r\n")) != std::string::npos) {
+		str.replace(i, 1, "<br>");
+	}
+	while ((i = str.find('\n')) != std::string::npos) {
+		str.replace(i, 1, "<br>");
+	}
+
+	return str;
+};
 
 
 Chunk::Chunk(Chunk&& c) {
@@ -14,13 +35,12 @@ Chunk::Chunk(Chunk&& c) {
 }
 
 Chunk::Chunk(std::istream& file) {
-	char bytes[4];
-	raw = NULL;
+	unsigned char bytes[4];
 
 	file.clear();
 
 	// Get data length
-	file.read(bytes, 4);
+	file.read((char*)bytes, 4);
 	if (!file.good()) {
 		throw 'L';
 	}
@@ -30,22 +50,22 @@ Chunk::Chunk(std::istream& file) {
 	}
 
 	// Get chunk type
-	file.read(bytes, 4);
+	file.read((char*)bytes, 4);
 	if (!file.good()) {
 		throw 'T';
 	}
-	typeCode = std::string(bytes, 4);
+	typeCode = std::string((char*)bytes, 4);
 
 	// Get chunk data
-	raw = new char[length];
-	file.read(raw, length);
+	raw = new unsigned char[length];
+	file.read((char*)raw, length);
 	if (!file.good()) {
 		delete[] raw;
 		throw 'D';
 	}
 
 	// Swallow CRC (don't need to validate)
-	file.read(bytes, 4);
+	file.read((char*)bytes, 4);
 	if (!file.good()) {
 		throw 'C';
 	}
@@ -59,18 +79,46 @@ Chunk::~Chunk() {
 }
 
 
-std::string Chunk::type() const {
+std::string Chunk::data() const {
+	if (type() == Type::TEXT) {
+		return sanitize(std::string((char*)raw, length));
+
+	} else {
+		std::stringstream ss;
+		unsigned int print = 0, hex = 0;
+
+		ss << std::hex;
+
+		ss << "<code>";
+		for (unsigned int i = 0; i < length; ++i) {
+			if (i > 0) {
+				ss << " ";
+			}
+
+			ss << std::setw(2) << std::setfill('0');
+			ss << (unsigned int)raw[i];
+
+			if (std::isprint(raw[i])) {
+				++print;
+			} else {
+				++hex;
+			}
+		}
+		ss << "</code>";
+
+		// If it seems likely this is a text field, interpret it as such
+		if (print > hex) {
+			return (sanitize(std::string((char*)raw, length)) + "<br><br>" + ss.str());
+		} else {
+			return ss.str();
+		}
+	}
+}
+
+std::string Chunk::name() const {
 	return typeCode;
 }
 
-std::string Chunk::data() const {
-	std::stringstream ss;
-	ss << std::hex;
-
-	for (unsigned int i = 0; i < length; ++i) {
-		ss << std::setw(3);
-		ss << raw[i];
-	}
-
-	return ss.str();
+Chunk::Type Chunk::type() const {
+	return Type::OTHER;
 }

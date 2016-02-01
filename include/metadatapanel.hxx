@@ -15,12 +15,14 @@
 #include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
+#include <QScrollArea>
 
 
-class MetadataPanel : public QFrame {
+class MetadataPanel : public QScrollArea {
 private:
-	Metadata    data;
+	Metadata     data;
 
+	QFrame*      grid;
 	QGridLayout* layout;
 
 	std::vector< std::pair< QLabel*, QLabel* > > labels;

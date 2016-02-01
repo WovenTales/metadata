@@ -5,14 +5,24 @@
 #include <cstddef>
 
 #include <istream>
+#include <map>
 #include <string>
 
 
 struct Chunk {
 public:
-	unsigned int length = 0;
-	std::string  typeCode;
-	char*        raw = NULL;
+	enum struct Type {
+		OTHER,
+		TEXT,
+	};
+
+private:
+	static std::map< std::string, Type > typeMap;
+
+public:
+	unsigned int   length = 0;
+	std::string    typeCode;
+	unsigned char* raw = NULL;
 
 	Chunk(const Chunk&) = delete;
 	Chunk(Chunk&&);
@@ -20,8 +30,9 @@ public:
 
 	virtual ~Chunk();
 
-	std::string type() const;
 	std::string data() const;
+	std::string name() const;
+	Type        type() const;
 };
 
 

@@ -1,6 +1,7 @@
 #include <metadata.hxx>
 
 #include <cstring>
+#include <iostream>
 
 
 Metadata::Metadata(Metadata&& m) {
@@ -18,6 +19,7 @@ Metadata::Metadata(const std::string& path) {
 
 Metadata& Metadata::operator=(Metadata&& m) {
 	file.swap(m.file);
+	chunks.swap(m.chunks);
 
 	return (*this);
 }
@@ -42,11 +44,13 @@ bool Metadata::read() {
 	file.clear();
 	file.read(header, 8);  // Not using get() as that would break on newline
 	if (!file.good()) {
+		std::cout << "ERROR: bad file" << std::endl;
 		return false;
 	}
 
 	// Check against PNG header
 	if(strcmp(header, "\x89PNG\r\n\x1A\n")) {
+		std::cout << "ERROR: wrong header" << std::endl;
 		return false;
 	}
 
@@ -55,7 +59,24 @@ bool Metadata::read() {
 			chunks.push_back(Chunk(file));
 		} catch (char e) {
 			// Thrown from Chunk constructor; not added to vector
-			// If ever want to try to keep alive, switch over 'L', 'T', 'D', 'C'
+
+			std::cout << "ERROR: couldn't read chunk ";
+			switch (e) {
+				case 'L':
+					std::cout << "length";
+					break;
+				case 'T':
+					std::cout << "type code";
+					break;
+				case 'D':
+					std::cout << "data";
+					break;
+				case 'C':
+					std::cout << "CRC";
+					break;
+			}
+			std::cout << std::endl;
+
 			return false;
 		}
 	}

@@ -28,6 +28,8 @@ ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) 
 		QMessageBox err;
 		err.setText("The image '" + path + "' is not in a supported format.");
 		err.exec();
+
+		// TODO: Close window
 	}
 
 	layout = new QHBoxLayout();
