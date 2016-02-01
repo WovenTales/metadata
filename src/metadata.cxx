@@ -56,9 +56,9 @@ bool Metadata::read() {
 
 	while (file.peek() != EOF) {
 		try {
-			chunks.push_back(Chunk(file));
+			chunks.push_back(Chunk(file, &chunks));
 		} catch (char e) {
-			// Thrown from Chunk constructor; not added to vector
+			// Thrown from Chunk constructor; not added to list
 
 			std::cout << "ERROR: couldn't read chunk ";
 			switch (e) {
@@ -78,6 +78,10 @@ bool Metadata::read() {
 			std::cout << std::endl;
 
 			return false;
+		}
+
+		if (chunks.back().type() == Chunk::Type::HIDE) {
+			chunks.pop_back();
 		}
 	}
 

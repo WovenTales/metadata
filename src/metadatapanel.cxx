@@ -9,9 +9,10 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 
 	// Do want numerical iteration, to keep labels in same order as in file
 	int s = data.size();
-	for (int i = 0; i < s; ++i) {
-		QLabel* n = new QLabel(data[i].name().c_str(), this);
-		QLabel* d = new QLabel(data[i].data().c_str(), this);
+	auto e = data.begin();
+	for (int i = 0; i < s; ++i, ++e) {
+		QLabel* n = new QLabel(e->name().c_str(), this);
+		QLabel* d = new QLabel(e->data().c_str(), this);
 		labels.push_back(std::make_pair(n, d));
 
 		d->setTextFormat(Qt::RichText);
