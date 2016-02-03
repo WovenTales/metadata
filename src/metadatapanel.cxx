@@ -11,8 +11,8 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 	int s = data.size();
 	auto e = data.begin();
 	for (int i = 0; i < s; ++i, ++e) {
-		QLabel* n = new QLabel(e->name().c_str(), this);
-		QLabel* d = new QLabel(e->data().c_str(), this);
+		QLabel* n = new QLabel(e->label.c_str(), this);
+		QLabel* d = new QLabel(e->data.c_str(), this);
 		labels.push_back(std::make_pair(n, d));
 
 		d->setTextFormat(Qt::RichText);

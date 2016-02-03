@@ -57,10 +57,8 @@ Chunk::Chunk(Chunk&& c) {
 	c.raw = NULL;
 }
 
-Chunk::Chunk(std::istream& file, std::list< Chunk >* search) {
+Chunk::Chunk(std::istream& file) {
 	unsigned char bytes[4];
-	unsigned int l = 0;
-	Type t;
 
 	file.clear();
 
@@ -80,20 +78,6 @@ Chunk::Chunk(std::istream& file, std::list< Chunk >* search) {
 		throw 'T';
 	}
 	typeCode = std::string((char*)bytes, 4);
-	t = type();
-	// Automatically collapse into any pre-existing chunks if counting
-	if ((search != NULL) && (t == Type::COUNT)) {
-		l = 1;
-
-		for (auto i = search->begin(); i != search->end(); ++i) {
-			if (!typeCode.compare(i->typeCode)) {
-				l += i->length;
-				search->erase(i);
-
-				break;
-			}
-		}
-	}
 
 	// Get chunk data
 	raw = new unsigned char[length];
@@ -101,15 +85,6 @@ Chunk::Chunk(std::istream& file, std::list< Chunk >* search) {
 	if (!file.good()) {
 		delete[] raw;
 		throw 'D';
-	}
-
-	// Able to use this in non-standard manner as only block expecting length
-	//   after this point is hexString, which is not called on Type::COUNT
-	if ((t == Type::COUNT) && (l != 0)) {
-		length = l;
-
-		delete[] raw;
-		raw = new unsigned char[0];
 	}
 
 	// Swallow CRC (don't need to validate)
@@ -154,7 +129,8 @@ std::string Chunk::hexString(unsigned int* print, unsigned int* hex) const {
 	return ss.str();
 }
 std::string Chunk::data() const {
-	unsigned int print = 0, hex = 0, n = 0;
+	unsigned int print = 0, hex = 0;
+	size_t n;
 	std::stringstream out;
 	std::string str;
 
@@ -183,12 +159,14 @@ std::string Chunk::data() const {
 			str = sanitize(std::string((char*)raw, length));
 			n = str.find('\0');
 
+			if (n == std::string::npos) {
+				return str;
+			} else {
+				return str.substr(n + 1);
+			}
 			return (str.substr(0, n) + ": " + str.substr(n + 1));
 		case Type::CTEXT:
-			str = sanitize(std::string((char*)raw, length));
-			n = str.find('\0');
-
-			return (str.substr(0, n) + ": <Compressed>");
+			return "TODO";
 		case Type::ITEXT:
 			return "TODO";
 
@@ -196,8 +174,7 @@ std::string Chunk::data() const {
 		case Type::COLOR:
 			return "TODO";
 		case Type::COUNT:
-			out << length << " occurence" << (length != 1 ? "s" : "");
-			return out.str();
+			return "";
 		case Type::HEADER:
 			return "TODO";
 		case Type::TIME:
@@ -210,10 +187,18 @@ std::string Chunk::data() const {
 std::string Chunk::name() const {
 	auto i = typeMap.find(typeCode);
 	if (i != typeMap.end()) {
+		if (i->second.second == Type::TEXT) {
+			std::string str = sanitize(std::string((char*)raw, length));
+			size_t n = str.find('\0');
+
+			if (n != std::string::npos) {
+				return (i->second.first + " <" + str.substr(0, n) + ">");
+			}
+		}
 		return i->second.first;
 	} else {
-		return (typeCode + " <" + (isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
-				+ " chunk>");
+		return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
+				+ " chunk <" + typeCode + ">");
 	}
 }
 

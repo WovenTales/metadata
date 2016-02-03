@@ -42,7 +42,7 @@ public:
 
 	Chunk(const Chunk&) = delete;
 	Chunk(Chunk&&);
-	Chunk(std::istream&, std::list< Chunk >* = NULL);
+	Chunk(std::istream&);
 
 	virtual ~Chunk();
 

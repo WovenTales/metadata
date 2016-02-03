@@ -4,6 +4,13 @@
 #include <iostream>
 
 
+Metadata::Tag::Tag(Chunk::Type t, const std::string& l, const std::string& d) {
+	type = t;
+	label = l;
+	data = d;
+}
+
+
 Metadata::Metadata(Metadata&& m) {
 	file.swap(m.file);
 }
@@ -19,7 +26,7 @@ Metadata::Metadata(const std::string& path) {
 
 Metadata& Metadata::operator=(Metadata&& m) {
 	file.swap(m.file);
-	chunks.swap(m.chunks);
+	tags.swap(m.tags);
 
 	return (*this);
 }
@@ -56,7 +63,7 @@ bool Metadata::read() {
 
 	while (file.peek() != EOF) {
 		try {
-			chunks.push_back(Chunk(file, &chunks));
+			raw.emplace_back(file);
 		} catch (char e) {
 			// Thrown from Chunk constructor; not added to list
 
@@ -80,8 +87,32 @@ bool Metadata::read() {
 			return false;
 		}
 
-		if (chunks.back().type() == Chunk::Type::HIDE) {
-			chunks.pop_back();
+		auto c = raw.rbegin();
+		auto i = tags.begin(), e = tags.end();
+		unsigned int d;
+		size_t n;
+		Chunk::Type t = c->type();
+		switch (t) {
+			case Chunk::Type::HIDE:
+				break;
+			case Chunk::Type::COUNT:
+				for (; i != e; ++i) {
+					if (i->type == t) {
+						n = i->data.find(' ');
+						d = std::stoi(i->data.substr(0, n));
+						i->data = (std::to_string(d + 1) + " occurences");
+						// Need to break out of both for and switch
+						goto end_switch;
+					}
+				}
+
+				tags.emplace_back(t, c->name(), "1 occurence");
+				break;
+			default:
+				tags.emplace_back(t, c->name(), c->data());
+				break;
+		end_switch:
+			;
 		}
 	}
 

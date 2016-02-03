@@ -10,9 +10,20 @@
 
 
 class Metadata {
+public:
+	struct Tag {
+	public:
+		Chunk::Type type;
+		std::string label;
+		std::string data;
+
+		Tag(Chunk::Type, const std::string&, const std::string&);
+	};
+
 private:
 	std::ifstream      file;
-	std::list< Chunk > chunks;
+	std::list< Chunk > raw;
+	std::list< Tag >   tags;
 
 	bool read();
 
@@ -27,11 +38,11 @@ public:
 
 	bool isValid() const;
 
-	std::list< Chunk >::const_iterator  begin() const noexcept { return chunks.cbegin(); };
-	std::list< Chunk >::const_iterator  end()   const noexcept { return chunks.cend();   };
+	std::list< Tag >::const_iterator begin() const noexcept { return tags.cbegin(); };
+	std::list< Tag >::const_iterator end()   const noexcept { return tags.cend();   };
 
-	size_t size()  const noexcept { return chunks.size();  };
-	bool   empty() const noexcept { return chunks.empty(); };
+	size_t size()  const noexcept { return tags.size();  };
+	bool   empty() const noexcept { return tags.empty(); };
 };
 
 
