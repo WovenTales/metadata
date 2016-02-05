@@ -3,12 +3,10 @@
 ######################################################################
 
 TEMPLATE     = app
-TARGET       = metadata
 INCLUDEPATH += .
 
 QT     += core gui widgets
-CONFIG += c++11
-
+CONFIG += c++11 debug
 DESTDIR      = bin
 INCLUDEPATH += include
 OBJECTS_DIR  = obj
@@ -27,3 +25,13 @@ SOURCES += src/chunk.cxx \
            src/metadatapanel.cxx \
            src/picturelabel.cxx \
            src/previewpanel.cxx
+
+# Scopes
+debug {
+	QMAKE_CXXFLAGS_RELEASE -= -O
+	QMAKE_CXXFLAGS_RELEASE -= -O1
+	QMAKE_CXXFLAGS_RELEASE -= -O2
+	QMAKE_CXXFLAGS_RELEASE -= -O3
+
+	QMAKE_CXXFLAGS_RELEASE += -Og
+}

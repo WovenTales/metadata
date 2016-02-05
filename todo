@@ -1,0 +1,9 @@
+complete PNG tag parsing
+Open File dialog
+Save File dialog
+	delete tag
+
+support for JPEG/WEBP/BMP/GIF formats (probably in order)
+Batch mode
+include basic description of privacy concerns for tag
+	¿automate removal of most problematic tags in batch mode?
