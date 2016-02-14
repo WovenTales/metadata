@@ -2,21 +2,26 @@
 
 #include <fstream>
 
+// core
+#include <QFileDialog>
+
 // widgets
 #include <QMessageBox>
 
 
 ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
-	// Need workaround to separate unopenable file from bad formats
-	std::ifstream file(path.toStdString());
+	// TODO: Use null panel rather than requiring some image
+	QString usePath = (path.isEmpty() ? QFileDialog::getOpenFileName(0, "", "", "Images (*.png)") : path);
+
+	std::ifstream file(usePath.toStdString());
 	if (!file.good()) {
 		QMessageBox err;
-		err.setText("The image '" + path + "' cannot be opened.");
+		err.setText("The image '" + usePath + "' cannot be opened.");
 		err.exec();
 
 		img = QPixmap();
 	} else {
-		img = QPixmap(path);
+		img = QPixmap(usePath);
 	}
 	file.close();
 

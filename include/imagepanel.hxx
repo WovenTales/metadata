@@ -20,7 +20,7 @@
 
 class ImagePanel : public QFrame {
 private:
-	QPixmap  img;
+	QPixmap img;
 
 	PreviewPanel*  pPanel;
 	MetadataPanel* mPanel;
@@ -28,7 +28,7 @@ private:
 	QHBoxLayout* layout;
 
 public:
-	ImagePanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
+	ImagePanel(const QString& = "", QWidget* = 0, Qt::WindowFlags = 0);
 };
 
 

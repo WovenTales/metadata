@@ -28,11 +28,10 @@
 *.app
 bin/*
 
-# System-specific files
-Makefile
-
-# Temporary files
+# Auto-generated and temporary files
 *.swp
+Makefile
+moc_*.cpp
 
 # Test images
 *.png
