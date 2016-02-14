@@ -49,21 +49,31 @@ std::string sanitize(std::string str) {
 };
 
 
+Chunk::Chunk(const Chunk& c) {
+	length = c.length;
+	typeCode = c.typeCode;
+	std::memcpy(crc, c.crc, 4);
+
+	raw = new char[length];
+	std::memcpy(raw, c.raw, length);
+}
+
 Chunk::Chunk(Chunk&& c) {
 	length = c.length;
 	typeCode = c.typeCode;
 	raw = c.raw;
+	std::memcpy(crc, c.crc, 4);
 
 	c.raw = NULL;
 }
 
 Chunk::Chunk(std::istream& file) {
-	unsigned char bytes[4];
+	char bytes[4];
 
 	file.clear();
 
 	// Get data length
-	file.read((char*)bytes, 4);
+	file.read(bytes, 4);
 	if (!file.good()) {
 		throw 'L';
 	}
@@ -73,22 +83,22 @@ Chunk::Chunk(std::istream& file) {
 	}
 
 	// Get chunk type
-	file.read((char*)bytes, 4);
+	file.read(bytes, 4);
 	if (!file.good()) {
 		throw 'T';
 	}
-	typeCode = std::string((char*)bytes, 4);
+	typeCode = std::string(bytes, 4);
 
 	// Get chunk data
-	raw = new unsigned char[length];
-	file.read((char*)raw, length);
+	raw = new char[length];
+	file.read(raw, length);
 	if (!file.good()) {
 		delete[] raw;
 		throw 'D';
 	}
 
 	// Swallow CRC (don't need to validate)
-	file.read((char*)bytes, 4);
+	file.read(crc, 4);
 	if (!file.good()) {
 		throw 'C';
 	}
@@ -141,7 +151,7 @@ std::string Chunk::data() const {
 			// If it seems likely this is a text field, interpret it as such
 			if (print > hex) {
 				out.seekp(0);
-				out << sanitize(std::string((char*)raw, length)) << "<br><br>";
+				out << sanitize(std::string(raw, length)) << "<br><br>";
 			}
 
 			return out.str();
@@ -156,7 +166,7 @@ std::string Chunk::data() const {
 
 
 		case Type::TEXT:
-			str = sanitize(std::string((char*)raw, length));
+			str = sanitize(std::string(raw, length));
 			n = str.find('\0');
 
 			if (n == std::string::npos) {
@@ -188,7 +198,7 @@ std::string Chunk::name() const {
 	auto i = typeMap.find(typeCode);
 	if (i != typeMap.end()) {
 		if (i->second.second == Type::TEXT) {
-			std::string str = sanitize(std::string((char*)raw, length));
+			std::string str = sanitize(std::string(raw, length));
 			size_t n = str.find('\0');
 
 			if (n != std::string::npos) {

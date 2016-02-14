@@ -1,7 +1,5 @@
 complete PNG tag parsing
-Open File dialog
-Save File dialog
-	delete tag
+delete tag
 
 support for JPEG/WEBP/BMP/GIF formats (probably in order)
 Batch mode

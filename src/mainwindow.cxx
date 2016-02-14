@@ -1,6 +1,7 @@
 #include <mainwindow.hxx>
 
 // core
+#include <QFileDialog>
 #include <QKeySequence>
 #include <QString>
 
@@ -17,10 +18,15 @@ MainWindow::MainWindow() {
 	QMenuBar* menu  = menuBar();
 	fileMenu = menu->addMenu("&File");
 
-	openFile = new QAction("&Open", fileMenu);
+	openFile = new QAction("&Open...", fileMenu);
 	openFile->setShortcuts(QKeySequence::Open);
 	connect(openFile, SIGNAL(triggered()), this, SLOT(openDialog()));
 	fileMenu->addAction(openFile);
+
+	saveFile = new QAction("Save &As...", fileMenu);
+	saveFile->setShortcuts(QKeySequence::Save);
+	connect(saveFile, SIGNAL(triggered()), this, SLOT(saveDialog()));
+	fileMenu->addAction(saveFile);
 }
 
 
@@ -31,8 +37,15 @@ void MainWindow::openDialog() {
 	}
 
 	// TODO: Handle within ImagePanel so don't need extra creation/deletion
-	core = new ImagePanel();
+	core = new ImagePanel(QFileDialog::getOpenFileName(0, "", "", "Images (*.png)"));
 	setCentralWidget(core);
+}
+
+void MainWindow::saveDialog() {
+	// TODO: Handle extension via setDefaultSuffix()
+	QString path = QFileDialog::getSaveFileName(0, "", "", "Images (*.png);;All files (*)");
+
+	core->write(path.toStdString());
 }
 
 

@@ -2,26 +2,22 @@
 
 #include <fstream>
 
-// core
-#include <QFileDialog>
-
 // widgets
 #include <QMessageBox>
 
 
 ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
-	// TODO: Use null panel rather than requiring some image
-	QString usePath = (path.isEmpty() ? QFileDialog::getOpenFileName(0, "", "", "Images (*.png)") : path);
+	// TODO: Construct proper null panel for path.isEmpty()
 
-	std::ifstream file(usePath.toStdString());
+	std::ifstream file(path.toStdString());
 	if (!file.good()) {
 		QMessageBox err;
-		err.setText("The image '" + usePath + "' cannot be opened.");
+		err.setText("The image '" + path + "' cannot be opened.");
 		err.exec();
 
 		img = QPixmap();
 	} else {
-		img = QPixmap(usePath);
+		img = QPixmap(path);
 	}
 	file.close();
 

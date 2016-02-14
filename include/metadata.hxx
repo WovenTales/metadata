@@ -43,6 +43,8 @@ public:
 
 	size_t size()  const noexcept { return tags.size();  };
 	bool   empty() const noexcept { return tags.empty(); };
+
+	void write(const std::string&) const;
 };
 
 

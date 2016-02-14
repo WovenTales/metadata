@@ -5,6 +5,8 @@
 #include <metadatapanel.hxx>
 #include <previewpanel.hxx>
 
+#include <string>
+
 // core
 #include <Qt>
 #include <QString>
@@ -29,6 +31,8 @@ private:
 
 public:
 	ImagePanel(const QString& = "", QWidget* = 0, Qt::WindowFlags = 0);
+
+	void write(const std::string& path) { mPanel->write(path); };
 };
 
 

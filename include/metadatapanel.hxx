@@ -4,6 +4,7 @@
 
 #include <metadata.hxx>
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -31,6 +32,8 @@ public:
 	MetadataPanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
 
 	bool isValid() const;
+
+	void write(const std::string& path) { data.write(path); };
 };
 
 

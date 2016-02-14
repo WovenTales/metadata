@@ -38,9 +38,10 @@ private:
 public:
 	unsigned int   length = 0;
 	std::string    typeCode;
-	unsigned char* raw = NULL;
+	         char* raw = NULL;
+	         char  crc[4];
 
-	Chunk(const Chunk&) = delete;
+	Chunk(const Chunk&);
 	Chunk(Chunk&&);
 	Chunk(std::istream&);
 

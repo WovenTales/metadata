@@ -26,6 +26,7 @@ Metadata::Metadata(const std::string& path) {
 
 Metadata& Metadata::operator=(Metadata&& m) {
 	file.swap(m.file);
+	raw.swap(m.raw);
 	tags.swap(m.tags);
 
 	return (*this);
@@ -117,4 +118,25 @@ bool Metadata::read() {
 	}
 
 	return true;
+}
+
+void Metadata::write(const std::string& path) const {
+	std::ofstream out(path);
+
+	out.write("\x89PNG\r\n\x1A\n", 8);
+
+	for (auto c = raw.begin(); c != raw.end(); ++c) {
+		// Automatically truncates to single byte
+		// Copy byte-by-byte to ensure proper order
+		out.put(c->length >> (8 * 3));
+		out.put(c->length >> (8 * 2));
+		out.put(c->length >> 8);
+		out.put(c->length);
+
+		out.write(c->typeCode.c_str(), 4);
+		out.write(c->raw, c->length);
+		out.write(c->crc, 4);
+	}
+
+	out.close();
 }
