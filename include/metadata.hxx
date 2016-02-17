@@ -12,12 +12,19 @@
 class Metadata {
 public:
 	struct Tag {
+	private:
+		const Chunk* ref;
+
+		friend Metadata;
+
 	public:
 		Chunk::Type type;
 		std::string label;
 		std::string data;
 
-		Tag(Chunk::Type, const std::string&, const std::string&);
+		Tag(Chunk::Type, const std::string&, const std::string&, const Chunk* = NULL);
+
+		bool required() const;
 	};
 
 private:
@@ -45,6 +52,7 @@ public:
 	bool   empty() const noexcept { return tags.empty(); };
 
 	void write(const std::string&) const;
+	bool remove(unsigned int);
 };
 
 

@@ -5,7 +5,7 @@
 #include <metadata.hxx>
 
 #include <string>
-#include <utility>
+#include <tuple>
 #include <vector>
 
 // core
@@ -16,17 +16,20 @@
 #include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
+#include <QPushButton>
 #include <QScrollArea>
 
 
 class MetadataPanel : public QScrollArea {
+	Q_OBJECT
+
 private:
 	Metadata     data;
 
 	QFrame*      grid;
 	QGridLayout* layout;
 
-	std::vector< std::pair< QLabel*, QLabel* > > labels;
+	std::vector< std::tuple< QLabel*, QLabel*, QPushButton* > > labels;
 
 public:
 	MetadataPanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
@@ -34,6 +37,9 @@ public:
 	bool isValid() const;
 
 	void write(const std::string& path) { data.write(path); };
+
+public slots:
+	void clearTag(unsigned int, unsigned int);
 };
 
 

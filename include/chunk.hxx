@@ -47,9 +47,10 @@ public:
 
 	virtual ~Chunk();
 
-	std::string data() const;
-	std::string name() const;
-	Type        type() const;
+	std::string data()     const;
+	std::string name()     const;
+	Type        type()     const;
+	bool        required() const;
 };
 
 

@@ -1,7 +1,10 @@
 complete PNG tag parsing
-delete tag
+save in-place
+track edit status (prompt on close iff necessary)
 
 support for JPEG/WEBP/BMP/GIF formats (probably in order)
 Batch mode
+
+restore deleted tag
 include basic description of privacy concerns for tag
 	¿automate removal of most problematic tags in batch mode?

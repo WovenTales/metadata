@@ -124,7 +124,7 @@ std::string Chunk::hexString(unsigned int* print, unsigned int* hex) const {
 		}
 
 		ss << std::setw(2) << std::setfill('0');
-		ss << (unsigned int)raw[i];
+		ss << ((unsigned int)raw[i] & 0xFF);
 
 		if ((print != NULL) || (hex != NULL)) {
 			if (std::isprint(raw[i])) {
@@ -219,4 +219,8 @@ Chunk::Type Chunk::type() const {
 	} else {
 		return Type::OTHER;
 	}
+}
+
+bool Chunk::required() const {
+	return isupper(typeCode[0], std::locale("C"));
 }

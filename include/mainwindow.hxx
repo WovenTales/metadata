@@ -25,7 +25,7 @@ private:
 	ImagePanel* core = NULL;
 
 public:
-	MainWindow();
+	MainWindow(const std::string& = "");
 
 public slots:
 	void openDialog();

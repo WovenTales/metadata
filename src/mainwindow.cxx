@@ -10,8 +10,8 @@
 #include <QMenuBar>
 
 
-MainWindow::MainWindow() {
-	core = new ImagePanel();
+MainWindow::MainWindow(const std::string& path) {
+	core = new ImagePanel(path.c_str());
 	setCentralWidget(core);
 
 	// TODO: Add support for eg. Mac with single bar across all windows (setMenuBar())
@@ -52,7 +52,7 @@ void MainWindow::saveDialog() {
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	MainWindow w;
+	MainWindow w((argc > 1 ? argv[1] : ""));
 
 	w.show();
 	return a.exec();

@@ -4,10 +4,19 @@
 #include <iostream>
 
 
-Metadata::Tag::Tag(Chunk::Type t, const std::string& l, const std::string& d) {
+Metadata::Tag::Tag(Chunk::Type t, const std::string& l, const std::string& d, const Chunk* r) {
 	type = t;
 	label = l;
 	data = d;
+	ref = r;
+}
+
+bool Metadata::Tag::required() const {
+	if (ref == NULL) {
+		return true;
+	} else {
+		return ref->required();
+	}
 }
 
 
@@ -58,7 +67,7 @@ bool Metadata::read() {
 
 	// Check against PNG header
 	if(strcmp(header, "\x89PNG\r\n\x1A\n")) {
-		std::cout << "ERROR: wrong header" << std::endl;
+		std::cout << "ERROR: wrong file header" << std::endl;
 		return false;
 	}
 
@@ -88,7 +97,7 @@ bool Metadata::read() {
 			return false;
 		}
 
-		auto c = raw.rbegin();
+		Chunk* c = &*(raw.rbegin());
 		auto i = tags.begin(), e = tags.end();
 		unsigned int d;
 		size_t n;
@@ -110,7 +119,7 @@ bool Metadata::read() {
 				tags.emplace_back(t, c->name(), "1 occurence");
 				break;
 			default:
-				tags.emplace_back(t, c->name(), c->data());
+				tags.emplace_back(t, c->name(), c->data(), c);
 				break;
 		end_switch:
 			;
@@ -139,4 +148,34 @@ void Metadata::write(const std::string& path) const {
 	}
 
 	out.close();
+}
+
+bool Metadata::remove(unsigned int index) {
+	auto iTag = tags.begin();
+	auto eTag = tags.end();
+	for (unsigned int i = 0; i < index; ++i, ++iTag) {
+		if (iTag == eTag) {
+			std::cout << "ERROR: removal index out of bounds" << std::endl;
+			return false;
+		}
+	}
+
+	if (iTag->ref == NULL) {
+		std::cout << "ERROR: no chunk associated with tag for removal" << std::endl;
+		return false;
+	}
+
+	auto iRaw = raw.begin();
+	auto eRaw = raw.end();
+	while (&*iRaw != iTag->ref) {
+		if (iRaw == eRaw) {
+			std::cout << "ERROR: couldn't find chunk matching tag for removal" << std::endl;
+			return false;
+		}
+		++iRaw;
+	}
+
+	tags.erase(iTag);
+	raw.erase(iRaw);
+	return true;
 }
