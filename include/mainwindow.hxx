@@ -21,6 +21,7 @@ private:
 	// File
 	QAction* openFile;
 	QAction* saveFile;
+	QAction* quitAction;
 
 	ImagePanel* core = NULL;
 
@@ -30,6 +31,7 @@ public:
 public slots:
 	void openDialog();
 	void saveDialog();
+	void quitDialog();
 };
 
 

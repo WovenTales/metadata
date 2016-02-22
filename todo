@@ -1,10 +1,14 @@
 complete PNG tag parsing
-save in-place
-track edit status (prompt on close iff necessary)
+complete JPEG reading (including EXIF tags in APP1)
+fix bug with JPEG writing not being same as original file
+fix widget sizes
 
-support for JPEG/WEBP/BMP/GIF formats (probably in order)
+support for EBP/BMP/GIF formats (probably in order)
 Batch mode
+prevent saving as alternate file type
 
 restore deleted tag
+save in-place
+	track edit status (prompt on close iff necessary)
 include basic description of privacy concerns for tag
 	¿automate removal of most problematic tags in batch mode?

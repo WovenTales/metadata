@@ -1,5 +1,5 @@
-#ifndef PNG_CHUNK_H
-#define PNG_CHUNK_H
+#ifndef JPEG_CHUNK_H
+#define JPEG_CHUNK_H
 
 
 #include <chunk.hxx>
@@ -9,20 +9,18 @@
 #include <string>
 
 
-class PNGChunk : public Chunk {
+class JPEGChunk : public Chunk {
 	// Inherit constructors
 	using Chunk::Chunk;
 
 protected:
-	char crc[4];
-
-	virtual std::string printableTypeCode()                  const override;
+	virtual std::string printableTypeCode()  const override;
 	virtual std::string defaultChunkName(const std::string&) const override;
 
+	static bool dataFreeTag(unsigned char);
+
 public:
-	PNGChunk(const PNGChunk&);
-	PNGChunk(PNGChunk&&);
-	PNGChunk(std::istream&);
+	JPEGChunk(std::istream&);
 
 	virtual bool        required()           const override;
 	virtual void        write(std::ostream&) const override;

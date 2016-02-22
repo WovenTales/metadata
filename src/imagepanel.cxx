@@ -10,7 +10,7 @@ ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) 
 	// TODO: Construct proper null panel for path.isEmpty()
 
 	std::ifstream file(path.toStdString());
-	if (!file.good()) {
+	if (file.fail()) {
 		QMessageBox err;
 		err.setText("The image '" + path + "' cannot be opened.");
 		err.exec();

@@ -2,5 +2,6 @@
 
 
 MetadataFileType detectFileType(const std::string&) {
-	return MetadataFileType::PNG;
+	// TODO Implement
+	return MetadataFileType::JPEG;
 }

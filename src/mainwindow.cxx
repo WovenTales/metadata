@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QKeySequence>
 #include <QString>
+#include <QStringList>
 
 // widgets
 #include <QApplication>
@@ -27,25 +28,54 @@ MainWindow::MainWindow(const std::string& path) {
 	saveFile->setShortcuts(QKeySequence::Save);
 	connect(saveFile, SIGNAL(triggered()), this, SLOT(saveDialog()));
 	fileMenu->addAction(saveFile);
+
+	quitAction = new QAction("Quit", fileMenu);
+	quitAction->setShortcuts(QKeySequence::Quit);
+	connect(quitAction, SIGNAL(triggered()), this, SLOT(quitDialog()));
+	fileMenu->addAction(quitAction);
 }
 
 
 void MainWindow::openDialog() {
-	if (core != NULL) {
-		core->setParent(NULL);
-		delete core;
-	}
+	QStringList filters;
+	filters << "PNG image files (*.png)"
+	        << "JPEG image files (*.jpg *.jpeg *.jpe *.jif **.jfif *.jfi)";
 
-	// TODO: Handle within ImagePanel so don't need extra creation/deletion
-	core = new ImagePanel(QFileDialog::getOpenFileName(0, "", "", "Images (*.png)"));
-	setCentralWidget(core);
+	QFileDialog dialog(this);
+	dialog.setFileMode(QFileDialog::ExistingFile);
+	dialog.setNameFilters(filters);
+
+	if (dialog.exec()) {
+		// TODO: Handle within ImagePanel so don't need extra creation/deletion
+		if (core != NULL) {
+			core->setParent(NULL);
+			delete core;
+		}
+
+		core = new ImagePanel(dialog.selectedFiles()[0]);
+		setCentralWidget(core);
+	}
 }
 
 void MainWindow::saveDialog() {
 	// TODO: Handle extension via setDefaultSuffix()
-	QString path = QFileDialog::getSaveFileName(0, "", "", "Images (*.png);;All files (*)");
 
-	core->write(path.toStdString());
+	QStringList filters;
+	filters << "PNG image files (*.png)"
+	        << "JPEG image files (*.jpg *.jpeg *.jpe *.jif **.jfif *.jfi)"
+	        << "Any files (*)";
+
+	QFileDialog dialog(this);
+	dialog.setFileMode(QFileDialog::AnyFile);
+	dialog.setNameFilters(filters);
+
+	if (dialog.exec()) {
+		core->write(dialog.selectedFiles()[0].toStdString());
+	}
+}
+
+void MainWindow::quitDialog() {
+	close();
 }
 
 

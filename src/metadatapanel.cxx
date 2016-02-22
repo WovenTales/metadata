@@ -26,14 +26,16 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 			}
 
 			QLabel* n      = new QLabel(e->label.c_str(), this);
-			QLabel* d      = new QLabel(e->data.c_str(), this);
-			QPushButton* b = (e->required() ? NULL : new QPushButton("Clear", this));
+			QLabel* d      = (e->type == Chunk::Type::NONE ? NULL : new QLabel(e->data.c_str(), this));
+			QPushButton* b = (e->required()                ? NULL : new QPushButton("Clear", this));
 			labels.push_back(std::make_tuple((i + skip), n, d, b));
 
 			layout->addWidget(n, i, 0);
 
-			d->setTextFormat(Qt::RichText);
-			layout->addWidget(d, i, 1);
+			if (d != NULL) {
+				d->setTextFormat(Qt::RichText);
+				layout->addWidget(d, i, 1);
+			}
 
 			if (b != NULL) {
 				connect(b, &QPushButton::clicked, [i, this](){ this->clearTag(i); });

@@ -14,6 +14,8 @@ OBJECTS_DIR  = obj
 # Input
 HEADERS += include/chunk.hxx \
            include/imagepanel.hxx \
+           include/jpegchunk.hxx \
+           include/jpegmetadata.hxx \
            include/mainwindow.hxx \
            include/metadata.hxx \
            include/metadatafactory.hxx \
@@ -25,6 +27,8 @@ HEADERS += include/chunk.hxx \
            include/previewpanel.hxx
 SOURCES += src/chunk.cxx \
            src/imagepanel.cxx \
+           src/jpegchunk.cxx \
+           src/jpegmetadata.cxx \
            src/mainwindow.cxx \
            src/metadata.cxx \
            src/metadatafactory.cxx \

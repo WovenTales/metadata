@@ -14,27 +14,26 @@
 struct Chunk {
 public:
 	enum struct Type {
-		OTHER,   // autodetect text, otherwise hex
-		NONE,    // do not display contents
-		HIDE,    // do not display contents or name
+		OTHER,      // autodetect text, otherwise hex
+		NONE,       // do not display contents
+		HIDE,       // do not display contents or name
 
-		HEX,     // raw hex value
+		HEX,        // raw hex value
 
-		TEXT,    // text string
-		CTEXT,   // compressed text
-		ITEXT,   // unicode text (may be compressed)
+		TEXT,       // text string
+		CTEXT,      // compressed text
+		ITEXT,      // unicode text (may be compressed)
 
-		COLOR,   // color swatch
-		COUNT,   // count and display occurrences of tag
-		HEADER,  // separate and label fields according to spec
-		TIME,    // timestamp
+		COLOR,      // color swatch
+		COUNT,      // count and display occurrences of tag
+		PNGHEADER,  // separate and label fields according to PNG spec
+		TIME,       // timestamp
 	};
 
 protected:
 	      unsigned int   length   = 0;
 	      std::string    typeCode;
 	      char*          raw      = NULL;
-	      char           crc[4];
 
 	const std::map< std::string, std::pair< std::string, Type > >& typeMap;
 
@@ -43,15 +42,18 @@ protected:
 	       std::string hexString(unsigned int* = NULL, unsigned int* = NULL) const;
 	static std::string sanitize(std::string);
 
+	virtual std::string printableTypeCode()                  const = 0;
+	virtual std::string defaultChunkName(const std::string&) const = 0;
+
 public:
 	Chunk(const Chunk&);
 	Chunk(Chunk&&);
 
 	virtual ~Chunk();
 
-	virtual std::string data()               const = 0;
-	virtual std::string name()               const = 0;
-	virtual Type        type()               const = 0;
+	        std::string data()               const;
+	        std::string name()               const;
+	        Type        type()               const;
 	virtual bool        required()           const = 0;
 
 	virtual void        write(std::ostream&) const = 0;

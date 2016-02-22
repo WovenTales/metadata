@@ -7,6 +7,7 @@
 
 enum struct MetadataFileType {
 	INVALID,
+	JPEG,
 	PNG,
 };
 
