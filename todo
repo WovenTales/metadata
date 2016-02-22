@@ -1,6 +1,7 @@
 complete PNG tag parsing
 save in-place
 track edit status (prompt on close iff necessary)
+implement Metadata factory to remove hard-coded reference to filetype in MetadataPanel
 
 support for JPEG/WEBP/BMP/GIF formats (probably in order)
 Batch mode

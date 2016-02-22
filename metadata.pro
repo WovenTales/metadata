@@ -19,6 +19,7 @@ HEADERS += include/chunk.hxx \
            include/metadatapanel.hxx \
            include/picturelabel.hxx \
            include/pngchunk.hxx \
+           include/pngmetadata.hxx \
            include/previewpanel.hxx
 SOURCES += src/chunk.cxx \
            src/imagepanel.cxx \
@@ -27,6 +28,7 @@ SOURCES += src/chunk.cxx \
            src/metadatapanel.cxx \
            src/picturelabel.cxx \
            src/pngchunk.cxx \
+           src/pngmetadata.cxx \
            src/previewpanel.cxx
 
 # Scopes

@@ -4,7 +4,6 @@
 
 #include <chunk.hxx>
 
-#include <fstream>
 #include <list>
 #include <string>
 
@@ -28,30 +27,27 @@ public:
 		void addChunk(const Chunk*);
 
 		bool required()             const;
+
+	        size_t size()                                     const noexcept { return ref.size();  };
+	        bool   empty()                                    const noexcept { return ref.empty(); };
+
+		std::list< const Chunk* >::const_iterator begin() const noexcept { return ref.begin(); };
+		std::list< const Chunk* >::const_iterator end()   const noexcept { return ref.end();   };
 	};
 
-private:
-	std::ifstream    file;
+protected:
 	std::list< Tag > tags;
 
-	bool read();
-
 public:
-	Metadata() = default;
-	Metadata(Metadata&&);
-	Metadata(const std::string&);
+	virtual ~Metadata() = default;
 
 	Metadata& operator=(Metadata&& rhs);
 
-	virtual ~Metadata();
+	        size_t size()                    const noexcept { return tags.size();  };
+	        bool   empty()                   const noexcept { return tags.empty(); };
 
-	bool isValid()                           const;
-
-	size_t size()                            const noexcept { return tags.size();  };
-	bool   empty()                           const noexcept { return tags.empty(); };
-
-	void   write(const std::string&)         const;
-	bool   remove(unsigned int);
+	virtual void   write(const std::string&) const = 0;
+	        bool   remove(unsigned int);
 
 	std::list< Tag >::const_iterator begin() const noexcept { return tags.cbegin(); };
 	std::list< Tag >::const_iterator end()   const noexcept { return tags.cend();   };

@@ -24,7 +24,7 @@ class MetadataPanel : public QScrollArea {
 	Q_OBJECT
 
 private:
-	Metadata     data;
+	Metadata*    data = NULL;
 
 	QFrame*      grid;
 	QGridLayout* layout;
@@ -34,9 +34,11 @@ private:
 public:
 	MetadataPanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
 
+	virtual ~MetadataPanel();
+
 	bool isValid() const;
 
-	void write(const std::string& path) { data.write(path); };
+	void write(const std::string& path) { data->write(path); };
 
 public slots:
 	void clearTag(unsigned int);

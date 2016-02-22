@@ -1,36 +1,44 @@
 #include <metadatapanel.hxx>
 
+#include <pngmetadata.hxx>
+
 // widgets
 #include <QMessageBox>
 
 
 MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QScrollArea(parent) {
-	data = Metadata(path.toStdString());
-
 	grid   = new QFrame(this, f);
 	layout = new QGridLayout;
 
-	// Do want numerical iteration as well, to insert labels into proper row
-	int i = 0, skip = 0;
-	for (auto e = data.begin(); e != data.end(); ++e, ++i) {
-		if (e->type == Chunk::Type::HIDE) {
-			++skip;
-			continue;
-		}
+	try {
+		data = new PNGMetadata(path.toStdString());
+	} catch (char e) {
+		data = NULL;
+	}
 
-		QLabel* n      = new QLabel(e->label.c_str(), this);
-		QLabel* d      = new QLabel(e->data.c_str(), this);
-		QPushButton* b = (e->required() ? NULL : new QPushButton("Clear", this));
-		labels.push_back(std::make_tuple((i + skip), n, d, b));
+	if (data != NULL) {
+		// Do want numerical iteration as well, to insert labels into proper row
+		int i = 0, skip = 0;
+		for (auto e = data->begin(); e != data->end(); ++e, ++i) {
+			if (e->type == Chunk::Type::HIDE) {
+				++skip;
+				continue;
+			}
 
-		layout->addWidget(n, i, 0);
+			QLabel* n      = new QLabel(e->label.c_str(), this);
+			QLabel* d      = new QLabel(e->data.c_str(), this);
+			QPushButton* b = (e->required() ? NULL : new QPushButton("Clear", this));
+			labels.push_back(std::make_tuple((i + skip), n, d, b));
 
-		d->setTextFormat(Qt::RichText);
-		layout->addWidget(d, i, 1);
+			layout->addWidget(n, i, 0);
 
-		if (b != NULL) {
-			connect(b, &QPushButton::clicked, [i, this](){ this->clearTag(i); });
-			layout->addWidget(b, i, 2);
+			d->setTextFormat(Qt::RichText);
+			layout->addWidget(d, i, 1);
+
+			if (b != NULL) {
+				connect(b, &QPushButton::clicked, [i, this](){ this->clearTag(i); });
+				layout->addWidget(b, i, 2);
+			}
 		}
 	}
 
@@ -39,8 +47,15 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 }
 
 
+MetadataPanel::~MetadataPanel() {
+	if (data != NULL) {
+		delete data;
+	}
+}
+
+
 bool MetadataPanel::isValid() const {
-	return data.isValid();
+	return (data != NULL);
 }
 
 
@@ -54,7 +69,7 @@ void MetadataPanel::clearTag(unsigned int index) {
 		return;
 	}
 
-	if (data.remove(dataIndex) == false) {
+	if (data->remove(dataIndex) == false) {
 		QMessageBox err;
 		err.setText("Unable to remove tag.");
 		err.exec();

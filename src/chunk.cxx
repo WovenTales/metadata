@@ -1,10 +1,7 @@
 #include <chunk.hxx>
 
-#include <cstdint>
-#include <cstring>
+#include <algorithm>
 #include <iomanip>
-#include <ios>
-#include <locale>
 #include <sstream>
 
 
@@ -24,17 +21,17 @@ std::string Chunk::sanitize(std::string str) {
 Chunk::Chunk(const Chunk& c) : typeMap(c.typeMap) {
 	length = c.length;
 	typeCode = c.typeCode;
-	std::memcpy(crc, c.crc, 4);
+	std::copy(c.crc, (c.crc + 4), crc);
 
 	raw = new char[length];
-	std::memcpy(raw, c.raw, length);
+	std::copy(c.raw, (c.raw + length), raw);
 }
 
 Chunk::Chunk(Chunk&& c) : typeMap(c.typeMap) {
 	length = c.length;
 	typeCode = c.typeCode;
 	raw = c.raw;
-	std::memcpy(crc, c.crc, 4);
+	std::copy(c.crc, (c.crc + 4), crc);
 
 	c.raw = NULL;
 }

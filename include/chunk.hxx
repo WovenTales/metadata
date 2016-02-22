@@ -5,7 +5,6 @@
 #include <cstddef>
 
 #include <istream>
-#include <list>
 #include <map>
 #include <ostream>
 #include <string>

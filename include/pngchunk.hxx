@@ -4,7 +4,9 @@
 
 #include <chunk.hxx>
 
-#include <iostream>
+#include <istream>
+#include <ostream>
+#include <string>
 
 
 class PNGChunk : public Chunk {

@@ -1,5 +1,6 @@
 #include <pngchunk.hxx>
 
+#include <locale>
 #include <map>
 #include <string>
 #include <sstream>
