@@ -1,6 +1,6 @@
 #include <metadatapanel.hxx>
 
-#include <pngmetadata.hxx>
+#include <metadatafactory.hxx>
 
 // widgets
 #include <QMessageBox>
@@ -11,7 +11,7 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 	layout = new QGridLayout;
 
 	try {
-		data = new PNGMetadata(path.toStdString());
+		data = MetadataFactory::generate(path.toStdString());
 	} catch (char e) {
 		data = NULL;
 	}

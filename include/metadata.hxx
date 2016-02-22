@@ -3,9 +3,18 @@
 
 
 #include <chunk.hxx>
+class MetadataFactory;
+#include <metadatafiletype.hxx>
 
+#include <fstream>
 #include <list>
 #include <string>
+
+
+#define METADATA_CONSTRUCTORS(_SUBTYPE_)    private:   using Metadata::Metadata; \
+                                                       _SUBTYPE_() = default; \
+                                                       friend MetadataFactory; \
+                                            protected: _SUBTYPE_(const std::string& path) : Metadata(path) { create(); }
 
 
 class Metadata {
@@ -26,7 +35,7 @@ public:
 
 		void addChunk(const Chunk*);
 
-		bool required()             const;
+		bool required() const;
 
 	        size_t size()                                     const noexcept { return ref.size();  };
 	        bool   empty()                                    const noexcept { return ref.empty(); };
@@ -35,10 +44,25 @@ public:
 		std::list< const Chunk* >::const_iterator end()   const noexcept { return ref.end();   };
 	};
 
+private:
+	std::ifstream file;
+	MetadataFileType type;
+
+	friend MetadataFactory;
+
 protected:
 	std::list< Tag > tags;
 
+	Metadata() = default;
+	Metadata(const std::string&);
+
+	        void create();
+	virtual void read(std::ifstream&) = 0;
+
 public:
+	Metadata(const Metadata&);
+	Metadata(Metadata&&);
+
 	virtual ~Metadata() = default;
 
 	Metadata& operator=(Metadata&& rhs);

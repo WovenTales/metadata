@@ -4,15 +4,17 @@
 
 #include <metadata.hxx>
 
+#include <fstream>
 #include <string>
 
 
 class PNGMetadata : public Metadata {
-	using Metadata::Metadata;
+	METADATA_CONSTRUCTORS(PNGMetadata);
+
+protected:
+	virtual void read(std::ifstream&) override;
 
 public:
-	PNGMetadata(const std::string&);
-
 	virtual void write(const std::string&) const override;
 };
 

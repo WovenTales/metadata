@@ -1,5 +1,6 @@
 #include <metadata.hxx>
 
+#include <fstream>
 #include <iostream>
 
 
@@ -35,6 +36,33 @@ bool Metadata::Tag::required() const {
 	}
 }
 
+
+
+Metadata::Metadata(const std::string& path) : file(path, std::ifstream::binary) {
+	// TODO Check validity
+}
+
+Metadata::Metadata(const Metadata& m) {
+	tags = m.tags;
+	// file will be closed by this point and doesn't need copying
+}
+
+Metadata::Metadata(Metadata&& m) {
+	tags.swap(m.tags);
+	// file will be closed by this point and doesn't need copying
+}
+
+
+void Metadata::create() {
+	try {
+		read(file);
+	} catch (char e) {
+		file.close();
+		throw e;
+	}
+
+	file.close();
+}
 
 
 Metadata& Metadata::operator=(Metadata&& m) {

@@ -2,13 +2,10 @@
 
 #include <pngchunk.hxx>
 
-#include <fstream>
 #include <iostream>
 
 
-PNGMetadata::PNGMetadata(const std::string& path) {
-	std::ifstream file(path, std::ifstream::binary);
-
+void PNGMetadata::read(std::ifstream& file) {
 	char header[9];
 	// NULL-terminate to emulate C-string
 	header[8] = 0x00;
@@ -17,14 +14,12 @@ PNGMetadata::PNGMetadata(const std::string& path) {
 	file.read(header, 8);  // Not using get() as that would break on newline
 	if (!file.good()) {
 		std::cout << "ERROR: bad file" << std::endl;
-		file.close();
 		throw 'F';
 	}
 
 	// Check against PNG header
 	if (header != std::string("\x89PNG\r\n\x1A\n")) {
 		std::cout << "ERROR: wrong file header" << std::endl;
-		file.close();
 		throw 'H';
 	}
 
@@ -51,7 +46,6 @@ PNGMetadata::PNGMetadata(const std::string& path) {
 			std::cout << std::endl;
 
 			// TODO: Check behaviour for exception in constructor with new (need delete?)
-			file.close();
 			throw 'C';
 		}
 
@@ -79,8 +73,6 @@ PNGMetadata::PNGMetadata(const std::string& path) {
 			;
 		}
 	}
-
-	file.close();
 }
 
 void PNGMetadata::write(const std::string& path) const {
