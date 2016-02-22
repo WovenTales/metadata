@@ -212,13 +212,18 @@ std::string Chunk::name() const {
 	}
 }
 
-Chunk::Type Chunk::type() const {
-	auto i = typeMap.find(typeCode);
-	if (i != typeMap.end()) {
-		return i->second.second;
-	} else {
-		return Type::OTHER;
-	}
+
+void Chunk::write(std::ostream& out) const {
+	// Automatically truncates to single byte
+	// Copy byte-by-byte to ensure proper order
+	out.put(length >> (8 * 3));
+	out.put(length >> (8 * 2));
+	out.put(length >> 8);
+	out.put(length);
+
+	out.write(typeCode.c_str(), 4);
+	out.write(raw, length);
+	out.write(crc, 4);
 }
 
 bool Chunk::required() const {

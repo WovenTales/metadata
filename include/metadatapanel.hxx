@@ -29,7 +29,7 @@ private:
 	QFrame*      grid;
 	QGridLayout* layout;
 
-	std::vector< std::tuple< QLabel*, QLabel*, QPushButton* > > labels;
+	std::vector< std::tuple< unsigned int, QLabel*, QLabel*, QPushButton* > > labels;
 
 public:
 	MetadataPanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
@@ -39,7 +39,7 @@ public:
 	void write(const std::string& path) { data.write(path); };
 
 public slots:
-	void clearTag(unsigned int, unsigned int);
+	void clearTag(unsigned int);
 };
 
 

@@ -4,18 +4,33 @@
 #include <iostream>
 
 
-Metadata::Tag::Tag(Chunk::Type t, const std::string& l, const std::string& d, const Chunk* r) {
-	type = t;
-	label = l;
-	data = d;
-	ref = r;
+Metadata::Tag::Tag(const Chunk* r) : ref(1, r) {
+	type = r->type();
+	label = r->name();
+	data = r->data();
+}
+
+Metadata::Tag::~Tag() {
+	while (ref.empty() == false) {
+		delete ref.front();
+		ref.pop_front();
+	}
+}
+
+void Metadata::Tag::addChunk(const Chunk* c) {
+	ref.push_back(c);
 }
 
 bool Metadata::Tag::required() const {
-	if (ref == NULL) {
+	if (ref.empty()) {
 		return true;
 	} else {
-		return ref->required();
+		for (auto i = ref.begin(); i != ref.end(); ++i) {
+			if ((*i)->required() == true) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
@@ -35,7 +50,6 @@ Metadata::Metadata(const std::string& path) {
 
 Metadata& Metadata::operator=(Metadata&& m) {
 	file.swap(m.file);
-	raw.swap(m.raw);
 	tags.swap(m.tags);
 
 	return (*this);
@@ -66,17 +80,16 @@ bool Metadata::read() {
 	}
 
 	// Check against PNG header
-	if(strcmp(header, "\x89PNG\r\n\x1A\n")) {
+	if (header != std::string("\x89PNG\r\n\x1A\n")) {
 		std::cout << "ERROR: wrong file header" << std::endl;
 		return false;
 	}
 
 	while (file.peek() != EOF) {
+		Chunk* c = NULL;
 		try {
-			raw.emplace_back(file);
+			c = new Chunk(file);
 		} catch (char e) {
-			// Thrown from Chunk constructor; not added to list
-
 			std::cout << "ERROR: couldn't read chunk ";
 			switch (e) {
 				case 'L':
@@ -94,32 +107,29 @@ bool Metadata::read() {
 			}
 			std::cout << std::endl;
 
+			// TODO: Check behaviour for exception in constructor with new (need delete?)
 			return false;
 		}
 
-		Chunk* c = &*(raw.rbegin());
+		std::string n = c->name();
 		auto i = tags.begin(), e = tags.end();
-		unsigned int d;
-		size_t n;
-		Chunk::Type t = c->type();
-		switch (t) {
-			case Chunk::Type::HIDE:
-				break;
+		switch (c->type()) {
 			case Chunk::Type::COUNT:
 				for (; i != e; ++i) {
-					if (i->type == t) {
-						n = i->data.find(' ');
-						d = std::stoi(i->data.substr(0, n));
-						i->data = (std::to_string(d + 1) + " occurences");
-						// Need to break out of both for and switch
+					if (i->label == n) {
+						i->addChunk(c);
+						i->data = (std::to_string(i->ref.size()) + " occurences");
+
+						// Need to break out of both for and switch blocks
 						goto end_switch;
 					}
 				}
 
-				tags.emplace_back(t, c->name(), "1 occurence");
+				tags.emplace_back(c);
+				tags.back().data = "1 occurence";
 				break;
 			default:
-				tags.emplace_back(t, c->name(), c->data(), c);
+				tags.emplace_back(c);
 				break;
 		end_switch:
 			;
@@ -134,23 +144,17 @@ void Metadata::write(const std::string& path) const {
 
 	out.write("\x89PNG\r\n\x1A\n", 8);
 
-	for (auto c = raw.begin(); c != raw.end(); ++c) {
-		// Automatically truncates to single byte
-		// Copy byte-by-byte to ensure proper order
-		out.put(c->length >> (8 * 3));
-		out.put(c->length >> (8 * 2));
-		out.put(c->length >> 8);
-		out.put(c->length);
-
-		out.write(c->typeCode.c_str(), 4);
-		out.write(c->raw, c->length);
-		out.write(c->crc, 4);
+	for (auto t = tags.begin(); t != tags.end(); ++t) {
+		for (auto c = t->ref.begin(); c != t->ref.end(); ++c) {
+			(*c)->write(out);
+		}
 	}
 
 	out.close();
 }
 
 bool Metadata::remove(unsigned int index) {
+	// Access to index longer than vector, but removal doesn't trigger copying
 	auto iTag = tags.begin();
 	auto eTag = tags.end();
 	for (unsigned int i = 0; i < index; ++i, ++iTag) {
@@ -160,22 +164,11 @@ bool Metadata::remove(unsigned int index) {
 		}
 	}
 
-	if (iTag->ref == NULL) {
+	if (iTag->ref.empty()) {
 		std::cout << "ERROR: no chunk associated with tag for removal" << std::endl;
 		return false;
 	}
 
-	auto iRaw = raw.begin();
-	auto eRaw = raw.end();
-	while (&*iRaw != iTag->ref) {
-		if (iRaw == eRaw) {
-			std::cout << "ERROR: couldn't find chunk matching tag for removal" << std::endl;
-			return false;
-		}
-		++iRaw;
-	}
-
 	tags.erase(iTag);
-	raw.erase(iRaw);
 	return true;
 }

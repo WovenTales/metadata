@@ -7,6 +7,7 @@
 #include <istream>
 #include <list>
 #include <map>
+#include <ostream>
 #include <string>
 #include <utility>
 
@@ -51,6 +52,8 @@ public:
 	std::string name()     const;
 	Type        type()     const;
 	bool        required() const;
+
+	void        write(std::ostream&) const;
 };
 
 
