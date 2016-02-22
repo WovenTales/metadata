@@ -1,5 +1,7 @@
 #include <metadata.hxx>
 
+#include <pngchunk.hxx>
+
 #include <cstring>
 #include <iostream>
 
@@ -70,6 +72,7 @@ bool Metadata::isValid() const {
 
 bool Metadata::read() {
 	char header[9];
+	// NULL-terminate to emulate C-string
 	header[8] = 0x00;
 
 	file.clear();
@@ -88,7 +91,7 @@ bool Metadata::read() {
 	while (file.peek() != EOF) {
 		Chunk* c = NULL;
 		try {
-			c = new Chunk(file);
+			c = new PNGChunk(file);
 		} catch (char e) {
 			std::cout << "ERROR: couldn't read chunk ";
 			switch (e) {

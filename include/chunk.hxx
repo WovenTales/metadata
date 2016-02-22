@@ -31,29 +31,31 @@ public:
 		TIME,    // timestamp
 	};
 
-private:
-	static std::map< std::string, std::pair< std::string, Type > > typeMap;
+protected:
+	      unsigned int   length   = 0;
+	      std::string    typeCode;
+	      char*          raw      = NULL;
+	      char           crc[4];
 
-	std::string hexString(unsigned int* = NULL, unsigned int* = NULL) const;
+	const std::map< std::string, std::pair< std::string, Type > >& typeMap;
+
+	Chunk(std::istream&, const std::map< std::string, std::pair< std::string, Type > >&);
+
+	       std::string hexString(unsigned int* = NULL, unsigned int* = NULL) const;
+	static std::string sanitize(std::string);
 
 public:
-	unsigned int   length = 0;
-	std::string    typeCode;
-	         char* raw = NULL;
-	         char  crc[4];
-
 	Chunk(const Chunk&);
 	Chunk(Chunk&&);
-	Chunk(std::istream&);
 
 	virtual ~Chunk();
 
-	std::string data()     const;
-	std::string name()     const;
-	Type        type()     const;
-	bool        required() const;
+	virtual std::string data()               const = 0;
+	virtual std::string name()               const = 0;
+	virtual Type        type()               const = 0;
+	virtual bool        required()           const = 0;
 
-	void        write(std::ostream&) const;
+	virtual void        write(std::ostream&) const = 0;
 };
 
 

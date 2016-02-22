@@ -35,3 +35,4 @@ moc_*.cpp
 
 # Test images
 *.png
+*.jpg
