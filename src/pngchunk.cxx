@@ -13,7 +13,7 @@ std::map< std::string, std::pair< std::string, Chunk::Type > > PNGTypeMap = {
 	{ "IHDR", { "Header",                         Chunk::Type::HEADER } },
 	{ "PLTE", { "Palette",                        Chunk::Type::HEX    } },
 	{ "IDAT", { "Image",                          Chunk::Type::COUNT  } },
-	{ "IEND", { "End of file",                    Chunk::Type::HIDE   } },
+	{ "IEND", { "End of file",                    Chunk::Type::NONE   } },
 
 	{ "tRNS", { "Transparency color",             Chunk::Type::COLOR  } },
 
@@ -34,6 +34,7 @@ std::map< std::string, std::pair< std::string, Chunk::Type > > PNGTypeMap = {
 
 	{ "tIME", { "Last modified",                  Chunk::Type::TIME   } },
 };
+
 
 
 PNGChunk::PNGChunk(const PNGChunk& c) : Chunk(c) {
@@ -84,17 +85,52 @@ std::string PNGChunk::printableTypeCode() const {
 	return typeCode;
 }
 
+
 std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
 	return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
 			+ " chunk <" + typeCode + ">");
 }
 
 
-std::string PNGChunk::data() const {
-	if (type() == Type::HEADER) {
-		return "TODO";
-	} else {
-		return Chunk::data();
+std::string PNGChunk::data(Chunk::Type type) const {
+	size_t n;
+	std::string str;
+
+	switch (type) {
+		case Type::HEADER:
+			return "TODO";
+		case Type::TEXT:
+			str = std::string(raw, length);
+			n = str.find('\0');
+
+			if (n == std::string::npos) {
+				// Not proper Text tag, but included to handle malformed case
+				return str;
+			} else {
+				return str.substr(n + 1);
+			}
+		default:
+			return Chunk::data(type);
+	}
+}
+
+std::string PNGChunk::name(Chunk::Type type, const std::string& title) const {
+	size_t n;
+	std::string str;
+
+	switch (type) {
+		case Type::TEXT:
+			str = std::string(raw, length);
+			n = str.find('\0');
+
+			if (n == std::string::npos) {
+				// Not proper Text tag, but included to handle malformed case
+				return title;
+			} else {
+				return (title + " <" + str.substr(0, n) + ">");
+			}
+		default:
+			return Chunk::name(type, title);
 	}
 }
 

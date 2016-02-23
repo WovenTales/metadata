@@ -45,7 +45,7 @@ void PNGMetadata::read(std::ifstream& file) {
 			}
 			std::cout << std::endl;
 
-			// TODO: Check behaviour for exception in constructor with new (need delete?)
+			delete c;
 			throw 'C';
 		}
 

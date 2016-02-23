@@ -16,6 +16,9 @@ class PNGChunk : public Chunk {
 protected:
 	char crc[4];
 
+	virtual std::string data(Type)                           const override;
+	virtual std::string name(Type, const std::string&)       const override;
+
 	virtual std::string printableTypeCode()                  const override;
 	virtual std::string defaultChunkName(const std::string&) const override;
 
@@ -24,7 +27,6 @@ public:
 	PNGChunk(PNGChunk&&);
 	PNGChunk(std::istream&);
 
-	virtual std::string data()               const override;
 	virtual bool        required()           const override;
 	virtual void        write(std::ostream&) const override;
 };

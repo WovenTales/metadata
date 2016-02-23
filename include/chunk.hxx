@@ -30,17 +30,22 @@ public:
 		TIME,    // timestamp
 	};
 
+private:
+	const std::map< std::string, std::pair< std::string, Type > >& typeMap;
+
+	static std::string sanitize(std::string);
+
 protected:
 	      unsigned int   length   = 0;
 	      std::string    typeCode;
 	      char*          raw      = NULL;
 
-	const std::map< std::string, std::pair< std::string, Type > >& typeMap;
-
 	Chunk(std::istream&, const std::map< std::string, std::pair< std::string, Type > >&);
 
 	       std::string hexString(unsigned int* = NULL, unsigned int* = NULL) const;
-	static std::string sanitize(std::string);
+
+	virtual std::string data(Type)                           const;
+	virtual std::string name(Type, const std::string&)       const;
 
 	virtual std::string printableTypeCode()                  const = 0;
 	virtual std::string defaultChunkName(const std::string&) const = 0;
@@ -51,8 +56,8 @@ public:
 
 	virtual ~Chunk();
 
-	virtual std::string data()               const;
-	virtual std::string name()               const;
+	        std::string data()               const;
+	        std::string name()               const;
 	        Type        type()               const;
 	virtual bool        required()           const = 0;
 

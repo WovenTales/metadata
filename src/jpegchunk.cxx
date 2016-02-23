@@ -12,36 +12,36 @@
 //        typeCode                name         type
 std::map< std::string, std::pair< std::string, Chunk::Type > > JPEGTypeMap = {
 	// TODO: Try to reduce amount of Chunk::Type::HEX entries via proper formatting
-	{ "\xD8", { "Start of file", Chunk::Type::NONE } },
-	{ "\xD9", { "End of file", Chunk::Type::NONE } },
+	{ "\xD8", { "Start of file",                    Chunk::Type::NONE } },
+	{ "\xD9", { "End of file",                      Chunk::Type::NONE } },
 
-	{ "\xDA", { "Image", Chunk::Type::COUNT } },
-	{ "\xFE", { "Comment", Chunk::Type::TEXT } },
+	{ "\xDA", { "Image",                            Chunk::Type::NONE } },
+	{ "\xFE", { "Comment",                          Chunk::Type::TEXT } },
 
-	{ "\xC0", { "Start of frame (baseline DCT)", Chunk::Type::NONE } },
-	{ "\xC2", { "Start of frame (progressive DCT)", Chunk::Type::NONE } },
+	{ "\xC0", { "Start of frame (baseline DCT)",    Chunk::Type::HEX  } },
+	{ "\xC2", { "Start of frame (progressive DCT)", Chunk::Type::HEX  } },
 
-	{ "\xC4", { "Define Huffman table(s)", Chunk::Type::NONE } },
-	{ "\xDB", { "Define quantization table(s)", Chunk::Type::NONE } },
+	{ "\xC4", { "Define Huffman table(s)",          Chunk::Type::HEX  } },
+	{ "\xDB", { "Define quantization table(s)",     Chunk::Type::HEX  } },
 
-	{ "\xDD", { "Define restart interval", Chunk::Type::NONE } },
-	{ "\xD0", { "Restart", Chunk::Type::NONE } },
-	{ "\xD1", { "Restart", Chunk::Type::NONE } },
-	{ "\xD2", { "Restart", Chunk::Type::NONE } },
-	{ "\xD3", { "Restart", Chunk::Type::NONE } },
-	{ "\xD4", { "Restart", Chunk::Type::NONE } },
-	{ "\xD5", { "Restart", Chunk::Type::NONE } },
-	{ "\xD6", { "Restart", Chunk::Type::NONE } },
-	{ "\xD7", { "Restart", Chunk::Type::NONE } },
+	{ "\xDD", { "Define restart interval",          Chunk::Type::HEX  } },
+	{ "\xD0", { "Restart",                          Chunk::Type::NONE } },
+	{ "\xD1", { "Restart",                          Chunk::Type::NONE } },
+	{ "\xD2", { "Restart",                          Chunk::Type::NONE } },
+	{ "\xD3", { "Restart",                          Chunk::Type::NONE } },
+	{ "\xD4", { "Restart",                          Chunk::Type::NONE } },
+	{ "\xD5", { "Restart",                          Chunk::Type::NONE } },
+	{ "\xD6", { "Restart",                          Chunk::Type::NONE } },
+	{ "\xD7", { "Restart",                          Chunk::Type::NONE } },
 
-	{ "\xE0", { "Application specific 0", Chunk::Type::NONE } },
-	{ "\xE1", { "Application specific 1", Chunk::Type::NONE } },
-	{ "\xE2", { "Application specific 2", Chunk::Type::NONE } },
-	{ "\xE3", { "Application specific 3", Chunk::Type::NONE } },
-	{ "\xE4", { "Application specific 4", Chunk::Type::NONE } },
-	{ "\xE5", { "Application specific 5", Chunk::Type::NONE } },
-	{ "\xE6", { "Application specific 6", Chunk::Type::NONE } },
-	{ "\xE7", { "Application specific 7", Chunk::Type::NONE } },
+	{ "\xE0", { "Application specific 0",           Chunk::Type::NONE } },
+	{ "\xE1", { "Application specific 1",           Chunk::Type::NONE } },
+	{ "\xE2", { "Application specific 2",           Chunk::Type::NONE } },
+	{ "\xE3", { "Application specific 3",           Chunk::Type::NONE } },
+	{ "\xE4", { "Application specific 4",           Chunk::Type::NONE } },
+	{ "\xE5", { "Application specific 5",           Chunk::Type::NONE } },
+	{ "\xE6", { "Application specific 6",           Chunk::Type::NONE } },
+	{ "\xE7", { "Application specific 7",           Chunk::Type::NONE } },
 };
 
 
@@ -123,11 +123,13 @@ std::string JPEGChunk::printableTypeCode() const {
 
 	return ss.str();
 }
+
+
 std::string JPEGChunk::defaultChunkName(const std::string& typeCode) const {
 	std::ostringstream ss;
 
-	ss << std::hex << std::setw(2) << std::setfill('0');
-	ss << "Unrecognized chunk <0xFF" << ((unsigned int)typeCode[0] & 0xFF) << ">";
+	ss << "Unrecognized chunk <0xFF";
+	ss << std::hex << std::setw(2) << std::setfill('0') << ((unsigned int)typeCode[0] & 0xFF) << ">";
 
 	return ss.str();
 }

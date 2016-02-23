@@ -36,3 +36,6 @@ moc_*.cpp
 # Test images
 *.png
 *.jpg
+
+# Alternate interfaces
+qtcreator/*

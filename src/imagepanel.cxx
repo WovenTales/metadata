@@ -37,5 +37,9 @@ ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) 
 
 	layout->addWidget(pPanel);
 	layout->addWidget(mPanel);
+
+	//layout->setStretchFactor(pPanel, 1);
+	//layout->setStretchFactor(mPanel, 0);
+
 	setLayout(layout);
 }

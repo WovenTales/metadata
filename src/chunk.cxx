@@ -75,26 +75,28 @@ std::string Chunk::hexString(unsigned int* print, unsigned int* hex) const {
 
 
 std::string Chunk::data() const {
-	unsigned int print = 0, hex = 0;
-	size_t n;
-	std::ostringstream out;
-	std::string str;
+	return sanitize(data(type()));
+}
 
-	switch (type()) {
+std::string Chunk::data(Chunk::Type t) const {
+	unsigned int print = 0, hex = 0;
+	std::ostringstream out;
+
+	switch (t) {
 		case Type::OTHER:
 			out << hexString(&print, &hex);
 
 			// If it seems likely this is a text field, interpret it as such
 			if (print > hex) {
 				out.seekp(0);
-				out << sanitize(std::string(raw, length)) << "<br><br>";
+				out << std::string(raw, length);
 			}
 
 			return out.str();
 		case Type::NONE:
-			return "";
+			return "Should not be shown";
 		case Type::HIDE:
-			return "";
+			return "Should not be shown";
 
 
 		case Type::HEX:
@@ -102,15 +104,7 @@ std::string Chunk::data() const {
 
 
 		case Type::TEXT:
-			str = sanitize(std::string(raw, length));
-			n = str.find('\0');
-
-			if (n == std::string::npos) {
-				return str;
-			} else {
-				return str.substr(n + 1);
-			}
-			return (str.substr(0, n) + ": " + str.substr(n + 1));
+			return std::string(raw, length);
 		case Type::CTEXT:
 			return "TODO";
 		case Type::ITEXT:
@@ -130,22 +124,20 @@ std::string Chunk::data() const {
 	return "ERROR";
 }
 
+
 std::string Chunk::name() const {
 	auto i = typeMap.find(typeCode);
 	if (i != typeMap.end()) {
-		if (i->second.second == Type::TEXT) {
-			std::string str = sanitize(std::string(raw, length));
-			size_t n = str.find('\0');
-
-			if (n != std::string::npos) {
-				return (i->second.first + " <" + str.substr(0, n) + ">");
-			}
-		}
-		return i->second.first;
+		return name(i->second.second, i->second.first);
 	} else {
 		return defaultChunkName(typeCode);
 	}
 }
+
+std::string Chunk::name(Chunk::Type type, const std::string& title) const {
+	return title;
+}
+
 
 Chunk::Type Chunk::type() const {
 	auto i = typeMap.find(typeCode);

@@ -39,7 +39,7 @@ MainWindow::MainWindow(const std::string& path) {
 void MainWindow::openDialog() {
 	QStringList filters;
 	filters << "PNG image files (*.png)"
-	        << "JPEG image files (*.jpg *.jpeg *.jpe *.jif **.jfif *.jfi)";
+	        << "JPEG image files (*.jpg *.jpeg *.jpe)";
 
 	QFileDialog dialog(this);
 	dialog.setFileMode(QFileDialog::ExistingFile);
@@ -62,7 +62,7 @@ void MainWindow::saveDialog() {
 
 	QStringList filters;
 	filters << "PNG image files (*.png)"
-	        << "JPEG image files (*.jpg *.jpeg *.jpe *.jif **.jfif *.jfi)"
+	        << "JPEG image files (*.jpg *.jpeg *.jpe)"
 	        << "Any files (*)";
 
 	QFileDialog dialog(this);

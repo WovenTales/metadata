@@ -33,6 +33,7 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 			layout->addWidget(n, i, 0);
 
 			if (d != NULL) {
+				d->setWordWrap(true);
 				d->setTextFormat(Qt::RichText);
 				layout->addWidget(d, i, 1);
 			}
