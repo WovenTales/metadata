@@ -1,6 +1,5 @@
 complete PNG tag parsing
 complete JPEG reading (including EXIF tags in APP1)
-fix bug with JPEG writing not being same as original file
 fix widget sizes
 
 support for EBP/BMP/GIF formats (probably in order)

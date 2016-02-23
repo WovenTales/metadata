@@ -14,20 +14,20 @@
 struct Chunk {
 public:
 	enum struct Type {
-		OTHER,      // autodetect text, otherwise hex
-		NONE,       // do not display contents
-		HIDE,       // do not display contents or name
+		OTHER,   // autodetect text, otherwise hex
+		NONE,    // do not display contents
+		HIDE,    // do not display contents or name
 
-		HEX,        // raw hex value
+		HEX,     // raw hex value
 
-		TEXT,       // text string
-		CTEXT,      // compressed text
-		ITEXT,      // unicode text (may be compressed)
+		TEXT,    // text string
+		CTEXT,   // compressed text
+		ITEXT,   // unicode text (may be compressed)
 
-		COLOR,      // color swatch
-		COUNT,      // count and display occurrences of tag
-		PNGHEADER,  // separate and label fields according to PNG spec
-		TIME,       // timestamp
+		COLOR,   // color swatch
+		COUNT,   // count and display occurrences of tag
+		HEADER,  // separate and label fields according to relevant spec
+		TIME,    // timestamp
 	};
 
 protected:
@@ -51,8 +51,8 @@ public:
 
 	virtual ~Chunk();
 
-	        std::string data()               const;
-	        std::string name()               const;
+	virtual std::string data()               const;
+	virtual std::string name()               const;
 	        Type        type()               const;
 	virtual bool        required()           const = 0;
 

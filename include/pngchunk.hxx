@@ -24,6 +24,7 @@ public:
 	PNGChunk(PNGChunk&&);
 	PNGChunk(std::istream&);
 
+	virtual std::string data()               const override;
 	virtual bool        required()           const override;
 	virtual void        write(std::ostream&) const override;
 };

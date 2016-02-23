@@ -8,9 +8,6 @@
 #include <sstream>
 #include <utility>
 
-//debug
-#include <iostream>
-
 
 //        typeCode                name         type
 std::map< std::string, std::pair< std::string, Chunk::Type > > JPEGTypeMap = {
@@ -19,7 +16,7 @@ std::map< std::string, std::pair< std::string, Chunk::Type > > JPEGTypeMap = {
 	{ "\xD9", { "End of file", Chunk::Type::NONE } },
 
 	{ "\xDA", { "Image", Chunk::Type::COUNT } },
-	{ "\xFE", { "Comment", Chunk::Type::COUNT } },
+	{ "\xFE", { "Comment", Chunk::Type::TEXT } },
 
 	{ "\xC0", { "Start of frame (baseline DCT)", Chunk::Type::NONE } },
 	{ "\xC2", { "Start of frame (progressive DCT)", Chunk::Type::NONE } },
@@ -53,7 +50,6 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 
 	// Get chunk type
 	file.read(bytes, 2);
-std::cout << "typeCode: 0x" << std::hex << std::setw(2) << std::setfill('0') << ((unsigned int)bytes[0] & 0xFF) << ((unsigned int)bytes[1] & 0xFF) << std::endl;
 	if (file.fail() || ((unsigned char)bytes[0] != 0xFF)) {
 		throw 'T';
 	}
@@ -88,6 +84,8 @@ std::cout << "typeCode: 0x" << std::hex << std::setw(2) << std::setfill('0') << 
 					file.unget();
 					break;
 				}
+			} else {
+				data.push_back(c);
 			}
 
 			c = file.get();
@@ -153,10 +151,14 @@ void JPEGChunk::write(std::ostream& out) const {
 	out.put(0xFF);
 	out.put(typeCode[0]);
 
-	// Automatically truncates to single byte
-	// Copy byte-by-byte to ensure proper order
-	out.put((length + 2) >> 8);
-	out.put(length + 2);
+	if (typeCode == "\xDA") {
+		out.write(raw, length);
+	} else if (length != 0) {
+		// Automatically truncates to single byte
+		// Copy byte-by-byte to ensure proper order
+		out.put((length + 2) >> 8);
+		out.put(length + 2);
 
-	out.write(raw, length);
+		out.write(raw, length);
+	}
 }

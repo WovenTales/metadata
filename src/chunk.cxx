@@ -121,8 +121,8 @@ std::string Chunk::data() const {
 			return "TODO";
 		case Type::COUNT:
 			return "";
-		case Type::PNGHEADER:
-			return "TODO";
+		case Type::HEADER:
+			return hexString();
 		case Type::TIME:
 			return "TODO";
 	}

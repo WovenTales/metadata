@@ -25,6 +25,7 @@ HEADERS += include/chunk.hxx \
            include/pngchunk.hxx \
            include/pngmetadata.hxx \
            include/previewpanel.hxx
+
 SOURCES += src/chunk.cxx \
            src/imagepanel.cxx \
            src/jpegchunk.cxx \

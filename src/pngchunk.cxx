@@ -10,29 +10,29 @@
 
 std::map< std::string, std::pair< std::string, Chunk::Type > > PNGTypeMap = {
 	// TODO: Try to reduce amount of Chunk::Type::HEX entries via proper formatting
-	{ "IHDR", { "Header",                         Chunk::Type::PNGHEADER } },
-	{ "PLTE", { "Palette",                        Chunk::Type::HEX       } },
-	{ "IDAT", { "Image",                          Chunk::Type::COUNT     } },
-	{ "IEND", { "End of file",                    Chunk::Type::HIDE      } },
+	{ "IHDR", { "Header",                         Chunk::Type::HEADER } },
+	{ "PLTE", { "Palette",                        Chunk::Type::HEX    } },
+	{ "IDAT", { "Image",                          Chunk::Type::COUNT  } },
+	{ "IEND", { "End of file",                    Chunk::Type::HIDE   } },
 
-	{ "tRNS", { "Transparency color",             Chunk::Type::COLOR     } },
+	{ "tRNS", { "Transparency color",             Chunk::Type::COLOR  } },
 
-	{ "cHRM", { "Chromaticity",                   Chunk::Type::HEX       } },
-	{ "gAMA", { "Gamma",                          Chunk::Type::HEX       } },
-	{ "iCCP", { "Color profile",                  Chunk::Type::NONE      } },
-	{ "sBIT", { "Significant bits in color data", Chunk::Type::HEX       } },
-	{ "sRGB", { "RGB color space",                Chunk::Type::HEX       } },
+	{ "cHRM", { "Chromaticity",                   Chunk::Type::HEX    } },
+	{ "gAMA", { "Gamma",                          Chunk::Type::HEX    } },
+	{ "iCCP", { "Color profile",                  Chunk::Type::NONE   } },
+	{ "sBIT", { "Significant bits in color data", Chunk::Type::HEX    } },
+	{ "sRGB", { "RGB color space",                Chunk::Type::HEX    } },
 
-	{ "tEXt", { "Text",                           Chunk::Type::TEXT      } },
-	{ "zTXt", { "Compressed text",                Chunk::Type::CTEXT     } },
-	{ "iTXt", { "Unicode text",                   Chunk::Type::ITEXT     } },
+	{ "tEXt", { "Text",                           Chunk::Type::TEXT   } },
+	{ "zTXt", { "Compressed text",                Chunk::Type::CTEXT  } },
+	{ "iTXt", { "Unicode text",                   Chunk::Type::ITEXT  } },
 
-	{ "bKGD", { "Background color",               Chunk::Type::COLOR     } },
-	{ "hIST", { "Histogram",                      Chunk::Type::HEX       } },
-	{ "pHYs", { "Pixel dimensions",               Chunk::Type::HEX       } },
-	{ "sPLT", { "Suggested palette",              Chunk::Type::HEX       } },
+	{ "bKGD", { "Background color",               Chunk::Type::COLOR  } },
+	{ "hIST", { "Histogram",                      Chunk::Type::HEX    } },
+	{ "pHYs", { "Pixel dimensions",               Chunk::Type::HEX    } },
+	{ "sPLT", { "Suggested palette",              Chunk::Type::HEX    } },
 
-	{ "tIME", { "Last modified",                  Chunk::Type::TIME      } },
+	{ "tIME", { "Last modified",                  Chunk::Type::TIME   } },
 };
 
 
@@ -87,6 +87,15 @@ std::string PNGChunk::printableTypeCode() const {
 std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
 	return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
 			+ " chunk <" + typeCode + ">");
+}
+
+
+std::string PNGChunk::data() const {
+	if (type() == Type::HEADER) {
+		return "TODO";
+	} else {
+		return Chunk::data();
+	}
 }
 
 
