@@ -46,12 +46,12 @@ Chunk::~Chunk() {
 }
 
 
-std::string Chunk::hexString(unsigned int* print, unsigned int* hex) const {
+std::string Chunk::hexString(unsigned int* print, unsigned int* hex, unsigned int offset) const {
 	std::ostringstream ss;
 
 	ss << std::hex << "<code>";
 
-	unsigned int i = 0;
+	unsigned int i = offset;
 	while (i < length) {
 		std::ostringstream str;
 
@@ -64,9 +64,8 @@ std::string Chunk::hexString(unsigned int* print, unsigned int* hex) const {
 				break;
 			}
 
-			if (j > 0) {
-				ss << "&nbsp;";
-			}
+			// Adding padding at start helps set off from non-hex text
+			ss << "&nbsp;";
 
 			ss << std::setw(2) << std::setfill('0');
 			ss << ((unsigned int)raw[i] & 0xFF);
@@ -94,7 +93,8 @@ std::string Chunk::hexString(unsigned int* print, unsigned int* hex) const {
 			}
 		}
 
-		ss << "&nbsp;&nbsp;" << str.str() << (i != length ? "  <br>" : "");
+		// &nbsp; before <br> hack to prevent scroll bar from overlapping text
+		ss << "&nbsp;&nbsp;" << str.str() << (i != length ? "&nbsp;&nbsp;&nbsp;<br>" : "");
 	}
 	ss << "</code>";
 

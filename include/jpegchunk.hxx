@@ -14,8 +14,9 @@ class JPEGChunk : public Chunk {
 
 protected:
 	virtual std::string data(Type)                           const override;
+	virtual std::string name(Type, const std::string&)       const override;
 
-	virtual std::string printableTypeCode()  const override;
+	virtual std::string printableTypeCode()                  const override;
 	virtual std::string defaultChunkName(const std::string&) const override;
 
 	static bool dataFreeTag(unsigned char);

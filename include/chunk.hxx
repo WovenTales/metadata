@@ -44,7 +44,7 @@ protected:
 
 	Chunk(std::istream&, const std::map< std::string, std::pair< std::string, Type > >&);
 
-	       std::string hexString(unsigned int* = NULL, unsigned int* = NULL) const;
+	       std::string hexString(unsigned int* = NULL, unsigned int* = NULL, unsigned int = 0) const;
 
 	virtual std::string data(Type)                           const;
 	virtual std::string name(Type, const std::string&)       const;

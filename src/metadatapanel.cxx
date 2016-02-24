@@ -87,16 +87,33 @@ bool MetadataPanel::isValid() const {
 
 
 void MetadataPanel::clearTag(unsigned int index) {
-	unsigned int dataIndex = std::get<0>(labels[index]);
-	QLabel*      title     = std::get<1>(labels[index]);
-	QLabel*      contents  = std::get<2>(labels[index]).second;
-	QPushButton* tagButton = std::get<3>(labels[index]);
+	if (index > labels.size()) {
+		QMessageBox err;
+		err.setText("Removal index out of bounds.");
+		err.exec();
 
-	if (tagButton == NULL) {
 		return;
 	}
 
-	if (data->remove(dataIndex) == false) {
+	auto l = labels[index];
+	unsigned int dataIndex = std::get<0>(l);
+	QLabel*      title     = std::get<1>(l);
+	QLabel*      contents  = std::get<2>(l).second;
+	QPushButton* tagButton = std::get<3>(l);
+
+	if (tagButton == NULL) {
+		// Specified tag is marked as required
+		return;
+	}
+
+	unsigned int offset = 0;
+	for (auto i = labels.begin(); *i != l; ++i) {
+		if (std::get<1>(*i)->text().startsWith("<s>")) {
+			++offset;
+		}
+	}
+
+	if (data->remove(dataIndex - offset) == false) {
 		QMessageBox err;
 		err.setText("Unable to remove tag.");
 		err.exec();
@@ -105,6 +122,8 @@ void MetadataPanel::clearTag(unsigned int index) {
 	}
 
 	title->setText("<s>" + title->text() + "</s>");
-	contents->setText("<s>" + contents->text() + "</s>");
+	if (contents != NULL) {
+		contents->setText("<s>" + contents->text() + "</s>");
+	}
 	tagButton->setEnabled(false);
 }
