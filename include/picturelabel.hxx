@@ -19,9 +19,9 @@ private:
 public:
 	PictureLabel(const QPixmap&, QWidget* = 0, Qt::WindowFlags = 0);
 
-	virtual int   heightForWidth(int) const;
-	virtual int   widthForHeight(int) const;
-	virtual QSize sizeHint()          const;
+	virtual bool hasHeightForWidth() const override;
+	virtual int  heightForWidth(int) const override;
+	        int  widthForHeight(int) const;
 
 	bool isValid() const;
 };

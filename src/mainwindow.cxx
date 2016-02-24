@@ -8,6 +8,7 @@
 
 // widgets
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QMenuBar>
 
 
@@ -33,6 +34,10 @@ MainWindow::MainWindow(const std::string& path) {
 	quitAction->setShortcuts(QKeySequence::Quit);
 	connect(quitAction, SIGNAL(triggered()), this, SLOT(quitDialog()));
 	fileMenu->addAction(quitAction);
+
+	QDesktopWidget dw;
+	QRect screenSize = dw.availableGeometry(dw.primaryScreen());
+	setFixedSize(QSize(screenSize.width() * 0.7f, screenSize.height() * 0.7f));
 }
 
 

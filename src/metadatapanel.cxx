@@ -2,8 +2,12 @@
 
 #include <metadatafactory.hxx>
 
+// core
+#include <Qt>
+
 // widgets
 #include <QMessageBox>
+#include <QStyle>
 
 
 MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QScrollArea(parent) {
@@ -25,17 +29,31 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 				continue;
 			}
 
-			QLabel* n      = new QLabel(e->label.c_str(), this);
-			QLabel* d      = (e->type == Chunk::Type::NONE ? NULL : new QLabel(e->data.c_str(), this));
-			QPushButton* b = (e->required()                ? NULL : new QPushButton("Clear", this));
-			labels.push_back(std::make_tuple((i + skip), n, d, b));
+			QLabel*      n = new QLabel(e->label.c_str(), this);
+			QScrollArea* s;
+			QLabel*      d;
+			QPushButton* b = (e->required() ? NULL : new QPushButton("Clear", this));
+
+			if (e->type == Chunk::Type::NONE) {
+				s = NULL;
+				d = NULL;
+			} else {
+				// TODO Seems to mess up QLabel width if less than QScrollArea
+				s = new QScrollArea(this);
+				d = new QLabel(e->data.c_str(), s);
+			}
+
+			labels.push_back(std::make_tuple((i + skip), n, std::make_pair(s, d), b));
 
 			layout->addWidget(n, i, 0);
 
-			if (d != NULL) {
+			if (s != NULL) {
 				d->setWordWrap(true);
 				d->setTextFormat(Qt::RichText);
-				layout->addWidget(d, i, 1);
+
+				s->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+				s->setWidget(d);
+				layout->addWidget(s, i, 1);
 			}
 
 			if (b != NULL) {
@@ -47,6 +65,12 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 
 	grid->setLayout(layout);
 	setWidget(grid);
+
+	// QScrollArea.width() doesn't seem to include the scroll bar,
+	//   verticalScrollBar() isn't initialized (says width == 100),
+	//   and a two-pixel padding exists around the latter (last doubled to
+	//   work with other GUI styles)
+	setFixedWidth(grid->sizeHint().width() + style()->pixelMetric(QStyle::PM_ScrollBarExtent) + 4);
 }
 
 
@@ -65,7 +89,7 @@ bool MetadataPanel::isValid() const {
 void MetadataPanel::clearTag(unsigned int index) {
 	unsigned int dataIndex = std::get<0>(labels[index]);
 	QLabel*      title     = std::get<1>(labels[index]);
-	QLabel*      contents  = std::get<2>(labels[index]);
+	QLabel*      contents  = std::get<2>(labels[index]).second;
 	QPushButton* tagButton = std::get<3>(labels[index]);
 
 	if (tagButton == NULL) {

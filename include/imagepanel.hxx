@@ -24,10 +24,10 @@ class ImagePanel : public QFrame {
 private:
 	QPixmap img;
 
-	PreviewPanel*  pPanel;
-	MetadataPanel* mPanel;
+	PreviewPanel*  pPanel = NULL;
+	MetadataPanel* mPanel = NULL;
 
-	QHBoxLayout* layout;
+	QHBoxLayout*   layout = NULL;
 
 public:
 	ImagePanel(const QString& = "", QWidget* = 0, Qt::WindowFlags = 0);

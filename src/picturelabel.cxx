@@ -6,12 +6,22 @@
 
 PictureLabel::PictureLabel(const QPixmap& i, QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f), img(i) {
 	QSizePolicy p = sizePolicy();
+
 	p.setHeightForWidth(true);
-	p.setWidthForHeight(true);
+	p.setHorizontalPolicy(QSizePolicy::Maximum);
+	p.setVerticalPolicy(QSizePolicy::Maximum);
+	p.setHorizontalStretch(0);
+	p.setVerticalStretch(0);
+
 	setSizePolicy(p);
 
 	setScaledContents(true);
 	setPixmap(img);
+}
+
+
+bool PictureLabel::hasHeightForWidth() const {
+	return true;
 }
 
 
@@ -29,10 +39,6 @@ int PictureLabel::widthForHeight(int h) const {
 	double dh = h;
 
 	return ((dw * dh) / di);
-}
-
-QSize PictureLabel::sizeHint() const {
-	return QSize(300, heightForWidth(300));
 }
 
 

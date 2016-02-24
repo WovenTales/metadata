@@ -27,7 +27,7 @@ private:
 public:
 	PreviewPanel(const QPixmap&, QWidget* = 0, Qt::WindowFlags = 0);
 
-	virtual void resizeEvent(QResizeEvent*);
+	virtual void resizeEvent(QResizeEvent*) override;
 
 	bool isValid() const;
 };

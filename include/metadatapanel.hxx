@@ -7,6 +7,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <utility>
 
 // core
 #include <Qt>
@@ -29,7 +30,7 @@ private:
 	QFrame*      grid;
 	QGridLayout* layout;
 
-	std::vector< std::tuple< unsigned int, QLabel*, QLabel*, QPushButton* > > labels;
+	std::vector< std::tuple< unsigned int, QLabel*, std::pair< QScrollArea*, QLabel* >, QPushButton* > > labels;
 
 public:
 	MetadataPanel(const QString&, QWidget* = 0, Qt::WindowFlags = 0);
