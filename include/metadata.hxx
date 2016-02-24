@@ -11,8 +11,8 @@ class MetadataFactory;
 #include <string>
 
 
-#define METADATA_CONSTRUCTORS(_SUBTYPE_)    private:   using Metadata::Metadata; \
-                                                       _SUBTYPE_() = default; \
+#define METADATA_CONSTRUCTORS(_SUBTYPE_)               using Metadata::Metadata; \
+                                            private:   _SUBTYPE_() = default; \
                                                        friend MetadataFactory; \
                                             protected: _SUBTYPE_(const std::string& path) : Metadata(path) { create(); }
 

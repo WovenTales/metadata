@@ -9,28 +9,28 @@
 
 
 std::map< std::string, std::pair< std::string, Chunk::Type > > PNGTypeMap = {
-	// TODO: Try to reduce amount of Chunk::Type::HEX entries via proper formatting
-	{ "IHDR", { "Header",                         Chunk::Type::HEADER } },
-	{ "PLTE", { "Palette",                        Chunk::Type::HEX    } },
+	// TODO: Implement Chunk::Type::CUSTOM entries
+	{ "IHDR", { "Header",                         Chunk::Type::CUSTOM } },
+	{ "PLTE", { "Palette",                        Chunk::Type::CUSTOM } },
 	{ "IDAT", { "Image",                          Chunk::Type::COUNT  } },
 	{ "IEND", { "End of file",                    Chunk::Type::NONE   } },
 
 	{ "tRNS", { "Transparency color",             Chunk::Type::COLOR  } },
 
-	{ "cHRM", { "Chromaticity",                   Chunk::Type::HEX    } },
-	{ "gAMA", { "Gamma",                          Chunk::Type::HEX    } },
+	{ "cHRM", { "Chromaticity",                   Chunk::Type::CUSTOM } },
+	{ "gAMA", { "Gamma",                          Chunk::Type::CUSTOM } },
 	{ "iCCP", { "Color profile",                  Chunk::Type::NONE   } },
-	{ "sBIT", { "Significant bits in color data", Chunk::Type::HEX    } },
-	{ "sRGB", { "RGB color space",                Chunk::Type::HEX    } },
+	{ "sBIT", { "Significant bits in color data", Chunk::Type::DIGIT  } },
+	{ "sRGB", { "RGB color space",                Chunk::Type::CUSTOM } },
 
 	{ "tEXt", { "Text",                           Chunk::Type::TEXT   } },
-	{ "zTXt", { "Compressed text",                Chunk::Type::CTEXT  } },
-	{ "iTXt", { "Unicode text",                   Chunk::Type::ITEXT  } },
+	{ "zTXt", { "Compressed text",                Chunk::Type::CUSTOM } },
+	{ "iTXt", { "Unicode text",                   Chunk::Type::CUSTOM } },
 
 	{ "bKGD", { "Background color",               Chunk::Type::COLOR  } },
-	{ "hIST", { "Histogram",                      Chunk::Type::HEX    } },
-	{ "pHYs", { "Pixel dimensions",               Chunk::Type::HEX    } },
-	{ "sPLT", { "Suggested palette",              Chunk::Type::HEX    } },
+	{ "hIST", { "Histogram",                      Chunk::Type::CUSTOM } },
+	{ "pHYs", { "Pixel dimensions",               Chunk::Type::CUSTOM } },
+	{ "sPLT", { "Suggested palette",              Chunk::Type::CUSTOM } },
 
 	{ "tIME", { "Last modified",                  Chunk::Type::TIME   } },
 };
@@ -97,8 +97,8 @@ std::string PNGChunk::data(Chunk::Type type) const {
 	std::string str;
 
 	switch (type) {
-		case Type::HEADER:
-			return "TODO";
+		case Type::CUSTOM:
+			return "TODO<br><br>" + hexString();
 		case Type::TEXT:
 			str = std::string(raw, length);
 			n = str.find('\0');

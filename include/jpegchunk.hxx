@@ -10,10 +10,11 @@
 
 
 class JPEGChunk : public Chunk {
-	// Inherit constructors
-	using Chunk::Chunk;
+	CHUNK_CONSTRUCTORS(JPEGChunk);
 
 protected:
+	virtual std::string data(Type)                           const override;
+
 	virtual std::string printableTypeCode()  const override;
 	virtual std::string defaultChunkName(const std::string&) const override;
 

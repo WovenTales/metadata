@@ -10,8 +10,7 @@
 
 
 class PNGChunk : public Chunk {
-	// Inherit constructors
-	using Chunk::Chunk;
+	CHUNK_CONSTRUCTORS(JPEGChunk);
 
 protected:
 	char crc[4];

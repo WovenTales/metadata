@@ -11,22 +11,24 @@
 #include <utility>
 
 
+#define CHUNK_CONSTRUCTORS(_SUBTYPE_)    using Chunk::Chunk;
+
+
 struct Chunk {
 public:
 	enum struct Type {
 		OTHER,   // autodetect text, otherwise hex
 		NONE,    // do not display contents
 		HIDE,    // do not display contents or name
+		CUSTOM,  // specific to format of subclass
 
 		HEX,     // raw hex value
 
+		DIGIT,   // numerical value (big endian, unsigned)
 		TEXT,    // text string
-		CTEXT,   // compressed text
-		ITEXT,   // unicode text (may be compressed)
 
 		COLOR,   // color swatch
 		COUNT,   // count and display occurrences of tag
-		HEADER,  // separate and label fields according to relevant spec
 		TIME,    // timestamp
 	};
 

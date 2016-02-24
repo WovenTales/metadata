@@ -49,24 +49,52 @@ Chunk::~Chunk() {
 std::string Chunk::hexString(unsigned int* print, unsigned int* hex) const {
 	std::ostringstream ss;
 
-	ss << std::hex;
+	ss << std::hex << "<code>";
 
-	ss << "<code>";
-	for (unsigned int i = 0; i < length; ++i) {
-		if (i > 0) {
-			ss << " ";
-		}
+	unsigned int i = 0;
+	while (i < length) {
+		std::ostringstream str;
 
-		ss << std::setw(2) << std::setfill('0');
-		ss << ((unsigned int)raw[i] & 0xFF);
+		for (unsigned int j = 0; j < 8; ++i, ++j) {
+			if (i == length) {
+				for (; j < 8; ++j) {
+					// Should never occur on j == 0
+					ss << "&nbsp;&nbsp;&nbsp;";
+				}
+				break;
+			}
 
-		if ((print != NULL) || (hex != NULL)) {
+			if (j > 0) {
+				ss << "&nbsp;";
+			}
+
+			ss << std::setw(2) << std::setfill('0');
+			ss << ((unsigned int)raw[i] & 0xFF);
+
 			if (std::isprint(raw[i])) {
-				++print;
+				if (print != NULL) {
+					++print;
+				}
+
+				if (raw[i] == '&') {
+					str << "&amp;";
+				} else if (raw[i] == '<') {
+					str << "&lt;";
+				} else if (raw[i] == '>') {
+					str << "&gt;";
+				} else {
+					str << raw[i];
+				}
 			} else {
-				++hex;
+				if (hex != NULL) {
+					++hex;
+				}
+
+				str << '.';
 			}
 		}
+
+		ss << "&nbsp;&nbsp;" << str.str() << (i != length ? "  <br>" : "");
 	}
 	ss << "</code>";
 
@@ -80,6 +108,7 @@ std::string Chunk::data() const {
 
 std::string Chunk::data(Chunk::Type t) const {
 	unsigned int print = 0, hex = 0;
+	unsigned long sum = 0;
 	std::ostringstream out;
 
 	switch (t) {
@@ -97,26 +126,28 @@ std::string Chunk::data(Chunk::Type t) const {
 			return "Should not be shown";
 		case Type::HIDE:
 			return "Should not be shown";
+		case Type::CUSTOM:
+			return "SUBCLASS-DEFINED";
 
 
 		case Type::HEX:
 			return hexString();
 
 
+		case Type::DIGIT:
+			for (unsigned int i = 0; i < length; ++i) {
+				sum = sum << 8;
+				sum += (unsigned char)raw[i];
+			}
+			return std::to_string(sum);
 		case Type::TEXT:
 			return std::string(raw, length);
-		case Type::CTEXT:
-			return "TODO";
-		case Type::ITEXT:
-			return "TODO";
 
 
 		case Type::COLOR:
 			return "TODO";
 		case Type::COUNT:
 			return "";
-		case Type::HEADER:
-			return hexString();
 		case Type::TIME:
 			return "TODO";
 	}
@@ -134,7 +165,7 @@ std::string Chunk::name() const {
 	}
 }
 
-std::string Chunk::name(Chunk::Type type, const std::string& title) const {
+std::string Chunk::name(Chunk::Type, const std::string& title) const {
 	return title;
 }
 
