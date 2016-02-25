@@ -37,5 +37,8 @@ moc_*.cpp
 *.png
 *.jpg
 
+# Spec reference documents
+*.pdf
+
 # Alternate interfaces
 qtcreator/*

@@ -9,6 +9,16 @@
 #include <string>
 
 
+#define EXIF_BYTE       1
+#define EXIF_ASCII      2
+#define EXIF_SHORT      3
+#define EXIF_LONG       4
+#define EXIF_RATIONAL   5
+#define EXIF_UNDEFINED  7
+#define EXIF_SLONG      9
+#define EXIF_SRATIONAL  10
+
+
 class JPEGChunk : public Chunk {
 	CHUNK_CONSTRUCTORS(JPEGChunk);
 
@@ -19,7 +29,9 @@ protected:
 	virtual std::string printableTypeCode()                  const override;
 	virtual std::string defaultChunkName(const std::string&) const override;
 
-	static bool dataFreeTag(unsigned char);
+	static bool         dataFreeTag(unsigned char);
+	       unsigned int exifRational(const char*, bool)      const;
+	                int exifSRational(const char*, bool)     const;
 
 public:
 	JPEGChunk(std::istream&);

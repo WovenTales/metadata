@@ -142,7 +142,7 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 			throw 'L';
 		}
 		// JPEG is strictly big-endian, but includes length bytes in count
-		length = ((256 * (unsigned char)bytes[0]) + (unsigned char)bytes[1] - 2);
+		length = (readBytes(bytes, 2) - 2);
 
 		// Get chunk data
 		raw = new char[length];
@@ -174,6 +174,22 @@ std::string JPEGChunk::defaultChunkName(const std::string& typeCode) const {
 	return ss.str();
 }
 
+
+unsigned int JPEGChunk::exifRational(const char* offset, bool bigEndian) const {
+	float out = readBytes(offset, 4, bigEndian);
+	out /= readBytes((offset + 4), 4, bigEndian);
+
+	return (unsigned int)out;
+}
+
+int JPEGChunk::exifSRational(const char* offset, bool bigEndian) const {
+	float out = (int)readBytes(offset, 4, bigEndian);
+	out /= (int)readBytes((offset + 4), 4, bigEndian);
+
+	return (int)out;
+}
+
+
 std::string JPEGChunk::data(Chunk::Type type) const {
 	unsigned char t = typeCode[0];
 	std::ostringstream ss;
@@ -186,16 +202,14 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 
 				// Most have specific tag number that must be used
 				//   (JFIF must be in APP0) but all still have ID string
+
 				if (id == "JFIF") {
 					ss << std::dec;
 					ss << "Version: " << ((unsigned int)raw[5] & 0xFF) << "." <<
 						((unsigned int)raw[6] & 0xFF) << "<br>";
 
-					ss << "Pixel " << ((unsigned char)raw[7] == 0 ?
-							"aspect ratio" : "density") << ": " <<
-						((((unsigned int)raw[8] & 0xFF) << 8) + ((unsigned int)raw[9] & 0xFF)) <<
-						"x" <<
-						((((unsigned int)raw[10] & 0xFF) << 8) + ((unsigned int)raw[11] & 0xFF));
+					ss << "Pixel " << ((unsigned char)raw[7] == 0 ? "aspect ratio" : "density") <<
+						": " << readBytes((raw + 8), 2) << "x" << readBytes((raw + 10), 2);
 					if ((unsigned char)raw[7] != 0) {
 						ss << " per ";
 						switch ((unsigned char)raw[7]) {
@@ -212,13 +226,379 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 					}
 					ss << "<br>";
 
+					// Image (3-byte pixels: R0, G0, B0, R1, G1, B1, ...)
 					ss << "Thumbnail: " << ((unsigned int)raw[12] & 0xFF) << "x" <<
-						((unsigned int)raw[13] & 0xFF) << "<br>" << hexString(NULL, NULL, 14);
+						((unsigned int)raw[13] & 0xFF) << hexString(true, 14);
+
+
+				} else if (id == "JFXX") {
+					std::string str;
+
+					switch ((unsigned char)raw[5]) {
+						case 0x10:
+							// Standard JPEG encoding
+							ss << "JPEG thumbnail: " << hexString(true, 6);
+						case 0x11:
+							// Palette (3*256 bytes), then image (byte index)
+							ss << "Thumbnail (1 byte per pixel): " <<
+								((unsigned int)raw[6] & 0xFF) << "x" <<
+								((unsigned int)raw[7] & 0xFF) << hexString(true, 8);
+						case 0x13:
+							// Image (R0, G0, B0, R1, G1, B1, ...)
+							ss << "Thumbnail (3 bytes per pixel): " <<
+								((unsigned int)raw[6] & 0xFF) << "x" <<
+								((unsigned int)raw[7] & 0xFF) << hexString(true, 8);
+						default:
+							return ("(Unrecognized extension) " + hexString(true, 6));
+					}
+
+				} else if (id == "Exif") {
+					// ID encoded with two-NULL termination rather than single
+
+					// Just as easy to access as 0x49/0x4D in 6-7
+					bool bigEndian = ((unsigned char)raw[9] == 0x2A);
+
+					// Will almost always be immediately after header,
+					//   but should check for support of edge cases
+					// Need to take EXIF header into account
+					unsigned int offset = (readBytes((raw + 10), 4, bigEndian) + 6);
+
+					char* data = (raw + offset);
+					unsigned int tagCount = readBytes(data, 2, bigEndian);
+					data += 2;
+					for (unsigned int i = 0; i < tagCount; ++i) {
+						unsigned int tag   = readBytes(data, 2, bigEndian);
+						data += 2;
+						unsigned int type  = readBytes(data, 2, bigEndian);
+						data += 2;
+						unsigned int count = readBytes(data, 4, bigEndian);
+						data += 4;
+						offset += 10;
+
+						unsigned int value = 0;
+						unsigned int valueOffset = (readBytes(data, 4, bigEndian) + 6);
+						switch (type) {
+							case EXIF_BYTE:
+								value = ((unsigned int)data[0] & 0xFF);
+								break;
+							case EXIF_SHORT:
+								value = readBytes(data, 2, bigEndian);
+								break;
+							case EXIF_LONG:
+								value = (valueOffset - 6);
+								break;
+							case EXIF_SLONG:
+								value = (int)readBytes(data, 4, bigEndian);
+								break;
+							case EXIF_RATIONAL:
+								value = exifRational((raw + valueOffset), bigEndian);
+								break;
+							case EXIF_SRATIONAL:
+								value = exifSRational((raw + valueOffset), bigEndian);
+								break;
+						}
+
+						// TODO Perfect candidate for splitting into subtags
+						switch (tag) {
+							case 256:
+								ss << "Image width: " << value << " pixels";
+								break;
+							case 257:
+								ss << "Image height: " << value << " pixels";
+								break;
+							case 258:
+								ss << "Bits per sample: ";
+								ss << readBytes((raw + valueOffset),     2, bigEndian) << ",&nbsp;";
+								ss << readBytes((raw + valueOffset + 2), 2, bigEndian) << ",&nbsp;";
+								ss << readBytes((raw + valueOffset + 4), 2, bigEndian);
+								break;
+							case 259:
+								ss << "Compression scheme: ";
+								switch (value) {
+									case 1:
+										ss << "Uncompressed";
+										break;
+									case 6:
+										ss << "JPEG";
+										break;
+									default:
+										ss << "Unknown";
+										break;
+								}
+								break;
+							case 262:
+								ss << "Pixel composition: ";
+								switch (value) {
+									case 2:
+										ss << "RGB";
+										break;
+									case 6:
+										ss << "YCbCr";
+										break;
+									default:
+										ss << "Unknown";
+										break;
+								}
+								break;
+							case 270:
+								ss << "Image title: ";
+								goto ascii_goto;
+							case 271:
+								ss << "Equipment make: ";
+								goto ascii_goto;
+							case 272:
+								ss << "Equipment model: ";
+								goto ascii_goto;
+							// TODO See about displaying strips, if possible
+							case 273:
+								ss << "Image data location(s): ";
+								ss << std::hex;
+								if (count == 1) {
+									ss << "0x" << std::setw(8) << std::setfill('0');
+									ss << valueOffset << std::dec;
+									break;
+								}
+								for (unsigned int j = 0; j < count; ++j) {
+									if (j > 0) {
+										ss << ",<br>                        ";
+									}
+									ss << "0x" << std::setw(8) << std::setfill('0');
+									ss << readBytes((raw + valueOffset + (j * 4) + 6), 4, bigEndian);
+								}
+								ss << std::dec;
+								break;
+							case 274:
+								ss << "Image orientation: ";
+								switch (value) {
+									case 1:
+										ss << "Left to right, top to bottom";
+										break;
+									case 2:
+										ss << "Right to left, top to bottom";
+										break;
+									case 3:
+										ss << "Right to left, bottom to top";
+										break;
+									case 4:
+										ss << "Left to right, bottom to top";
+										break;
+									case 5:
+										ss << "Top to bottom, left to right";
+										break;
+									case 6:
+										ss << "Top to bottom, right to left";
+										break;
+									case 7:
+										ss << "Bottom to top, right to left";
+										break;
+									case 8:
+										ss << "Bottom to top, left to right";
+										break;
+									default:
+										ss << "Unknown";
+										break;
+								}
+								break;
+							case 277:
+								ss << "Samples per pixel: " << value;
+								break;
+							case 278:
+								ss << "Rows per strip: " << value;
+								break;
+							case 279:
+								ss << "Bytes per strip: ";
+								{
+									char* bytes;
+									unsigned int size = (type == EXIF_SHORT ? 2 : 4);
+									if ((count * size) > 4) {
+										bytes = (raw + valueOffset);
+									} else {
+										bytes = data;
+									}
+									for (unsigned int j = 0; j < count; ++j) {
+										if (j > 0) {
+											ss << ", ";
+										}
+										ss << readBytes(bytes, size, bigEndian);
+										bytes += size;
+									}
+								}
+								break;
+							case 282:
+								ss << "Pixels per unit (width): " << value;
+								break;
+							case 283:
+								ss << "Pixels per unit (height): " << value;
+								break;
+							case 284:
+								ss << "Image data arrangement: ";
+								switch (value) {
+									case 1:
+										ss << "Chunky format";
+										break;
+									case 2:
+										ss << "Planar format";
+										break;
+									default:
+										ss << "Unknown";
+										break;
+								}
+								break;
+							case 296:
+								ss << "Unit to determine resolution: ";
+								switch (value) {
+									case 1:
+										ss << "Inches";
+										break;
+									case 2:
+										ss << "Centimeters";
+										break;
+									default:
+										ss << "Unknown";
+										break;
+								}
+								break;
+							case 301:
+								ss << "Transfer function: ";
+								ss << hexString(true, offset, (3 * 256)) << std::dec;
+								break;
+							case 305:
+								ss << "Software used: ";
+								goto ascii_goto;
+							case 306:
+								ss << "Last file change: ";
+								goto ascii_goto;
+							case 315:
+								ss << "Artist/editor: ";
+								goto ascii_goto;
+							case 318:
+								ss << "White point: (";
+								ss << exifRational((raw + valueOffset),      bigEndian) << ",&nbsp;";
+								ss << exifRational((raw + valueOffset + 8),  bigEndian) << ")";
+								break;
+							case 319:
+								ss << "Primary chromaticities: [";
+								ss << exifRational((raw + valueOffset),      bigEndian) << ",&nbsp;";
+								ss << exifRational((raw + valueOffset + 8),  bigEndian) << "], [";
+								ss << exifRational((raw + valueOffset + 16), bigEndian) << ",&nbsp;";
+								ss << exifRational((raw + valueOffset + 24), bigEndian) << "], [";
+								ss << exifRational((raw + valueOffset + 32), bigEndian) << ",&nbsp;";
+								ss << exifRational((raw + valueOffset + 40), bigEndian) << "]";
+								break;
+							case 513:
+								ss << "Start of JPEG image: ";
+								ss << "0x" << std::setw(8) << std::setfill('0');
+								ss << std::hex << valueOffset << std::dec;
+								break;
+							case 514:
+								ss << "Size of JPEG image: " << value;
+								break;
+							case 529:
+								ss << "Color space transform: ";
+								ss << exifRational((raw + valueOffset),      bigEndian) << ", ";
+								ss << exifRational((raw + valueOffset + 8),  bigEndian) << ", ";
+								ss << exifRational((raw + valueOffset + 16), bigEndian);
+								break;
+							case 530:
+								ss << "Y:C subsampling ratio: ";
+								if (value == 2) {
+									switch (readBytes((data + 2), 2, bigEndian)) {
+										case 1:
+											ss << "YCbCr 4:2:2";
+											break;
+										case 2:
+											ss << "YCbCr 4:2:0";
+											break;
+										default:
+											ss << "Unknown";
+											break;
+									}
+								} else {
+									ss << "Unknown";
+								}
+								break;
+							case 531:
+								ss << "Y and C positioning: ";
+								switch (value) {
+									case 1:
+										ss << "Centered";
+										break;
+									case 2:
+										ss << "Co-sited";
+										break;
+									default:
+										ss << "Unknown";
+										break;
+								}
+								break;
+							case 532:
+								ss << "Black and white reference: [";
+								ss << exifRational((raw + valueOffset),      bigEndian) << ",&nbsp;";
+								ss << exifRational((raw + valueOffset + 8),  bigEndian) << "], [";
+								ss << exifRational((raw + valueOffset + 16), bigEndian) << ",&nbsp;";
+								ss << exifRational((raw + valueOffset + 24), bigEndian) << "], [";
+								ss << exifRational((raw + valueOffset + 32), bigEndian) << ",&nbsp;";
+								ss << exifRational((raw + valueOffset + 40), bigEndian) << "]";
+								break;
+							case 33432:
+								ss << "Copyright holder: ";
+								{
+									char* bytes;
+									std::string str;
+									unsigned int len;
+									if (count > 4) {
+										bytes = (raw + valueOffset);
+									} else {
+										bytes = data;
+									}
+									if ((bytes[0] == ' ') && (bytes[1] == '\0')) {
+										ss << "(Editor) " << std::string(bytes + 2);
+									} else {
+										str = std::string(bytes);
+										ss << "(Photographer) " << str;
+										len = (str.length() + 1);
+										if (len < count) {
+											ss << ", (Editor) " << std::string(bytes + len);
+										}
+									}
+								}
+								break;
+							// TODO For next three, follow offset to print values
+							case 34665:
+								ss << "EXIF IFD location: ";
+								ss << "0x" << std::setw(8) << std::setfill('0');
+								ss << std::hex << valueOffset << std::dec;
+								break;
+							case 34853:
+								ss << "GPS IFD location: ";
+								ss << "0x" << std::setw(8) << std::setfill('0');
+								ss << std::hex << valueOffset << std::dec;
+								break;
+							case 40965:
+								ss << "Interoperability IFD location: ";
+								ss << "0x" << std::setw(8) << std::setfill('0');
+								ss << std::hex << valueOffset << std::dec;
+								break;
+							default:
+								ss << "Unknown tag " << tag << ": ";
+								ss << hexString(true, offset, count);
+								break;
+						ascii_goto:
+								// NULL-termination included in count
+								if (count > 4) {
+									ss << std::string(raw + valueOffset);
+								} else {
+									ss << std::string(data);
+								}
+								break;
+						}
+
+						ss << "<br>";
+					}
 				}
 
 				if (ss.tellp() == 0) {
-					return ("(Unrecognized application)<br><br>" +
-							hexString(NULL, NULL, (id.length() + 1)));
+					return ("(Unrecognized application) " + hexString(true, id.length() + 1));
 				} else {
 					return ss.str();
 				}

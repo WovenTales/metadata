@@ -38,13 +38,14 @@ private:
 	static std::string sanitize(std::string);
 
 protected:
-	      unsigned int   length   = 0;
-	      std::string    typeCode;
-	      char*          raw      = NULL;
+	unsigned int   length   = 0;
+	std::string    typeCode;
+	char*          raw      = NULL;
 
 	Chunk(std::istream&, const std::map< std::string, std::pair< std::string, Type > >&);
 
-	       std::string hexString(unsigned int* = NULL, unsigned int* = NULL, unsigned int = 0) const;
+	        std::string hexString(bool = false, unsigned int = 0, unsigned int = 0,
+				unsigned int* = NULL, unsigned int* = NULL) const;
 
 	virtual std::string data(Type)                           const;
 	virtual std::string name(Type, const std::string&)       const;
@@ -64,6 +65,8 @@ public:
 	virtual bool        required()           const = 0;
 
 	virtual void        write(std::ostream&) const = 0;
+
+	static unsigned int readBytes(const char*, unsigned char, bool = true);
 };
 
 

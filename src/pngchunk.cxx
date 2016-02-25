@@ -54,9 +54,7 @@ PNGChunk::PNGChunk(std::istream& file) : Chunk(file, PNGTypeMap) {
 		throw 'L';
 	}
 	// PNG is strictly big-endian
-	for (int i = 0; i < 4; ++i) {
-		length += ((unsigned int)bytes[i] << ((3 - i) * 8));
-	}
+	length = readBytes(bytes, 4);
 
 	// Get chunk type
 	file.read(bytes, 4);

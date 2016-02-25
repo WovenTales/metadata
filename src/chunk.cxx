@@ -46,57 +46,80 @@ Chunk::~Chunk() {
 }
 
 
-std::string Chunk::hexString(unsigned int* print, unsigned int* hex, unsigned int offset) const {
+std::string Chunk::hexString(bool line, unsigned int offset, unsigned int span,
+		unsigned int* print, unsigned int* hex) const {
 	std::ostringstream ss;
 
-	ss << std::hex << "<code>";
-
 	unsigned int i = offset;
-	while (i < length) {
-		std::ostringstream str;
+	if (span == 0) {
+		span = length;
+	} else {
+		span += offset;
 
-		for (unsigned int j = 0; j < 8; ++i, ++j) {
-			if (i == length) {
-				for (; j < 8; ++j) {
-					// Should never occur on j == 0
-					ss << "&nbsp;&nbsp;&nbsp;";
-				}
-				break;
-			}
+		if (span > length) {
+			span = length;
+		}
+	}
 
-			// Adding padding at start helps set off from non-hex text
-			ss << "&nbsp;";
-
-			ss << std::setw(2) << std::setfill('0');
-			ss << ((unsigned int)raw[i] & 0xFF);
-
-			if (std::isprint(raw[i])) {
-				if (print != NULL) {
-					++print;
-				}
-
-				if (raw[i] == '&') {
-					str << "&amp;";
-				} else if (raw[i] == '<') {
-					str << "&lt;";
-				} else if (raw[i] == '>') {
-					str << "&gt;";
-				} else {
-					str << raw[i];
-				}
-			} else {
-				if (hex != NULL) {
-					++hex;
-				}
-
-				str << '.';
-			}
+	unsigned int size = (span - offset);
+	if (size > 256) {
+		// Long QLabels cause a very noticable slowdown
+		ss << size << " bytes";
+	} else {
+		if (line) {
+			ss << "<br>";
 		}
 
-		// &nbsp; before <br> hack to prevent scroll bar from overlapping text
-		ss << "&nbsp;&nbsp;" << str.str() << (i != length ? "&nbsp;&nbsp;&nbsp;<br>" : "");
+		ss << std::hex << "<code>";
+
+		while (i < span) {
+			std::ostringstream str;
+
+			// i is incremented here
+			for (unsigned int j = 0; j < 8; ++i, ++j) {
+				if (i == span) {
+					for (; j < 8; ++j) {
+						// Should never occur on j == 0
+						ss << "&nbsp;&nbsp;&nbsp;";
+					}
+					break;
+				}
+
+				// Adding padding at start helps set off from non-hex text
+				ss << "&nbsp;";
+
+				ss << std::setw(2) << std::setfill('0');
+				ss << ((unsigned int)raw[i] & 0xFF);
+
+				if (std::isprint(raw[i])) {
+					if (print != NULL) {
+						++print;
+					}
+
+					if (raw[i] == '&') {
+						str << "&amp;";
+					} else if (raw[i] == '<') {
+						str << "&lt;";
+					} else if (raw[i] == '>') {
+						str << "&gt;";
+					} else {
+						str << raw[i];
+					}
+				} else {
+					if (hex != NULL) {
+						++hex;
+					}
+
+					str << '.';
+				}
+			}
+
+			// &nbsp; before <br> is a hack to prevent the scroll bar from overlapping text
+			ss << "&nbsp;&nbsp;" << str.str() << (i != span ? "&nbsp;&nbsp;&nbsp;<br>" : "");
+		}
+
+		ss << "</code>";
 	}
-	ss << "</code>";
 
 	return ss.str();
 }
@@ -113,7 +136,7 @@ std::string Chunk::data(Chunk::Type t) const {
 
 	switch (t) {
 		case Type::OTHER:
-			out << hexString(&print, &hex);
+			out << hexString(false, 0, 0, &print, &hex);
 
 			// If it seems likely this is a text field, interpret it as such
 			if (print > hex) {
@@ -177,4 +200,23 @@ Chunk::Type Chunk::type() const {
 	} else {
 		return Type::OTHER;
 	}
+}
+
+
+unsigned int Chunk::readBytes(const char* data, unsigned char length, bool bigEndian) {
+	unsigned int out   = 0;
+	         int shift = (bigEndian ? ((length - 1) * 8) : 0);
+
+	for (unsigned char i = 0; i < length; ++i, ++data) {
+		out += (((unsigned int)(*data) & 0xFF) << shift);
+
+		if (bigEndian) {
+			// Will underflow, but loop exits before next use
+			shift -= 8;
+		} else {
+			shift += 8;
+		}
+	}
+
+	return out;
 }
