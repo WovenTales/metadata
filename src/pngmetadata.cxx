@@ -52,7 +52,7 @@ void PNGMetadata::read(std::ifstream& file) {
 		std::string n = c->name();
 		auto i = tags.begin(), e = tags.end();
 		switch (c->type()) {
-			case Chunk::Type::COUNT:
+			case ChunkType::COUNT:
 				for (; i != e; ++i) {
 					if (i->label == n) {
 						i->addChunk(c);
@@ -75,7 +75,7 @@ void PNGMetadata::read(std::ifstream& file) {
 	}
 }
 
-void PNGMetadata::write(const std::string& path) const {
+void PNGMetadata::write(const std::string& path) {
 	std::ofstream out(path);
 
 	out.write("\x89PNG\r\n\x1A\n", 8);

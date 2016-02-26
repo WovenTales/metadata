@@ -13,6 +13,8 @@ OBJECTS_DIR  = obj
 
 # Input
 HEADERS += include/chunk.hxx \
+           include/chunkiterator.hxx \
+           include/chunktype.hxx \
            include/imagepanel.hxx \
            include/jpegchunk.hxx \
            include/jpegmetadata.hxx \
@@ -20,13 +22,16 @@ HEADERS += include/chunk.hxx \
            include/metadata.hxx \
            include/metadatafactory.hxx \
            include/metadatafiletype.hxx \
+           include/metadataiterator.hxx \
            include/metadatapanel.hxx \
+           include/metadatatag.hxx \
            include/picturelabel.hxx \
            include/pngchunk.hxx \
            include/pngmetadata.hxx \
            include/previewpanel.hxx
 
 SOURCES += src/chunk.cxx \
+           src/chunkiterator.cxx \
            src/imagepanel.cxx \
            src/jpegchunk.cxx \
            src/jpegmetadata.cxx \
@@ -34,7 +39,9 @@ SOURCES += src/chunk.cxx \
            src/metadata.cxx \
            src/metadatafactory.cxx \
            src/metadatafiletype.cxx \
+           src/metadataiterator.cxx \
            src/metadatapanel.cxx \
+           src/metadatatag.cxx \
            src/picturelabel.cxx \
            src/pngchunk.cxx \
            src/pngmetadata.cxx \

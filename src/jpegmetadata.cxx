@@ -32,7 +32,7 @@ void JPEGMetadata::read(std::ifstream& file) {
 		std::string n = c->name();
 		auto i = tags.begin(), e = tags.end();
 		switch (c->type()) {
-			case Chunk::Type::COUNT:
+			case ChunkType::COUNT:
 				for (; i != e; ++i) {
 					if (i->label == n) {
 						i->addChunk(c);
@@ -55,13 +55,11 @@ void JPEGMetadata::read(std::ifstream& file) {
 	}
 }
 
-void JPEGMetadata::write(const std::string& path) const {
+void JPEGMetadata::write(const std::string& path) {
 	std::ofstream out(path);
 
 	for (auto t = tags.begin(); t != tags.end(); ++t) {
-		for (auto c = t->begin(); c != t->end(); ++c) {
-			(*c)->write(out);
-		}
+		t->write(out);
 	}
 
 	out.close();

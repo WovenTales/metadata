@@ -10,78 +10,78 @@
 
 
 //        typeCode                name         type
-std::map< std::string, std::pair< std::string, Chunk::Type > > JPEGTypeMap = {
-	// TODO: Implement Chunk::Type::CUSTOM entries
-	{ "\xD8", { "Start of file",                                         Chunk::Type::NONE   } },
-	{ "\xD9", { "End of file",                                           Chunk::Type::NONE   } },
-	{ "\xDA", { "Image",                                                 Chunk::Type::NONE   } },
-	{ "\xFE", { "Comment",                                               Chunk::Type::TEXT   } },
+std::map< std::string, std::pair< std::string, ChunkType > > JPEGTypeMap = {
+	// TODO: Implement ChunkType::CUSTOM entries
+	{ "\xD8", { "Start of file",                                         ChunkType::NONE   } },
+	{ "\xD9", { "End of file",                                           ChunkType::NONE   } },
+	{ "\xDA", { "Image",                                                 ChunkType::NONE   } },
+	{ "\xFE", { "Comment",                                               ChunkType::TEXT   } },
 
-	{ "\xC0", { "Start Huffman frame (baseline DCT)",                    Chunk::Type::CUSTOM } },
-	{ "\xC1", { "Start Huffman frame (extended sequential DCT)",         Chunk::Type::CUSTOM } },
-	{ "\xC2", { "Start Huffman frame (progressive DCT)",                 Chunk::Type::CUSTOM } },
-	{ "\xC3", { "Start Huffman frame (lossless)",                        Chunk::Type::CUSTOM } },
-	{ "\xC5", { "Start Huffman frame (differential sequential DCT)",     Chunk::Type::CUSTOM } },
-	{ "\xC6", { "Start Huffman frame (differential progressive DCT)",    Chunk::Type::CUSTOM } },
-	{ "\xC7", { "Start Huffman frame (differential lossless)",           Chunk::Type::CUSTOM } },
-	{ "\xC9", { "Start arithmatic frame (extended sequential DCT)",      Chunk::Type::CUSTOM } },
-	{ "\xCA", { "Start arithmatic frame (progressive DCT)",              Chunk::Type::CUSTOM } },
-	{ "\xCB", { "Start arithmatic frame (lossless)",                     Chunk::Type::CUSTOM } },
-	{ "\xCD", { "Start arithmatic frame (differential sequential DCT)",  Chunk::Type::CUSTOM } },
-	{ "\xCE", { "Start arithmatic frame (differential progressive DCT)", Chunk::Type::CUSTOM } },
-	{ "\xCF", { "Start arithmatic frame (differential lossless)",        Chunk::Type::CUSTOM } },
+	{ "\xC0", { "Start Huffman frame (baseline DCT)",                    ChunkType::CUSTOM } },
+	{ "\xC1", { "Start Huffman frame (extended sequential DCT)",         ChunkType::CUSTOM } },
+	{ "\xC2", { "Start Huffman frame (progressive DCT)",                 ChunkType::CUSTOM } },
+	{ "\xC3", { "Start Huffman frame (lossless)",                        ChunkType::CUSTOM } },
+	{ "\xC5", { "Start Huffman frame (differential sequential DCT)",     ChunkType::CUSTOM } },
+	{ "\xC6", { "Start Huffman frame (differential progressive DCT)",    ChunkType::CUSTOM } },
+	{ "\xC7", { "Start Huffman frame (differential lossless)",           ChunkType::CUSTOM } },
+	{ "\xC9", { "Start arithmatic frame (extended sequential DCT)",      ChunkType::CUSTOM } },
+	{ "\xCA", { "Start arithmatic frame (progressive DCT)",              ChunkType::CUSTOM } },
+	{ "\xCB", { "Start arithmatic frame (lossless)",                     ChunkType::CUSTOM } },
+	{ "\xCD", { "Start arithmatic frame (differential sequential DCT)",  ChunkType::CUSTOM } },
+	{ "\xCE", { "Start arithmatic frame (differential progressive DCT)", ChunkType::CUSTOM } },
+	{ "\xCF", { "Start arithmatic frame (differential lossless)",        ChunkType::CUSTOM } },
 
-	{ "\xC4", { "Huffman table(s)",                                      Chunk::Type::HEX    } },
-	{ "\xCC", { "Arithmatic coding conditioning(s)",                     Chunk::Type::HEX    } },
-	{ "\xDB", { "Quantization table(s)",                                 Chunk::Type::HEX    } },
-	{ "\xF1", { "Temporary private use",                                 Chunk::Type::HEX    } },
+	{ "\xC4", { "Huffman table(s)",                                      ChunkType::HEX    } },
+	{ "\xCC", { "Arithmatic coding conditioning(s)",                     ChunkType::HEX    } },
+	{ "\xDB", { "Quantization table(s)",                                 ChunkType::HEX    } },
+	{ "\xF1", { "Temporary private use",                                 ChunkType::HEX    } },
 
-	{ "\xDC", { "Number of lines",                                       Chunk::Type::DIGIT  } },
-	{ "\xDE", { "Hiearchical progression",                               Chunk::Type::CUSTOM } },
-	{ "\xDF", { "Reference component(s)",                                Chunk::Type::HEX    } },
+	{ "\xDC", { "Number of lines",                                       ChunkType::DIGIT  } },
+	{ "\xDE", { "Hiearchical progression",                               ChunkType::CUSTOM } },
+	{ "\xDF", { "Reference component(s)",                                ChunkType::HEX    } },
 
-	{ "\xDD", { "Restart interval",                                      Chunk::Type::DIGIT  } },
-	{ "\xD0", { "Restart marker",                                        Chunk::Type::NONE   } },
-	{ "\xD1", { "Restart marker",                                        Chunk::Type::NONE   } },
-	{ "\xD2", { "Restart marker",                                        Chunk::Type::NONE   } },
-	{ "\xD3", { "Restart marker",                                        Chunk::Type::NONE   } },
-	{ "\xD4", { "Restart marker",                                        Chunk::Type::NONE   } },
-	{ "\xD5", { "Restart marker",                                        Chunk::Type::NONE   } },
-	{ "\xD6", { "Restart marker",                                        Chunk::Type::NONE   } },
-	{ "\xD7", { "Restart marker",                                        Chunk::Type::NONE   } },
+	{ "\xDD", { "Restart interval",                                      ChunkType::DIGIT  } },
+	{ "\xD0", { "Restart marker",                                        ChunkType::NONE   } },
+	{ "\xD1", { "Restart marker",                                        ChunkType::NONE   } },
+	{ "\xD2", { "Restart marker",                                        ChunkType::NONE   } },
+	{ "\xD3", { "Restart marker",                                        ChunkType::NONE   } },
+	{ "\xD4", { "Restart marker",                                        ChunkType::NONE   } },
+	{ "\xD5", { "Restart marker",                                        ChunkType::NONE   } },
+	{ "\xD6", { "Restart marker",                                        ChunkType::NONE   } },
+	{ "\xD7", { "Restart marker",                                        ChunkType::NONE   } },
 
-	{ "\xE0", { "Application specific 0",                                Chunk::Type::CUSTOM } },
-	{ "\xE1", { "Application specific 1",                                Chunk::Type::CUSTOM } },
-	{ "\xE2", { "Application specific 2",                                Chunk::Type::CUSTOM } },
-	{ "\xE3", { "Application specific 3",                                Chunk::Type::CUSTOM } },
-	{ "\xE4", { "Application specific 4",                                Chunk::Type::CUSTOM } },
-	{ "\xE5", { "Application specific 5",                                Chunk::Type::CUSTOM } },
-	{ "\xE6", { "Application specific 6",                                Chunk::Type::CUSTOM } },
-	{ "\xE7", { "Application specific 7",                                Chunk::Type::CUSTOM } },
-	{ "\xE8", { "Application specific 8",                                Chunk::Type::CUSTOM } },
-	{ "\xE9", { "Application specific 9",                                Chunk::Type::CUSTOM } },
-	{ "\xEA", { "Application specific 10",                               Chunk::Type::CUSTOM } },
-	{ "\xEB", { "Application specific 11",                               Chunk::Type::CUSTOM } },
-	{ "\xEC", { "Application specific 12",                               Chunk::Type::CUSTOM } },
-	{ "\xED", { "Application specific 13",                               Chunk::Type::CUSTOM } },
-	{ "\xEE", { "Application specific 14",                               Chunk::Type::CUSTOM } },
-	{ "\xEF", { "Application specific 15",                               Chunk::Type::CUSTOM } },
+	{ "\xE0", { "Application specific 0",                                ChunkType::CUSTOM } },
+	{ "\xE1", { "Application specific 1",                                ChunkType::CUSTOM } },
+	{ "\xE2", { "Application specific 2",                                ChunkType::CUSTOM } },
+	{ "\xE3", { "Application specific 3",                                ChunkType::CUSTOM } },
+	{ "\xE4", { "Application specific 4",                                ChunkType::CUSTOM } },
+	{ "\xE5", { "Application specific 5",                                ChunkType::CUSTOM } },
+	{ "\xE6", { "Application specific 6",                                ChunkType::CUSTOM } },
+	{ "\xE7", { "Application specific 7",                                ChunkType::CUSTOM } },
+	{ "\xE8", { "Application specific 8",                                ChunkType::CUSTOM } },
+	{ "\xE9", { "Application specific 9",                                ChunkType::CUSTOM } },
+	{ "\xEA", { "Application specific 10",                               ChunkType::CUSTOM } },
+	{ "\xEB", { "Application specific 11",                               ChunkType::CUSTOM } },
+	{ "\xEC", { "Application specific 12",                               ChunkType::CUSTOM } },
+	{ "\xED", { "Application specific 13",                               ChunkType::CUSTOM } },
+	{ "\xEE", { "Application specific 14",                               ChunkType::CUSTOM } },
+	{ "\xEF", { "Application specific 15",                               ChunkType::CUSTOM } },
 
-	{ "\xC8", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF0", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF1", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF2", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF3", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF4", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF5", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF6", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF7", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF8", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xF9", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xFA", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xFB", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xFC", { "JPEG extension",                                        Chunk::Type::NONE   } },
-	{ "\xFD", { "JPEG extension",                                        Chunk::Type::NONE   } },
+	{ "\xC8", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF0", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF1", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF2", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF3", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF4", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF5", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF6", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF7", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF8", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xF9", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xFA", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xFB", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xFC", { "JPEG extension",                                        ChunkType::NONE   } },
+	{ "\xFD", { "JPEG extension",                                        ChunkType::NONE   } },
 };
 
 
@@ -190,12 +190,12 @@ int JPEGChunk::exifSRational(const char* offset, bool bigEndian) const {
 }
 
 
-std::string JPEGChunk::data(Chunk::Type type) const {
+std::string JPEGChunk::data(ChunkType type) const {
 	unsigned char t = typeCode[0];
 	std::ostringstream ss;
 
 	switch (type) {
-		case Type::CUSTOM:
+		case ChunkType::CUSTOM:
 			if ((t >= 0xE0) && (t <= 0xEF)) {  // Application-specific
 				// All APP tags should have 0x00-terminated ID at beginning
 				std::string id(raw);
@@ -677,11 +677,11 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 	}
 }
 
-std::string JPEGChunk::name(Chunk::Type type, const std::string& title) const {
+std::string JPEGChunk::name(ChunkType type, const std::string& title) const {
 	unsigned char t = typeCode[0];
 
 	switch (type) {
-		case Type::CUSTOM:
+		case ChunkType::CUSTOM:
 			if ((t >= 0xE0) && (t <= 0xEF)) {  // Application-specific
 				// Display tag ID in title
 				return (std::string(title).insert(21, ("<" + std::string(raw) + ", ")) + ">");

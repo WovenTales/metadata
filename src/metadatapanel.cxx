@@ -24,7 +24,7 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 		// Do want numerical iteration as well, to insert labels into proper row
 		int i = 0, skip = 0;
 		for (auto e = data->begin(); e != data->end(); ++e, ++i) {
-			if (e->type == Chunk::Type::HIDE) {
+			if (e->type == ChunkType::HIDE) {
 				++skip;
 				continue;
 			}
@@ -34,7 +34,7 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 			QLabel*      d;
 			QPushButton* b = (e->required() ? NULL : new QPushButton("Clear", this));
 
-			if (e->type == Chunk::Type::NONE) {
+			if (e->type == ChunkType::NONE) {
 				s = NULL;
 				d = NULL;
 			} else {

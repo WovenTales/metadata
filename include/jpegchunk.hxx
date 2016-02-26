@@ -3,6 +3,7 @@
 
 
 #include <chunk.hxx>
+#include <chunktype.hxx>
 
 #include <istream>
 #include <ostream>
@@ -23,8 +24,8 @@ class JPEGChunk : public Chunk {
 	CHUNK_CONSTRUCTORS(JPEGChunk);
 
 protected:
-	virtual std::string data(Type)                           const override;
-	virtual std::string name(Type, const std::string&)       const override;
+	virtual std::string data(ChunkType)                      const override;
+	virtual std::string name(ChunkType, const std::string&)  const override;
 
 	virtual std::string printableTypeCode()                  const override;
 	virtual std::string defaultChunkName(const std::string&) const override;

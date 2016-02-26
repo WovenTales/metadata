@@ -15,7 +15,7 @@ protected:
 	virtual void read(std::ifstream&) override;
 
 public:
-	virtual void write(const std::string&) const override;
+	virtual void write(const std::string&) override;
 };
 
 

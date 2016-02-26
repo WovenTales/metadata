@@ -2,11 +2,15 @@
 #define METADATA_H
 
 
-#include <chunk.hxx>
+class Chunk;
+#include <chunktype.hxx>
 class MetadataFactory;
 #include <metadatafiletype.hxx>
+#include <metadataiterator.hxx>
+#include <metadatatag.hxx>
 
 #include <fstream>
+#include <iterator>
 #include <list>
 #include <string>
 
@@ -19,39 +23,20 @@ class MetadataFactory;
 
 class Metadata {
 public:
-	struct Tag {
-	private:
-		std::list< const Chunk* > ref;
-
-		friend Metadata;
-
-	public:
-		Chunk::Type type;
-		std::string label;
-		std::string data;
-
-		Tag(const Chunk*);
-		virtual ~Tag();
-
-		void addChunk(const Chunk*);
-
-		bool required() const;
-
-	        size_t size()                                     const noexcept { return ref.size();  };
-	        bool   empty()                                    const noexcept { return ref.empty(); };
-
-		std::list< const Chunk* >::const_iterator begin() const noexcept { return ref.begin(); };
-		std::list< const Chunk* >::const_iterator end()   const noexcept { return ref.end();   };
-	};
-
 private:
 	std::ifstream file;
 	MetadataFileType type;
 
+	// Hack, but allows ChunkIterator to have a
+	//   MetadataIterator*, breaking the circular dependancy
+	MetadataIterator* bRef = NULL;
+	MetadataIterator* rRef = NULL;
+
 	friend MetadataFactory;
+	friend MetadataIterator;
 
 protected:
-	std::list< Tag > tags;
+	std::list< MetadataTag > tags;
 
 	Metadata() = default;
 	Metadata(const std::string&);
@@ -63,18 +48,23 @@ public:
 	Metadata(const Metadata&);
 	Metadata(Metadata&&);
 
-	virtual ~Metadata() = default;
+	virtual ~Metadata();
 
 	Metadata& operator=(Metadata&& rhs);
 
-	        size_t size()                    const noexcept { return tags.size();  };
-	        bool   empty()                   const noexcept { return tags.empty(); };
+	virtual void              write(const std::string&) = 0;
+	        bool              remove(unsigned int);
 
-	virtual void   write(const std::string&) const = 0;
-	        bool   remove(unsigned int);
+	        size_t            size()                          noexcept;
+	        bool              empty()                         noexcept;
 
-	std::list< Tag >::const_iterator begin() const noexcept { return tags.cbegin(); };
-	std::list< Tag >::const_iterator end()   const noexcept { return tags.cend();   };
+	        MetadataIterator  begin()                         noexcept { return   MetadataIterator(this, false); };
+	        MetadataIterator  end()                           noexcept { return ++MetadataIterator(this, true);  };
+	        MetadataIterator  rbegin()                        noexcept { return   MetadataIterator(this, true);  };
+	        MetadataIterator  rend()                          noexcept { return --MetadataIterator(this, false); };
+
+	        MetadataIterator* beginReference();
+	        MetadataIterator* rbeginReference();
 };
 
 

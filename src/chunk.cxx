@@ -1,5 +1,7 @@
 #include <chunk.hxx>
 
+#include <metadata.hxx>
+
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
@@ -34,7 +36,7 @@ Chunk::Chunk(Chunk&& c) : typeMap(c.typeMap) {
 	c.raw = NULL;
 }
 
-Chunk::Chunk(std::istream& file, const std::map< std::string, std::pair< std::string, Type > >& tm) : typeMap(tm) {
+Chunk::Chunk(std::istream& file, const std::map< std::string, std::pair< std::string, ChunkType > >& tm) : typeMap(tm) {
 	file.clear();
 }
 
@@ -42,6 +44,11 @@ Chunk::Chunk(std::istream& file, const std::map< std::string, std::pair< std::st
 Chunk::~Chunk() {
 	if (raw != NULL) {
 		delete[] raw;
+	}
+
+	while (subChunks.empty() == false) {
+		delete subChunks.front();
+		subChunks.pop_front();
 	}
 }
 
@@ -129,13 +136,13 @@ std::string Chunk::data() const {
 	return sanitize(data(type()));
 }
 
-std::string Chunk::data(Chunk::Type t) const {
+std::string Chunk::data(ChunkType t) const {
 	unsigned int print = 0, hex = 0;
 	unsigned long sum = 0;
 	std::ostringstream out;
 
 	switch (t) {
-		case Type::OTHER:
+		case ChunkType::OTHER:
 			out << hexString(false, 0, 0, &print, &hex);
 
 			// If it seems likely this is a text field, interpret it as such
@@ -145,33 +152,33 @@ std::string Chunk::data(Chunk::Type t) const {
 			}
 
 			return out.str();
-		case Type::NONE:
+		case ChunkType::NONE:
 			return "Should not be shown";
-		case Type::HIDE:
+		case ChunkType::HIDE:
 			return "Should not be shown";
-		case Type::CUSTOM:
+		case ChunkType::CUSTOM:
 			return "SUBCLASS-DEFINED";
 
 
-		case Type::HEX:
+		case ChunkType::HEX:
 			return hexString();
 
 
-		case Type::DIGIT:
+		case ChunkType::DIGIT:
 			for (unsigned int i = 0; i < length; ++i) {
 				sum = sum << 8;
 				sum += (unsigned char)raw[i];
 			}
 			return std::to_string(sum);
-		case Type::TEXT:
+		case ChunkType::TEXT:
 			return std::string(raw, length);
 
 
-		case Type::COLOR:
+		case ChunkType::COLOR:
 			return "TODO";
-		case Type::COUNT:
+		case ChunkType::COUNT:
 			return "";
-		case Type::TIME:
+		case ChunkType::TIME:
 			return "TODO";
 	}
 
@@ -188,17 +195,17 @@ std::string Chunk::name() const {
 	}
 }
 
-std::string Chunk::name(Chunk::Type, const std::string& title) const {
+std::string Chunk::name(ChunkType, const std::string& title) const {
 	return title;
 }
 
 
-Chunk::Type Chunk::type() const {
+ChunkType Chunk::type() const {
 	auto i = typeMap.find(typeCode);
 	if (i != typeMap.end()) {
 		return i->second.second;
 	} else {
-		return Type::OTHER;
+		return ChunkType::OTHER;
 	}
 }
 
@@ -219,4 +226,35 @@ unsigned int Chunk::readBytes(const char* data, unsigned char length, bool bigEn
 	}
 
 	return out;
+}
+
+
+size_t Chunk::size() const noexcept {
+	if (subChunks.empty()) {
+		return 0;
+	}
+
+	size_t out = 0;
+	auto e = subChunks.cend();
+	for (auto i = subChunks.cbegin(); i != e; ++i) {
+		out += (*i)->size();
+	}
+
+	return out;
+}
+
+
+bool Chunk::empty() const noexcept {
+	if (subChunks.empty()) {
+		return true;
+	}
+
+	auto e = subChunks.cend();
+	for (auto i = subChunks.cbegin(); i != e; ++i) {
+		if ((*i)->empty() == false) {
+			return false;
+		}
+	}
+
+	return true;
 }

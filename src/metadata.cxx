@@ -4,40 +4,6 @@
 #include <iostream>
 
 
-Metadata::Tag::Tag(const Chunk* r) : ref(1, r) {
-	type = r->type();
-	label = r->name();
-	data = r->data();
-}
-
-Metadata::Tag::~Tag() {
-	while (ref.empty() == false) {
-		delete ref.front();
-		ref.pop_front();
-	}
-}
-
-
-void Metadata::Tag::addChunk(const Chunk* c) {
-	ref.push_back(c);
-}
-
-
-bool Metadata::Tag::required() const {
-	if (ref.empty()) {
-		return true;
-	} else {
-		for (auto i = ref.begin(); i != ref.end(); ++i) {
-			if ((*i)->required() == true) {
-				return true;
-			}
-		}
-		return false;
-	}
-}
-
-
-
 Metadata::Metadata(const std::string& path) : file(path, std::ifstream::binary) {
 	// TODO Check validity
 }
@@ -50,6 +16,16 @@ Metadata::Metadata(const Metadata& m) {
 Metadata::Metadata(Metadata&& m) {
 	tags.swap(m.tags);
 	// file will be closed by this point and doesn't need copying
+}
+
+
+Metadata::~Metadata() {
+	if (bRef != NULL) {
+		delete bRef;
+	}
+	if (rRef != NULL) {
+		delete rRef;
+	}
 }
 
 
@@ -90,4 +66,54 @@ bool Metadata::remove(unsigned int index) {
 
 	tags.erase(iTag);
 	return true;
+}
+
+
+size_t Metadata::size() noexcept {
+	if (tags.empty()) {
+		return 0;
+	}
+
+	size_t out = 0;
+	auto e = end();
+	for (auto i = begin(); i != e; ++i) {
+		out += i->size();
+	}
+
+	return out;
+}
+
+
+bool Metadata::empty() noexcept {
+	if (tags.empty()) {
+		return true;
+	}
+
+	auto e = end();
+	for (auto i = begin(); i != e; ++i) {
+		if (i->empty() == false) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+MetadataIterator* Metadata::beginReference() {
+	if (bRef != NULL) {
+		delete bRef;
+	}
+
+	bRef = new MetadataIterator(this, false);
+	return bRef;
+}
+
+MetadataIterator* Metadata::rbeginReference() {
+	if (rRef != NULL) {
+		delete rRef;
+	}
+
+	rRef = new MetadataIterator(this, true);
+	return rRef;
 }

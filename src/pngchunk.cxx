@@ -8,31 +8,31 @@
 #include <utility>
 
 
-std::map< std::string, std::pair< std::string, Chunk::Type > > PNGTypeMap = {
-	// TODO: Implement Chunk::Type::CUSTOM entries
-	{ "IHDR", { "Header",                         Chunk::Type::CUSTOM } },
-	{ "PLTE", { "Palette",                        Chunk::Type::CUSTOM } },
-	{ "IDAT", { "Image",                          Chunk::Type::COUNT  } },
-	{ "IEND", { "End of file",                    Chunk::Type::NONE   } },
+std::map< std::string, std::pair< std::string, ChunkType > > PNGTypeMap = {
+	// TODO: Implement ChunkType::CUSTOM entries
+	{ "IHDR", { "Header",                         ChunkType::CUSTOM } },
+	{ "PLTE", { "Palette",                        ChunkType::CUSTOM } },
+	{ "IDAT", { "Image",                          ChunkType::COUNT  } },
+	{ "IEND", { "End of file",                    ChunkType::NONE   } },
 
-	{ "tRNS", { "Transparency color",             Chunk::Type::COLOR  } },
+	{ "tRNS", { "Transparency color",             ChunkType::COLOR  } },
 
-	{ "cHRM", { "Chromaticity",                   Chunk::Type::CUSTOM } },
-	{ "gAMA", { "Gamma",                          Chunk::Type::CUSTOM } },
-	{ "iCCP", { "Color profile",                  Chunk::Type::NONE   } },
-	{ "sBIT", { "Significant bits in color data", Chunk::Type::DIGIT  } },
-	{ "sRGB", { "RGB color space",                Chunk::Type::CUSTOM } },
+	{ "cHRM", { "Chromaticity",                   ChunkType::CUSTOM } },
+	{ "gAMA", { "Gamma",                          ChunkType::CUSTOM } },
+	{ "iCCP", { "Color profile",                  ChunkType::NONE   } },
+	{ "sBIT", { "Significant bits in color data", ChunkType::DIGIT  } },
+	{ "sRGB", { "RGB color space",                ChunkType::CUSTOM } },
 
-	{ "tEXt", { "Text",                           Chunk::Type::TEXT   } },
-	{ "zTXt", { "Compressed text",                Chunk::Type::CUSTOM } },
-	{ "iTXt", { "Unicode text",                   Chunk::Type::CUSTOM } },
+	{ "tEXt", { "Text",                           ChunkType::TEXT   } },
+	{ "zTXt", { "Compressed text",                ChunkType::CUSTOM } },
+	{ "iTXt", { "Unicode text",                   ChunkType::CUSTOM } },
 
-	{ "bKGD", { "Background color",               Chunk::Type::COLOR  } },
-	{ "hIST", { "Histogram",                      Chunk::Type::CUSTOM } },
-	{ "pHYs", { "Pixel dimensions",               Chunk::Type::CUSTOM } },
-	{ "sPLT", { "Suggested palette",              Chunk::Type::CUSTOM } },
+	{ "bKGD", { "Background color",               ChunkType::COLOR  } },
+	{ "hIST", { "Histogram",                      ChunkType::CUSTOM } },
+	{ "pHYs", { "Pixel dimensions",               ChunkType::CUSTOM } },
+	{ "sPLT", { "Suggested palette",              ChunkType::CUSTOM } },
 
-	{ "tIME", { "Last modified",                  Chunk::Type::TIME   } },
+	{ "tIME", { "Last modified",                  ChunkType::TIME   } },
 };
 
 
@@ -90,14 +90,14 @@ std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
 }
 
 
-std::string PNGChunk::data(Chunk::Type type) const {
+std::string PNGChunk::data(ChunkType type) const {
 	size_t n;
 	std::string str;
 
 	switch (type) {
-		case Type::CUSTOM:
+		case ChunkType::CUSTOM:
 			return "TODO<br><br>" + hexString();
-		case Type::TEXT:
+		case ChunkType::TEXT:
 			str = std::string(raw, length);
 			n = str.find('\0');
 
@@ -112,12 +112,12 @@ std::string PNGChunk::data(Chunk::Type type) const {
 	}
 }
 
-std::string PNGChunk::name(Chunk::Type type, const std::string& title) const {
+std::string PNGChunk::name(ChunkType type, const std::string& title) const {
 	size_t n;
 	std::string str;
 
 	switch (type) {
-		case Type::TEXT:
+		case ChunkType::TEXT:
 			str = std::string(raw, length);
 			n = str.find('\0');
 
