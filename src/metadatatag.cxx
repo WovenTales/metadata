@@ -50,8 +50,8 @@ size_t MetadataTag::size() noexcept {
 	}
 
 	size_t out = 0;
-	auto e = end();
-	for (auto i = begin(); i != e; ++i) {
+	auto e = ref.end();
+	for (auto i = ref.begin(); i != e; ++i) {
 		out += (*i)->size();
 	}
 
@@ -64,8 +64,8 @@ bool MetadataTag::empty() noexcept {
 		return true;
 	}
 
-	auto e = end();
-	for (auto i = begin(); i != e; ++i) {
+	auto e = ref.end();
+	for (auto i = ref.begin(); i != e; ++i) {
 		if ((*i)->empty() == false) {
 			return false;
 		}

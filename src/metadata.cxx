@@ -33,6 +33,7 @@ void Metadata::create() {
 	try {
 		read(file);
 	} catch (char e) {
+		std::cout << "ERROR: file read failed" << std::endl;
 		file.close();
 		throw e;
 	}
@@ -70,14 +71,13 @@ bool Metadata::remove(unsigned int index) {
 
 
 size_t Metadata::size() noexcept {
-	if (tags.empty()) {
-		return 0;
-	}
-
 	size_t out = 0;
-	auto e = end();
-	for (auto i = begin(); i != e; ++i) {
-		out += i->size();
+
+	if (tags.empty() == false) {
+		auto e = tags.end();
+		for (auto i = tags.begin(); i != e; ++i) {
+			out += i->size();
+		}
 	}
 
 	return out;
@@ -85,14 +85,12 @@ size_t Metadata::size() noexcept {
 
 
 bool Metadata::empty() noexcept {
-	if (tags.empty()) {
-		return true;
-	}
-
-	auto e = end();
-	for (auto i = begin(); i != e; ++i) {
-		if (i->empty() == false) {
-			return false;
+	if (tags.empty() == false) {
+		auto e = tags.end();
+		for (auto i = tags.begin(); i != e; ++i) {
+			if (i->size() != 0) {
+				return false;
+			}
 		}
 	}
 

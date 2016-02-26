@@ -230,14 +230,13 @@ unsigned int Chunk::readBytes(const char* data, unsigned char length, bool bigEn
 
 
 size_t Chunk::size() const noexcept {
-	if (subChunks.empty()) {
-		return 0;
-	}
+	size_t out = 1;
 
-	size_t out = 0;
-	auto e = subChunks.cend();
-	for (auto i = subChunks.cbegin(); i != e; ++i) {
-		out += (*i)->size();
+	if (subChunks.empty() == false) {
+		auto e = subChunks.cend();
+		for (auto i = subChunks.cbegin(); i != e; ++i) {
+			out += (*i)->size();
+		}
 	}
 
 	return out;
@@ -245,14 +244,12 @@ size_t Chunk::size() const noexcept {
 
 
 bool Chunk::empty() const noexcept {
-	if (subChunks.empty()) {
-		return true;
-	}
-
-	auto e = subChunks.cend();
-	for (auto i = subChunks.cbegin(); i != e; ++i) {
-		if ((*i)->empty() == false) {
-			return false;
+	if (subChunks.empty() == false) {
+		auto e = subChunks.cend();
+		for (auto i = subChunks.cbegin(); i != e; ++i) {
+			if ((*i)->empty() == false) {
+				return false;
+			}
 		}
 	}
 

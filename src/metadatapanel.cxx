@@ -43,9 +43,9 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 				d = new QLabel(e->data.c_str(), s);
 			}
 
-			labels.push_back(std::make_tuple((i + skip), n, std::make_pair(s, d), b));
+			labels.push_back(std::make_tuple(i, n, std::make_pair(s, d), b));
 
-			layout->addWidget(n, i, 0);
+			layout->addWidget(n, (i - skip), 0);
 
 			if (s != NULL) {
 				d->setWordWrap(true);
@@ -53,12 +53,12 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 
 				s->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 				s->setWidget(d);
-				layout->addWidget(s, i, 1);
+				layout->addWidget(s, (i - skip), 1);
 			}
 
 			if (b != NULL) {
-				connect(b, &QPushButton::clicked, [i, this](){ this->clearTag(i); });
-				layout->addWidget(b, i, 2);
+				connect(b, &QPushButton::clicked, [i, skip, this](){ this->clearTag((i - skip)); });
+				layout->addWidget(b, (i - skip), 2);
 			}
 		}
 	}

@@ -153,7 +153,7 @@ bool MetadataIterator::operator==(const MetadataIterator& rhs) noexcept {
 		return false;
 	}
 
-	if ((data == NULL) || (data->empty())) {
+	if (data == NULL) {
 		return true;
 	}
 
