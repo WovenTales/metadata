@@ -2,10 +2,11 @@
 
 #include <pngchunk.hxx>
 
+#include <algorithm>
 #include <iostream>
 
 
-void PNGMetadata::read(std::ifstream& file) {
+void PNGMetadata::read(std::istream& file) {
 	char header[9];
 	// NULL-terminate to emulate C-string
 	header[8] = 0x00;
@@ -18,61 +19,12 @@ void PNGMetadata::read(std::ifstream& file) {
 	}
 
 	// Check against PNG header
-	if (header != std::string("\x89PNG\r\n\x1A\n")) {
+	if (std::equal(header, (header + 8), "\x89PNG\r\n\x1A\n") == false) {
 		std::cout << "ERROR: wrong file header" << std::endl;
 		throw 'H';
 	}
 
-	while (file.peek() != EOF) {
-		Chunk* c = NULL;
-		try {
-			c = new PNGChunk(file);
-		} catch (char e) {
-			std::cout << "ERROR: couldn't read chunk ";
-			switch (e) {
-				case 'L':
-					std::cout << "length";
-					break;
-				case 'T':
-					std::cout << "type code";
-					break;
-				case 'D':
-					std::cout << "data";
-					break;
-				case 'C':
-					std::cout << "CRC";
-					break;
-			}
-			std::cout << std::endl;
-
-			delete c;
-			throw 'C';
-		}
-
-		std::string n = c->name();
-		auto i = tags.begin(), e = tags.end();
-		switch (c->type()) {
-			case ChunkType::COUNT:
-				for (; i != e; ++i) {
-					if (i->label == n) {
-						i->addChunk(c);
-						i->data = (std::to_string(i->size()) + " occurences");
-
-						// Need to break out of both for and switch blocks
-						goto end_switch;
-					}
-				}
-
-				tags.emplace_back(c);
-				tags.back().data = "1 occurence";
-				break;
-			default:
-				tags.emplace_back(c);
-				break;
-		end_switch:
-			;
-		}
-	}
+	loopChunks< PNGChunk >(file);
 }
 
 void PNGMetadata::write(const std::string& path) {

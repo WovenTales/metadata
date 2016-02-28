@@ -1,5 +1,5 @@
-#ifndef PNG_METADATA_H
-#define PNG_METADATA_H
+#ifndef EXIF_METADATA_H
+#define EXIF_METADATA_H
 
 
 #include <metadata.hxx>
@@ -8,8 +8,11 @@
 #include <string>
 
 
-class PNGMetadata : public Metadata {
-	METADATA_CONSTRUCTORS(PNGMetadata);
+class ExifMetadata : public Metadata {
+	METADATA_CONSTRUCTORS(ExifMetadata);
+
+private:
+	bool bigEndian;
 
 protected:
 	virtual void read(std::istream&) override;

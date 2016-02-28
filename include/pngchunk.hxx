@@ -16,11 +16,11 @@ class PNGChunk : public Chunk {
 protected:
 	char crc[4];
 
-	virtual std::string data(ChunkType)                      const override;
-	virtual std::string name(ChunkType, const std::string&)  const override;
+	virtual std::string data(ChunkType)                     const override;
+	virtual std::string name(ChunkType, const std::string&) const override;
 
-	virtual std::string printableTypeCode()                  const override;
-	virtual std::string defaultChunkName(const std::string&) const override;
+	virtual std::string printableTypeCode()                 const override;
+	virtual std::string defaultChunkName()                  const override;
 
 public:
 	PNGChunk(const PNGChunk&);

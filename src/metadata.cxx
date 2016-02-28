@@ -4,18 +4,12 @@
 #include <iostream>
 
 
-Metadata::Metadata(const std::string& path) : file(path, std::ifstream::binary) {
-	// TODO Check validity
-}
-
 Metadata::Metadata(const Metadata& m) {
 	tags = m.tags;
-	// file will be closed by this point and doesn't need copying
 }
 
 Metadata::Metadata(Metadata&& m) {
 	tags.swap(m.tags);
-	// file will be closed by this point and doesn't need copying
 }
 
 
@@ -29,7 +23,9 @@ Metadata::~Metadata() {
 }
 
 
-void Metadata::create() {
+void Metadata::create(const std::string& path) {
+	std::ifstream file(path, std::ifstream::binary);
+
 	try {
 		read(file);
 	} catch (char e) {
@@ -99,19 +95,17 @@ bool Metadata::empty() noexcept {
 
 
 MetadataIterator* Metadata::beginReference() {
-	if (bRef != NULL) {
-		delete bRef;
+	if (bRef == NULL) {
+		bRef = new MetadataIterator(this, false);
 	}
 
-	bRef = new MetadataIterator(this, false);
 	return bRef;
 }
 
 MetadataIterator* Metadata::rbeginReference() {
-	if (rRef != NULL) {
-		delete rRef;
+	if (rRef == NULL) {
+		rRef = new MetadataIterator(this, true);
 	}
 
-	rRef = new MetadataIterator(this, true);
 	return rRef;
 }

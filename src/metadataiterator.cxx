@@ -27,7 +27,7 @@ MetadataIterator::MetadataIterator(Metadata* m, bool reverse) {
 }
 
 
-MetadataIterator& MetadataIterator::operator++() noexcept {
+MetadataIterator& MetadataIterator::operator++() {
 	switch (state) {
 		case State::BEGIN:
 			if ((data == NULL) || (data->empty())) {
@@ -35,8 +35,13 @@ MetadataIterator& MetadataIterator::operator++() noexcept {
 			} else {
 				top = tStart;
 				++top;
-				updateToTag(false);
 
+				if (top == tEnd) {
+					state = State::END;
+					break;
+				}
+
+				updateToTag(false);
 				state = State::TOP;
 			}
 			break;
@@ -48,26 +53,46 @@ MetadataIterator& MetadataIterator::operator++() noexcept {
 				state = State::INNER;
 			} else {
 				++top;
+
+				if (top == tEnd) {
+					state = State::END;
+					break;
+				}
+
 				updateToTag(false);
 			}
 			break;
 		case State::INNER:
-			++inner;
-			while ((inner->empty()) && (inner.atEnd() == false)) {
-				++inner;
-			}
-			if (inner.atEnd()) {
-				++chunk;
-				while (((*chunk)->empty()) && (chunk != cEnd)) {
-					++chunk;
+			{
+				bool first = true;
+				while (inner.atEnd() == false) {
+					if (first || inner->empty()) {
+						++inner;
+						first = false;
+					} else {
+						break;
+					}
 				}
-				if (chunk == cEnd) {
-					++top;
-					updateToTag(false);
 
-					state = State::TOP;
-				} else {
-					updateToChunk(false);
+				if (inner.atEnd()) {
+					first = true;
+					while (chunk != cEnd) {
+						if (first || (*chunk)->empty()) {
+							++chunk;
+							first = false;
+						} else {
+							break;
+						}
+					}
+
+					if (chunk == cEnd) {
+						++top;
+						updateToTag(false);
+
+						state = State::TOP;
+					} else {
+						updateToChunk(false);
+					}
 				}
 			}
 			break;
@@ -78,30 +103,50 @@ MetadataIterator& MetadataIterator::operator++() noexcept {
 	return *this;
 }
 
-MetadataIterator& MetadataIterator::operator--() noexcept {
+MetadataIterator& MetadataIterator::operator--() {
 	switch (state) {
 		case State::INNER:
-			--inner;
-			while ((inner->empty()) && (inner.atStart() == false)) {
-				--inner;
-			}
-			if (inner.atStart()) {
-				--chunk;
-				while (((*chunk)->empty()) && (chunk != cStart)) {
-					--chunk;
+			{
+				bool first = true;
+				while (inner.atStart() == false) {
+					if (first || inner->empty()) {
+						--inner;
+						first = false;
+					} else {
+						break;
+					}
 				}
-				if (chunk == cStart) {
-					state = State::TOP;
-					// fall through
+
+				if (inner.atStart()) {
+					first = true;
+					while (chunk != cStart) {
+						if (first || (*chunk)->empty()) {
+							++chunk;
+							first = false;
+						} else {
+							break;
+						}
+					}
+
+					if (chunk == cStart) {
+						state = State::TOP;
+						// fall through
+					} else {
+						updateToChunk(true);
+						break;
+					}
 				} else {
-					updateToChunk(true);
 					break;
 				}
-			} else {
-				break;
 			}
 		case State::TOP:
 			--top;
+
+			if (top == tStart) {
+				state = State::BEGIN;
+				break;
+			}
+
 			updateToTag(true);
 
 			if (tHasChildren) {
@@ -114,6 +159,12 @@ MetadataIterator& MetadataIterator::operator--() noexcept {
 			} else {
 				top = tEnd;
 				--top;
+
+				if (top == tStart) {
+					state = State::BEGIN;
+					break;
+				}
+
 				updateToTag(true);
 
 				if (tHasChildren) {
@@ -164,6 +215,22 @@ bool MetadataIterator::operator==(const MetadataIterator& rhs) noexcept {
 	return ((top == rhs.top) && (inner == rhs.inner));
 }
 
+bool MetadataIterator::atStart() const {
+	if (data == NULL) {
+		return true;
+	}
+
+	return (state == State::BEGIN);
+}
+
+bool MetadataIterator::atEnd() const {
+	if (data == NULL) {
+		return true;
+	}
+
+	return (state == State::END);
+}
+
 
 void MetadataIterator::updateToTag(bool reverse) {
 	if ((data == NULL) || (top == tStart)) {
@@ -189,7 +256,7 @@ void MetadataIterator::updateToTag(bool reverse) {
 
 		cEnd   = top->end();
 
-		while ((*chunk)->empty()) {
+		while ((chunk != cEnd) && (*chunk)->empty()) {
 			++chunk;
 		}
 	} else {
@@ -200,7 +267,7 @@ void MetadataIterator::updateToTag(bool reverse) {
 		chunk = cEnd;
 		--chunk;
 
-		while ((*chunk)->empty()) {
+		while ((chunk != cStart) && (*chunk)->empty()) {
 			--chunk;
 		}
 	}
@@ -208,19 +275,28 @@ void MetadataIterator::updateToTag(bool reverse) {
 	updateToChunk(reverse);
 }
 
-// Assumes *chunk is not empty
 void MetadataIterator::updateToChunk(bool reverse) {
-	if (reverse == false) {
+	if ((*chunk)->empty()) {
+		// Point inner into the right chunk to avoid any potential odd behaviour
 		inner = (*chunk)->begin();
+		return;
+	}
 
-		while (inner->empty()) {
-			++inner;
-		}
-	} else {
+	if (reverse) {
 		inner = (*chunk)->rbegin();
 
-		while (inner->empty()) {
-			--inner;
-		}
+		try {
+			while ((inner.atStart() == false) && inner->empty()) {
+				--inner;
+			}
+		} catch (std::out_of_range) {}
+	} else {
+		inner = (*chunk)->begin();
+
+		try {
+			while ((inner.atEnd() == false) && inner->empty()) {
+				++inner;
+			}
+		} catch (std::out_of_range) {}
 	}
 }

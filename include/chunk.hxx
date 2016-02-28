@@ -22,8 +22,7 @@ class Metadata;
 struct Chunk {
 private:
 	const std::map< std::string, std::pair< std::string, ChunkType > >& typeMap;
-
-	std::list< Metadata* > subChunks;
+	unsigned int depth = 0;
 
 	static std::string sanitize(std::string);
 
@@ -34,16 +33,19 @@ protected:
 	std::string    typeCode;
 	char*          raw      = NULL;
 
-	Chunk(std::istream&, const std::map< std::string, std::pair< std::string, ChunkType > >&);
+	std::list< Metadata* > subChunks;
 
-	        std::string hexString(bool = false, unsigned int = 0, unsigned int = 0,
+	Chunk(std::istream&, unsigned int = 0);
+	Chunk(std::istream&, const std::map< std::string, std::pair< std::string, ChunkType > >&, unsigned int = 0);
+
+	        std::string  hexString(bool = false, unsigned int = 0, unsigned int = 0,
 				unsigned int* = NULL, unsigned int* = NULL) const;
 
-	virtual std::string data(ChunkType)                      const;
-	virtual std::string name(ChunkType, const std::string&)  const;
+	virtual std::string  data(ChunkType)                     const;
+	virtual std::string  name(ChunkType, const std::string&) const;
 
-	virtual std::string printableTypeCode()                  const = 0;
-	virtual std::string defaultChunkName(const std::string&) const = 0;
+	virtual std::string  printableTypeCode()                 const = 0;
+	virtual std::string  defaultChunkName()                  const;
 
 public:
 	Chunk(const Chunk&);
@@ -51,14 +53,14 @@ public:
 
 	virtual ~Chunk();
 
-	        std::string  data()               const;
-	        std::string  name()               const;
-	        ChunkType    type()               const;
-	virtual bool         required()           const = 0;
+	        std::string   data()               const;
+	        std::string   name()               const;
+	virtual ChunkType     type()               const;
+	virtual bool          required()           const = 0;
 
-	virtual void         write(std::ostream&) const = 0;
+	virtual void          write(std::ostream&) const = 0;
 
-	static  unsigned int readBytes(const char*, unsigned char, bool = true);
+	static  unsigned int  readBytes(const char*, unsigned char, bool = true);
 
 	        size_t        size()               const noexcept;
 	        bool          empty()              const noexcept;

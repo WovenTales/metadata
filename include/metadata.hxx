@@ -2,7 +2,7 @@
 #define METADATA_H
 
 
-class Chunk;
+#include <chunk.hxx>
 #include <chunktype.hxx>
 class MetadataFactory;
 #include <metadatafiletype.hxx>
@@ -11,20 +11,14 @@ class MetadataFactory;
 
 #include <fstream>
 #include <iterator>
+#include <iostream>
 #include <list>
 #include <string>
-
-
-#define METADATA_CONSTRUCTORS(_SUBTYPE_)               using Metadata::Metadata; \
-                                            private:   _SUBTYPE_() = default; \
-                                                       friend MetadataFactory; \
-                                            protected: _SUBTYPE_(const std::string& path) : Metadata(path) { create(); }
 
 
 class Metadata {
 public:
 private:
-	std::ifstream file;
 	MetadataFileType type;
 
 	// Hack, but allows ChunkIterator to have a
@@ -39,10 +33,10 @@ protected:
 	std::list< MetadataTag > tags;
 
 	Metadata() = default;
-	Metadata(const std::string&);
 
-	        void create();
-	virtual void read(std::ifstream&) = 0;
+	        void create(const std::string&);
+	        void create(std::istream& file) { read(file); };
+	virtual void read(std::istream&) = 0;
 
 public:
 	Metadata(const Metadata&);
@@ -65,7 +59,18 @@ public:
 
 	        MetadataIterator* beginReference();
 	        MetadataIterator* rbeginReference();
+
+// protected:
+// int loopChunks< T >(std::istream&, ...);
+#include <metadata.tcc>
 };
+
+
+#define METADATA_CONSTRUCTORS(_SUBTYPE_)             using Metadata::Metadata; \
+                                            private: _SUBTYPE_() = default; \
+                                                     friend MetadataFactory; \
+                                            public:  _SUBTYPE_(const std::string& path) { create(path); } \
+                                                     _SUBTYPE_(std::istream& file)      { create(file); }
 
 
 #endif

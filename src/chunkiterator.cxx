@@ -14,8 +14,8 @@ ChunkIterator::ChunkIterator(Chunk* c, bool reverse) {
 		return;
 	}
 
-	cStart = --(chunk->subChunks.begin());
-	cEnd   = chunk->subChunks.end();
+	tStart = --(chunk->subChunks.begin());
+	tEnd   = chunk->subChunks.end();
 
 	// Delegate to *crement operators to avoid duplicating code
 	if (reverse == false) {
@@ -28,16 +28,21 @@ ChunkIterator::ChunkIterator(Chunk* c, bool reverse) {
 }
 
 
-ChunkIterator& ChunkIterator::operator++() noexcept {
+ChunkIterator& ChunkIterator::operator++() {
 	switch (state) {
 		case State::BEGIN:
 			if ((chunk == NULL) || (chunk->empty())) {
 				state = State::END;
 			} else {
-				top = cStart;
+				top = tStart;
 				++top;
-				updateToChunk(false);
 
+				if (top == tEnd) {
+					state = State::END;
+					break;
+				}
+
+				updateToMetadata(false);
 				state = State::VALID;
 			}
 			break;
@@ -45,7 +50,13 @@ ChunkIterator& ChunkIterator::operator++() noexcept {
 			++(*inner);
 			if (inner->atEnd()) {
 				++top;
-				updateToChunk(false);
+
+				if (top == tEnd) {
+					state = State::END;
+					break;
+				}
+
+				updateToMetadata(false);
 			}
 			break;
 		default:
@@ -55,23 +66,34 @@ ChunkIterator& ChunkIterator::operator++() noexcept {
 	return *this;
 }
 
-ChunkIterator& ChunkIterator::operator--() noexcept {
+ChunkIterator& ChunkIterator::operator--() {
 	switch (state) {
 		case State::VALID:
 			--(*inner);
 			if (inner->atStart()) {
 				--top;
-				updateToChunk(true);
+
+				if (top == tStart) {
+					state = State::BEGIN;
+					break;
+				}
+
+				updateToMetadata(true);
 			}
 			break;
 		case State::END:
 			if ((chunk == NULL) || (chunk->empty())) {
 				state = State::BEGIN;
 			} else {
-				top = cEnd;
+				top = tEnd;
 				--top;
-				updateToChunk(true);
 
+				if (top == tStart) {
+					state = State::BEGIN;
+					break;
+				}
+
+				updateToMetadata(true);
 				state = State::VALID;
 			}
 			break;
@@ -90,12 +112,11 @@ MetadataTag* ChunkIterator::operator->() {
 	switch (state) {
 		case State::BEGIN:
 		case State::END:
-			throw std::out_of_range("Tag index out of bounds");
+			throw std::out_of_range("Chunk index out of bounds");
 		case State::VALID:
+		default:
 			return &**inner;
 	}
-
-	return &**inner;
 }
 
 bool ChunkIterator::operator==(const ChunkIterator& rhs) noexcept {
@@ -114,23 +135,45 @@ bool ChunkIterator::operator==(const ChunkIterator& rhs) noexcept {
 	return ((top == rhs.top) && (inner == rhs.inner));
 }
 
+bool ChunkIterator::atStart() const {
+	if (chunk == NULL) {
+		return true;
+	}
 
-void ChunkIterator::updateToChunk(bool reverse) {
-	if ((chunk == NULL) || (top == cStart)) {
-		state = State::BEGIN;
-		return;
-	} else if (top == cEnd) {
-		state = State::END;
+	return (state == State::BEGIN);
+}
+
+bool ChunkIterator::atEnd() const {
+	if (chunk == NULL) {
+		return true;
+	}
+
+	return (state == State::END);
+}
+
+
+void ChunkIterator::updateToMetadata(bool reverse) {
+	if ((*top)->empty()) {
+		// Point inner into the right chunk to avoid any potential odd behaviour
+		inner = (*top)->beginReference();
 		return;
 	}
 
-	inner = (reverse ? (*top)->rbeginReference() : (*top)->beginReference());
+	if (reverse) {
+		inner = (*top)->rbeginReference();
 
-	while ((*inner)->empty()) {
-		if (reverse) {
-			--(*inner);
-		} else {
-			++(*inner);
-		}
+		try {
+			while ((inner->atStart() == false) && (*inner)->empty()) {
+				--(*inner);
+			}
+		} catch (std::out_of_range) {}
+	} else {
+		inner = (*top)->beginReference();
+
+		try {
+			while ((inner->atEnd() == false) && (*inner)->empty()) {
+				++(*inner);
+			}
+		} catch (std::out_of_range) {}
 	}
 }

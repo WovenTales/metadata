@@ -27,23 +27,23 @@ private:
 	State                            state;
 
 	// Save endpoints to avoid repeated calculations
-	std::list< Metadata* >::iterator cStart;
-	std::list< Metadata* >::iterator cEnd;
+	std::list< Metadata* >::iterator tStart;
+	std::list< Metadata* >::iterator tEnd;
 
-	void updateToChunk(bool);
+	void updateToMetadata(bool);
 
 public:
 	ChunkIterator(Chunk* = NULL, bool = false);
 
-	ChunkIterator& operator++() noexcept;
-	ChunkIterator& operator--() noexcept;
+	ChunkIterator& operator++();
+	ChunkIterator& operator--();
 	MetadataTag*   operator->();
 	MetadataTag&   operator*() { return *(operator->()); };
 	bool           operator==(const ChunkIterator&)     noexcept;
 	bool           operator!=(const ChunkIterator& rhs) noexcept { return !(operator==(rhs)); };
 
-	bool           atStart() const { return (state == State::BEGIN); };
-	bool           atEnd()   const { return (state == State::END); };
+	bool           atStart() const;
+	bool           atEnd()   const;
 };
 
 

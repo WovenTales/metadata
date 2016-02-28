@@ -6,6 +6,7 @@ enum struct ChunkType {
 	OTHER,   // autodetect text, otherwise hex
 	NONE,    // do not display contents
 	HIDE,    // do not display contents or name
+	WRAPPER, // optimized for wrapping tags, but not required
 	CUSTOM,  // specific to format of subclass
 
 	HEX,     // raw hex value

@@ -40,15 +40,15 @@ private:
 public:
 	MetadataIterator(Metadata* = NULL, bool = false);
 
-	MetadataIterator& operator++() noexcept;
-	MetadataIterator& operator--() noexcept;
+	MetadataIterator& operator++();
+	MetadataIterator& operator--();
 	MetadataTag*      operator->();
 	MetadataTag&      operator*() { return *(operator->()); };
 	bool              operator==(const MetadataIterator&)     noexcept;
 	bool              operator!=(const MetadataIterator& rhs) noexcept { return !(operator==(rhs)); };
 
-	bool              atStart() const { return (state == State::BEGIN); };
-	bool              atEnd()   const { return (state == State::END); };
+	bool              atStart() const;
+	bool              atEnd()   const;
 };
 
 

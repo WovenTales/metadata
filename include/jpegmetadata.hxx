@@ -12,7 +12,7 @@ class JPEGMetadata : public Metadata {
 	METADATA_CONSTRUCTORS(JPEGMetadata);
 
 protected:
-	virtual void read(std::ifstream&) override;
+	virtual void read(std::istream&) override;
 
 public:
 	virtual void write(const std::string&) override;

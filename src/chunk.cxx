@@ -36,8 +36,15 @@ Chunk::Chunk(Chunk&& c) : typeMap(c.typeMap) {
 	c.raw = NULL;
 }
 
-Chunk::Chunk(std::istream& file, const std::map< std::string, std::pair< std::string, ChunkType > >& tm) : typeMap(tm) {
-	file.clear();
+std::map< std::string, std::pair< std::string, ChunkType > > emptyMap = {};
+Chunk::Chunk(std::istream&, unsigned int d) : typeMap(emptyMap) {
+	depth = d;
+}
+
+Chunk::Chunk(std::istream&,
+		const std::map< std::string, std::pair< std::string, ChunkType > >& tm,
+		unsigned int d) : typeMap(tm) {
+	depth = d;
 }
 
 
@@ -69,7 +76,9 @@ std::string Chunk::hexString(bool line, unsigned int offset, unsigned int span,
 	}
 
 	unsigned int size = (span - offset);
-	if (size > 256) {
+	if ((raw == NULL) || (size == 0)) {
+		return "";
+	} else if (size > 256) {
 		// Long QLabels cause a very noticable slowdown
 		ss << size << " bytes";
 	} else {
@@ -141,6 +150,10 @@ std::string Chunk::data(ChunkType t) const {
 	unsigned long sum = 0;
 	std::ostringstream out;
 
+	if (raw == NULL) {
+		return "";
+	}
+
 	switch (t) {
 		case ChunkType::OTHER:
 			out << hexString(false, 0, 0, &print, &hex);
@@ -155,6 +168,8 @@ std::string Chunk::data(ChunkType t) const {
 		case ChunkType::NONE:
 			return "Should not be shown";
 		case ChunkType::HIDE:
+			return "Should not be shown";
+		case ChunkType::WRAPPER:
 			return "Should not be shown";
 		case ChunkType::CUSTOM:
 			return "SUBCLASS-DEFINED";
@@ -187,26 +202,59 @@ std::string Chunk::data(ChunkType t) const {
 
 
 std::string Chunk::name() const {
-	auto i = typeMap.find(typeCode);
-	if (i != typeMap.end()) {
-		return name(i->second.second, i->second.first);
-	} else {
-		return defaultChunkName(typeCode);
+	std::ostringstream ss;
+
+	for (unsigned int i = 0; i < depth; ++i) {
+		ss << "{ ";
 	}
+
+	if (typeMap.empty()) {
+		ss << defaultChunkName();
+	} else {
+		auto m = typeMap.find(typeCode);
+		if (m != typeMap.end()) {
+			ss << name(m->second.second, m->second.first);
+		} else {
+			ss << defaultChunkName();
+		}
+	}
+
+	for (unsigned int i = 0; i < depth; ++i) {
+		ss << " }";
+	}
+
+	return ss.str();
 }
 
-std::string Chunk::name(ChunkType, const std::string& title) const {
-	return title;
+// TODO Are both parameters necessary (look at subtypes)
+std::string Chunk::name(ChunkType, const std::string&) const {
+	if (typeMap.empty() == false) {
+		auto i = typeMap.find(typeCode);
+		if (i != typeMap.end()) {
+			return i->second.first;
+		}
+	}
+	return defaultChunkName();
 }
 
 
 ChunkType Chunk::type() const {
-	auto i = typeMap.find(typeCode);
-	if (i != typeMap.end()) {
-		return i->second.second;
-	} else {
-		return ChunkType::OTHER;
+	if (typeMap.empty() == false) {
+		auto i = typeMap.find(typeCode);
+		if (i != typeMap.end()) {
+			return i->second.second;
+		}
 	}
+	return ChunkType::OTHER;
+}
+
+
+std::string Chunk::defaultChunkName() const {
+	std::ostringstream ss;
+
+	ss << "Unrecognized chunk <" << printableTypeCode() << ">";
+
+	return ss.str();
 }
 
 

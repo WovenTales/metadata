@@ -59,7 +59,7 @@ PNGChunk::PNGChunk(std::istream& file) : Chunk(file, PNGTypeMap) {
 	// Get chunk type
 	file.read(bytes, 4);
 	if (file.fail()) {
-		throw 'T';
+		throw 'H';
 	}
 	typeCode = std::string(bytes, 4);
 
@@ -84,8 +84,8 @@ std::string PNGChunk::printableTypeCode() const {
 }
 
 
-std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
-	return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
+std::string PNGChunk::defaultChunkName() const {
+	return (std::string(std::isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
 			+ " chunk <" + typeCode + ">");
 }
 
@@ -134,7 +134,7 @@ std::string PNGChunk::name(ChunkType type, const std::string& title) const {
 
 
 bool PNGChunk::required() const {
-	return isupper(typeCode[0], std::locale("C"));
+	return std::isupper(typeCode[0], std::locale("C"));
 }
 
 

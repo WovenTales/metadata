@@ -5,8 +5,8 @@
 TEMPLATE     = app
 INCLUDEPATH += .
 
-QT     += core gui widgets
-CONFIG += c++11 debug
+QT          += core gui widgets
+CONFIG      += c++11 debug
 DESTDIR      = bin
 INCLUDEPATH += include
 OBJECTS_DIR  = obj
@@ -15,6 +15,10 @@ OBJECTS_DIR  = obj
 HEADERS += include/chunk.hxx \
            include/chunkiterator.hxx \
            include/chunktype.hxx \
+           include/exifchunk.hxx \
+           include/exifmetadata.hxx \
+           include/exififdchunk.hxx \
+           include/exififdmetadata.hxx \
            include/imagepanel.hxx \
            include/jpegchunk.hxx \
            include/jpegmetadata.hxx \
@@ -32,6 +36,10 @@ HEADERS += include/chunk.hxx \
 
 SOURCES += src/chunk.cxx \
            src/chunkiterator.cxx \
+           src/exifchunk.cxx \
+           src/exifmetadata.cxx \
+           src/exififdchunk.cxx \
+           src/exififdmetadata.cxx \
            src/imagepanel.cxx \
            src/jpegchunk.cxx \
            src/jpegmetadata.cxx \
