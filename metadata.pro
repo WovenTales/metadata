@@ -5,8 +5,8 @@
 TEMPLATE     = app
 INCLUDEPATH += .
 
-QT     += core gui widgets
-CONFIG += c++11 debug
+QT          += core gui widgets
+CONFIG      += c++11 debug
 DESTDIR      = bin
 INCLUDEPATH += include
 OBJECTS_DIR  = obj

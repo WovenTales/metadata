@@ -56,7 +56,7 @@ void JPEGMetadata::read(std::ifstream& file) {
 }
 
 void JPEGMetadata::write(const std::string& path) const {
-	std::ofstream out(path);
+	std::ofstream out(path, std::ofstream::binary);
 
 	for (auto t = tags.begin(); t != tags.end(); ++t) {
 		for (auto c = t->begin(); c != t->end(); ++c) {

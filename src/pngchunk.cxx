@@ -86,7 +86,7 @@ std::string PNGChunk::printableTypeCode() const {
 
 std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
 	return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
-			+ " chunk <" + typeCode + ">");
+			+ " chunk &lt;" + typeCode + "&gt;");
 }
 
 
@@ -125,7 +125,7 @@ std::string PNGChunk::name(Chunk::Type type, const std::string& title) const {
 				// Not proper Text tag, but included to handle malformed case
 				return title;
 			} else {
-				return (title + " <" + str.substr(0, n) + ">");
+				return (title + " &lt;" + str.substr(0, n) + "&gt;");
 			}
 		default:
 			return Chunk::name(type, title);

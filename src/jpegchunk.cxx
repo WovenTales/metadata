@@ -168,8 +168,8 @@ std::string JPEGChunk::printableTypeCode() const {
 std::string JPEGChunk::defaultChunkName(const std::string& typeCode) const {
 	std::ostringstream ss;
 
-	ss << "Unrecognized chunk <0xFF";
-	ss << std::hex << std::setw(2) << std::setfill('0') << ((unsigned int)typeCode[0] & 0xFF) << ">";
+	ss << "Unrecognized chunk &lt;0xFF";
+	ss << std::hex << std::setw(2) << std::setfill('0') << ((unsigned int)typeCode[0] & 0xFF) << "&gt;";
 
 	return ss.str();
 }
@@ -665,7 +665,7 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 				}
 
 				if (ss.tellp() == 0) {
-					return ("(Unrecognized application) " + hexString(true, id.length() + 1));
+					return ("(Unrecognized application)" + hexString(true, id.length() + 1));
 				} else {
 					return ss.str();
 				}
@@ -684,7 +684,7 @@ std::string JPEGChunk::name(Chunk::Type type, const std::string& title) const {
 		case Type::CUSTOM:
 			if ((t >= 0xE0) && (t <= 0xEF)) {  // Application-specific
 				// Display tag ID in title
-				return (std::string(title).insert(21, ("<" + std::string(raw) + ", ")) + ">");
+				return (std::string(title).insert(21, ("&lt;" + std::string(raw) + ", ")) + "&gt;");
 			}
 		default:
 			return Chunk::name(type, title);
@@ -696,7 +696,7 @@ std::string JPEGChunk::name(Chunk::Type type, const std::string& title) const {
 
 bool JPEGChunk::dataFreeTag(unsigned char c) {
 	if ((c == 0x01) || ((c >= 0xD0) && (c <= 0xD9))) {
-	    	return true;
+		return true;
 	} else {
 		return false;
 	}

@@ -6,7 +6,7 @@
 
 
 std::string Chunk::sanitize(std::string str) {
-	size_t i;
+	size_t i = -1;
 	while ((i = str.find("\r\n")) != std::string::npos) {
 		str.replace(i, 1, "<br>");
 	}
@@ -62,14 +62,14 @@ std::string Chunk::hexString(bool line, unsigned int offset, unsigned int span,
 	}
 
 	unsigned int size = (span - offset);
+	if (line) {
+	    ss << "<br>";
+	}
+
 	if (size > 256) {
 		// Long QLabels cause a very noticable slowdown
 		ss << size << " bytes";
 	} else {
-		if (line) {
-			ss << "<br>";
-		}
-
 		ss << std::hex << "<code>";
 
 		while (i < span) {

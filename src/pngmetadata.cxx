@@ -18,7 +18,7 @@ void PNGMetadata::read(std::ifstream& file) {
 	}
 
 	// Check against PNG header
-	if (header != std::string("\x89PNG\r\n\x1A\n")) {
+	if (header != std::string("\x89PNG\x0D\x0A\x1A\x0A")) {
 		std::cout << "ERROR: wrong file header" << std::endl;
 		throw 'H';
 	}
@@ -76,9 +76,9 @@ void PNGMetadata::read(std::ifstream& file) {
 }
 
 void PNGMetadata::write(const std::string& path) const {
-	std::ofstream out(path);
+	std::ofstream out(path, std::ofstream::binary);
 
-	out.write("\x89PNG\r\n\x1A\n", 8);
+	out.write("\x89PNG\x0D\x0A\x1A\x0A", 8);
 
 	for (auto t = tags.begin(); t != tags.end(); ++t) {
 		for (auto c = t->begin(); c != t->end(); ++c) {

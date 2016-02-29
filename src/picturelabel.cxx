@@ -1,22 +1,25 @@
 #include <picturelabel.hxx>
 
+// core
+#include <Qt>
+
 // widgets
 #include <QSizePolicy>
 
 
 PictureLabel::PictureLabel(const QPixmap& i, QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f), img(i) {
+	setScaledContents(true);
+	setPixmap(img);
+
 	QSizePolicy p = sizePolicy();
 
 	p.setHeightForWidth(true);
 	p.setHorizontalPolicy(QSizePolicy::Maximum);
-	p.setVerticalPolicy(QSizePolicy::Maximum);
 	p.setHorizontalStretch(0);
 	p.setVerticalStretch(0);
 
 	setSizePolicy(p);
-
-	setScaledContents(true);
-	setPixmap(img);
+	updateGeometry();
 }
 
 

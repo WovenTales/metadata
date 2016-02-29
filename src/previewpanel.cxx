@@ -24,6 +24,16 @@ PreviewPanel::PreviewPanel(const QPixmap& i, QWidget* parent, Qt::WindowFlags f)
 	layout->setStretch(2, 1);
 
 	setLayout(layout);
+
+	QSizePolicy p = sizePolicy();
+
+	p.setHeightForWidth(true);
+	p.setHorizontalPolicy(QSizePolicy::Maximum);
+	p.setHorizontalStretch(0);
+	p.setVerticalStretch(0);
+
+	setSizePolicy(p);
+	updateGeometry();
 }
 
 
