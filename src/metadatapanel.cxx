@@ -23,14 +23,11 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 	if (data != NULL) {
 		// Do want numerical iteration as well, to insert labels into proper row
 		int i = 0, skip = 0;
-		for (auto e = data->begin(); e != data->end(); ++e, ++i) {
-			// TODO Handle without resorting to try{} block
-			try {
+		for (auto e = data->begin(); (e.atEnd() == false); ++e, ++i) {
 			if (e->type == ChunkType::HIDE) {
 				++skip;
 				continue;
 			}
-			} catch (std::out_of_range) { break; }
 
 			QLabel*      n = new QLabel(e->label.c_str(), this);
 			QScrollArea* s;

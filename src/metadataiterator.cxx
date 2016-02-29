@@ -16,85 +16,21 @@ MetadataIterator::MetadataIterator(Metadata* m, bool reverse) {
 	tStart = --(data->tags.begin());
 	tEnd   = data->tags.end();
 
-	// Delegate to *crement operators to avoid duplicating code
-	if (reverse == false) {
-		state = State::BEGIN;
-		operator++();
-	} else {
-		state = State::END;
-		operator--();
-	}
+	// Set to something that won't have an effect on initialize()
+	state = State::TOP;
+
+	initialize(reverse);
 }
 
 
 MetadataIterator& MetadataIterator::operator++() {
 	switch (state) {
 		case State::BEGIN:
-			if ((data == NULL) || (data->empty())) {
-				state = State::END;
-			} else {
-				top = tStart;
-				++top;
-
-				if (top == tEnd) {
-					state = State::END;
-					break;
-				}
-
-				updateToTag(false);
-				state = State::TOP;
-			}
+			initialize(false);
 			break;
 		case State::TOP:
-			if (tHasChildren) {
-				// tHasChildren is set in last updateToTag() call:
-				//   if uTT(false), inner points to first child
-				//   if uTT(true), to have reached TOP will have traversed all children
-				state = State::INNER;
-			} else {
-				++top;
-
-				if (top == tEnd) {
-					state = State::END;
-					break;
-				}
-
-				updateToTag(false);
-			}
-			break;
 		case State::INNER:
-			{
-				bool first = true;
-				while (inner.atEnd() == false) {
-					if (first || inner->empty()) {
-						++inner;
-						first = false;
-					} else {
-						break;
-					}
-				}
-
-				if (inner.atEnd()) {
-					first = true;
-					while (chunk != cEnd) {
-						if (first || (*chunk)->empty()) {
-							++chunk;
-							first = false;
-						} else {
-							break;
-						}
-					}
-
-					if (chunk == cEnd) {
-						++top;
-						updateToTag(false);
-
-						state = State::TOP;
-					} else {
-						updateToChunk(false);
-					}
-				}
-			}
+			step(false);
 			break;
 		default:
 			break;
@@ -106,73 +42,11 @@ MetadataIterator& MetadataIterator::operator++() {
 MetadataIterator& MetadataIterator::operator--() {
 	switch (state) {
 		case State::INNER:
-			{
-				bool first = true;
-				while (inner.atStart() == false) {
-					if (first || inner->empty()) {
-						--inner;
-						first = false;
-					} else {
-						break;
-					}
-				}
-
-				if (inner.atStart()) {
-					first = true;
-					while (chunk != cStart) {
-						if (first || (*chunk)->empty()) {
-							++chunk;
-							first = false;
-						} else {
-							break;
-						}
-					}
-
-					if (chunk == cStart) {
-						state = State::TOP;
-						// fall through
-					} else {
-						updateToChunk(true);
-						break;
-					}
-				} else {
-					break;
-				}
-			}
 		case State::TOP:
-			--top;
-
-			if (top == tStart) {
-				state = State::BEGIN;
-				break;
-			}
-
-			updateToTag(true);
-
-			if (tHasChildren) {
-				state = State::INNER;
-			}
+			step(true);
 			break;
 		case State::END:
-			if ((data == NULL) || (data->empty())) {
-				state = State::BEGIN;
-			} else {
-				top = tEnd;
-				--top;
-
-				if (top == tStart) {
-					state = State::BEGIN;
-					break;
-				}
-
-				updateToTag(true);
-
-				if (tHasChildren) {
-					state = State::INNER;
-				} else {
-					state = State::TOP;
-				}
-			}
+			initialize(true);
 			break;
 		default:
 			break;
@@ -232,71 +106,145 @@ bool MetadataIterator::atEnd() const {
 }
 
 
-void MetadataIterator::updateToTag(bool reverse) {
-	if ((data == NULL) || (top == tStart)) {
-		tHasChildren = false;
-		state = State::BEGIN;
+void MetadataIterator::initialize(bool reverse) {
+	if ((reverse && atStart()) || ((reverse == false) && atEnd())) {
 		return;
-	} else if (top == tEnd) {
-		tHasChildren = false;
-		state = State::END;
+	}
+
+	if ((data == NULL) || (data->empty())) {
+		state = (reverse ? State::BEGIN : State::END);
+		return;
+	}
+
+	if (reverse) {
+		top = tEnd;
+		--top;
+	} else {
+		top = tStart;
+		++top;
+	}
+
+	updateToTag(reverse);
+}
+
+void MetadataIterator::step(bool reverse) {
+	if ((data == NULL) || (data->empty())) {
+		state = (reverse ? State::END : State::BEGIN);
+		return;
+	}
+
+	if (state == State::TOP) {
+		if ((reverse == false) && (top->empty() == false)) {
+			state = State::INNER;
+
+			chunk = cStart;
+			++chunk;
+			updateToChunk(true);
+
+			return;
+		}
+
+		if (reverse) {
+			--top;
+		} else {
+			++top;
+		}
+
+		updateToTag(reverse);
+
+	} else if (state == State::INNER) {
+		stepInner(reverse);
+	}
+}
+
+void MetadataIterator::stepInner(bool reverse) {
+	if (reverse) {
+		--inner;
+	} else {
+		++inner;
+	}
+
+	if (inner.atStart() || inner.atEnd()) {
+		stepChunk(reverse);
+	} else if (inner->empty()) {
+		stepInner(reverse);
+	}
+}
+
+void MetadataIterator::stepChunk(bool reverse) {
+	if (reverse) {
+		--chunk;
+	} else {
+		++chunk;
+	}
+
+	if (reverse && (chunk == cStart)) {
+		state = State::TOP;
+	} else if ((reverse == false) && (chunk == cEnd)) {
+		++top;
+		updateToTag(reverse);
+	} else {
+		updateToChunk(reverse);
+	}
+}
+
+
+void MetadataIterator::updateToTag(bool reverse) {
+	if ((data == NULL) || (top == tStart) || (top == tEnd)) {
+		state = (reverse ? State::BEGIN : State::END);
 		return;
 	} else if (top->empty()) {
-		tHasChildren = false;
 		state = State::TOP;
 		return;
 	}
 
-	tHasChildren = true;
-
-	if (reverse == false) {
-		cStart = top->begin();
-		chunk = cStart;
-		--cStart;
-
-		cEnd   = top->end();
-
-		while ((chunk != cEnd) && (*chunk)->empty()) {
-			++chunk;
-		}
-	} else {
-		cStart = top->begin();
-		--cStart;
-
-		cEnd   = top->end();
+	cStart = top->begin();
+	cEnd   = top->end();
+	if (reverse) {
 		chunk = cEnd;
 		--chunk;
-
-		while ((chunk != cStart) && (*chunk)->empty()) {
-			--chunk;
-		}
+	} else {
+		chunk = cStart;
 	}
+	--cStart;
 
 	updateToChunk(reverse);
+
+	if (reverse == false) {
+		state = State::TOP;
+	} else {
+		state = State::INNER;
+	}
 }
 
 void MetadataIterator::updateToChunk(bool reverse) {
+	if (reverse && (chunk == cStart)) {
+		state = State::TOP;
+		return;
+
+	} else if (chunk == cEnd) {
+		++top;
+		updateToTag(reverse);
+
+		return;
+	}
+
 	if ((*chunk)->empty()) {
-		// Point inner into the right chunk to avoid any potential odd behaviour
-		inner = (*chunk)->begin();
+		stepChunk(reverse);
 		return;
 	}
 
 	if (reverse) {
 		inner = (*chunk)->rbegin();
-
-		try {
-			while ((inner.atStart() == false) && inner->empty()) {
-				--inner;
-			}
-		} catch (std::out_of_range) {}
 	} else {
 		inner = (*chunk)->begin();
+	}
 
-		try {
-			while ((inner.atEnd() == false) && inner->empty()) {
-				++inner;
-			}
-		} catch (std::out_of_range) {}
+	if ((inner.atStart() || inner.atEnd()) == false) {
+		if (inner->empty()) {
+			stepInner(reverse);
+		}
+	} else {
+		stepChunk(reverse);
 	}
 }

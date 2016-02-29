@@ -34,8 +34,8 @@ public:
 	bool   required() const;
 	void   write(std::ofstream&);
 
-	size_t size()                         noexcept;
-	bool   empty()                        noexcept;
+	size_t size()     const;
+	bool   empty()    const;
 
 	std::list< Chunk* >::iterator begin() noexcept { return ref.begin(); };
 	std::list< Chunk* >::iterator end()   noexcept { return ref.end();   };

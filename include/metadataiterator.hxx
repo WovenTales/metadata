@@ -20,7 +20,7 @@ private:
 		END
 	};
 
-	Metadata*                          data;
+	Metadata*                          data = NULL;
 	std::list< MetadataTag >::iterator top;
 	std::list< Chunk* >::iterator      chunk;
 	ChunkIterator                      inner;
@@ -30,9 +30,13 @@ private:
 	// Save endpoints to avoid repeated calculations
 	std::list< MetadataTag >::iterator tStart;
 	std::list< MetadataTag >::iterator tEnd;
-	bool                               tHasChildren;
 	std::list< Chunk* >::iterator      cStart;
 	std::list< Chunk* >::iterator      cEnd;
+
+	void initialize(bool);
+	void step(bool);
+	void stepInner(bool);
+	void stepChunk(bool);
 
 	void updateToTag(bool);
 	void updateToChunk(bool);

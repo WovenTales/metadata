@@ -49,13 +49,13 @@ public:
 	virtual void              write(const std::string&) = 0;
 	        bool              remove(unsigned int);
 
-	        size_t            size()                          noexcept;
-	        bool              empty()                         noexcept;
+	        size_t            size()   const;
+	        bool              empty()  const;
 
-	        MetadataIterator  begin()                         noexcept { return   MetadataIterator(this, false); };
-	        MetadataIterator  end()                           noexcept { return ++MetadataIterator(this, true);  };
-	        MetadataIterator  rbegin()                        noexcept { return   MetadataIterator(this, true);  };
-	        MetadataIterator  rend()                          noexcept { return --MetadataIterator(this, false); };
+	        MetadataIterator  begin()  noexcept { return   MetadataIterator(this, false); };
+	        MetadataIterator  end()    noexcept { return ++MetadataIterator(this, true);  };
+	        MetadataIterator  rbegin() noexcept { return   MetadataIterator(this, true);  };
+	        MetadataIterator  rend()   noexcept { return --MetadataIterator(this, false); };
 
 	        MetadataIterator* beginReference();
 	        MetadataIterator* rbeginReference();

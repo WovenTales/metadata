@@ -62,13 +62,13 @@ public:
 
 	static  unsigned int  readBytes(const char*, unsigned char, bool = true);
 
-	        size_t        size()               const noexcept;
-	        bool          empty()              const noexcept;
+	        size_t        size()               const;
+	        bool          empty()              const;
 
-	        ChunkIterator begin()                    noexcept { return ChunkIterator(this, false);   };
-	        ChunkIterator end()                      noexcept { return ++ChunkIterator(this, true);  };
-	        ChunkIterator rbegin()                   noexcept { return ChunkIterator(this, true);    };
-	        ChunkIterator rend()                     noexcept { return --ChunkIterator(this, false); };
+	        ChunkIterator begin()              noexcept { return ChunkIterator(this, false);   };
+	        ChunkIterator end()                noexcept { return ++ChunkIterator(this, true);  };
+	        ChunkIterator rbegin()             noexcept { return ChunkIterator(this, true);    };
+	        ChunkIterator rend()               noexcept { return --ChunkIterator(this, false); };
 };
 
 

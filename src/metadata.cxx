@@ -66,7 +66,7 @@ bool Metadata::remove(unsigned int index) {
 }
 
 
-size_t Metadata::size() noexcept {
+size_t Metadata::size() const {
 	size_t out = 0;
 
 	if (tags.empty() == false) {
@@ -80,7 +80,7 @@ size_t Metadata::size() noexcept {
 }
 
 
-bool Metadata::empty() noexcept {
+bool Metadata::empty() const {
 	if (tags.empty() == false) {
 		auto e = tags.end();
 		for (auto i = tags.begin(); i != e; ++i) {

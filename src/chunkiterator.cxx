@@ -17,47 +17,20 @@ ChunkIterator::ChunkIterator(Chunk* c, bool reverse) {
 	tStart = --(chunk->subChunks.begin());
 	tEnd   = chunk->subChunks.end();
 
-	// Delegate to *crement operators to avoid duplicating code
-	if (reverse == false) {
-		state = State::BEGIN;
-		operator++();
-	} else {
-		state = State::END;
-		operator--();
-	}
+	// Set to something that won't have an effect on initialize()
+	state = State::VALID;
+
+	initialize(reverse);
 }
 
 
 ChunkIterator& ChunkIterator::operator++() {
 	switch (state) {
 		case State::BEGIN:
-			if ((chunk == NULL) || (chunk->empty())) {
-				state = State::END;
-			} else {
-				top = tStart;
-				++top;
-
-				if (top == tEnd) {
-					state = State::END;
-					break;
-				}
-
-				updateToMetadata(false);
-				state = State::VALID;
-			}
+			initialize(false);
 			break;
 		case State::VALID:
-			++(*inner);
-			if (inner->atEnd()) {
-				++top;
-
-				if (top == tEnd) {
-					state = State::END;
-					break;
-				}
-
-				updateToMetadata(false);
-			}
+			step(false);
 			break;
 		default:
 			break;
@@ -69,33 +42,10 @@ ChunkIterator& ChunkIterator::operator++() {
 ChunkIterator& ChunkIterator::operator--() {
 	switch (state) {
 		case State::VALID:
-			--(*inner);
-			if (inner->atStart()) {
-				--top;
-
-				if (top == tStart) {
-					state = State::BEGIN;
-					break;
-				}
-
-				updateToMetadata(true);
-			}
+			step(true);
 			break;
 		case State::END:
-			if ((chunk == NULL) || (chunk->empty())) {
-				state = State::BEGIN;
-			} else {
-				top = tEnd;
-				--top;
-
-				if (top == tStart) {
-					state = State::BEGIN;
-					break;
-				}
-
-				updateToMetadata(true);
-				state = State::VALID;
-			}
+			initialize(true);
 			break;
 		default:
 			break;
@@ -105,7 +55,7 @@ ChunkIterator& ChunkIterator::operator--() {
 }
 
 MetadataTag* ChunkIterator::operator->() {
-	if (chunk == NULL) {
+	if ((chunk == NULL) || (inner == NULL)) {
 		throw std::out_of_range("NULL-pointing Chunk* attempted to be dereferenced");
 	}
 
@@ -136,44 +86,91 @@ bool ChunkIterator::operator==(const ChunkIterator& rhs) noexcept {
 }
 
 bool ChunkIterator::atStart() const {
-	if (chunk == NULL) {
+	if ((chunk == NULL) || inner == NULL) {
 		return true;
 	}
 
-	return (state == State::BEGIN);
+	return ((state == State::BEGIN) || inner->atStart());
 }
 
 bool ChunkIterator::atEnd() const {
-	if (chunk == NULL) {
+	if ((chunk == NULL) || (inner == NULL)) {
 		return true;
 	}
 
-	return (state == State::END);
+	return ((state == State::END) || inner->atEnd());
 }
 
 
-void ChunkIterator::updateToMetadata(bool reverse) {
-	if ((*top)->empty()) {
-		// Point inner into the right chunk to avoid any potential odd behaviour
-		inner = (*top)->beginReference();
+void ChunkIterator::initialize(bool reverse) {
+	if ((reverse && atStart()) || ((reverse == false) && atEnd())) {
+		return;
+	}
+
+	if ((chunk == NULL) || (chunk->empty())) {
+		state = (reverse ? State::BEGIN : State::END);
 		return;
 	}
 
 	if (reverse) {
-		inner = (*top)->rbeginReference();
+		top = tEnd;
+		--top;
+	} else {
+		top = tStart;
+		++top;
+	}
 
-		try {
-			while ((inner->atStart() == false) && (*inner)->empty()) {
-				--(*inner);
+	updateToMetadata(reverse);
+}
+
+void ChunkIterator::step(bool reverse) {
+	if ((reverse && atStart()) || ((reverse == false) && atEnd()) ||
+			(chunk == NULL) || (chunk->empty())) {
+		state = (reverse ? State::BEGIN : State::END);
+		return;
+	}
+
+	auto test = [reverse, this](){ return (reverse ? inner->atStart() : inner->atEnd()); };
+
+	if (test() == false) {
+		if (reverse) {
+			--(*inner);
+		} else {
+			++(*inner);
+		}
+
+		if (test()) {
+			if (reverse) {
+				--top;
+			} else {
+				++top;
 			}
-		} catch (std::out_of_range) {}
+			updateToMetadata(reverse);
+		} else if ((*inner)->empty()) {
+			step(reverse);
+		}
+	}
+}
+
+
+void ChunkIterator::updateToMetadata(bool reverse) {
+	if ((chunk == NULL) || (top == tStart)) {
+		state = (reverse ? State::BEGIN : State::END);
+		return;
+	} else if (top == tEnd) {
+		state = (reverse ? State::BEGIN : State::END);
+		return;
+	}
+
+	state = State::VALID;
+
+	if (reverse) {
+		inner = (*top)->rbeginReference();
 	} else {
 		inner = (*top)->beginReference();
+	}
 
-		try {
-			while ((inner->atEnd() == false) && (*inner)->empty()) {
-				++(*inner);
-			}
-		} catch (std::out_of_range) {}
+	if (((inner->atStart() || inner->atEnd()) == false) && (*inner)->empty()) {
+		step(reverse);
 	}
 }

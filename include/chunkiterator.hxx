@@ -20,15 +20,18 @@ private:
 		END
 	};
 
-	Chunk*                           chunk;
+	Chunk*                           chunk = NULL;
 	std::list< Metadata* >::iterator top;
-	MetadataIterator*                inner;
+	MetadataIterator*                inner = NULL;
 
 	State                            state;
 
 	// Save endpoints to avoid repeated calculations
 	std::list< Metadata* >::iterator tStart;
 	std::list< Metadata* >::iterator tEnd;
+
+	void initialize(bool);
+	void step(bool);
 
 	void updateToMetadata(bool);
 

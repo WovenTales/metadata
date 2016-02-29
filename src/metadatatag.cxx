@@ -44,7 +44,7 @@ void MetadataTag::write(std::ofstream& out) {
 }
 
 
-size_t MetadataTag::size() noexcept {
+size_t MetadataTag::size() const {
 	if (ref.empty()) {
 		return 0;
 	}
@@ -52,6 +52,10 @@ size_t MetadataTag::size() noexcept {
 	size_t out = 0;
 	auto e = ref.end();
 	for (auto i = ref.begin(); i != e; ++i) {
+		if (*i == NULL) {
+			continue;
+		}
+
 		out += (*i)->size();
 	}
 
@@ -59,13 +63,17 @@ size_t MetadataTag::size() noexcept {
 }
 
 
-bool MetadataTag::empty() noexcept {
+bool MetadataTag::empty() const {
 	if (ref.empty()) {
 		return true;
 	}
 
 	auto e = ref.end();
 	for (auto i = ref.begin(); i != e; ++i) {
+		if (*i == NULL) {
+			continue;
+		}
+
 		if ((*i)->empty() == false) {
 			return false;
 		}
