@@ -1,5 +1,6 @@
 #include <mainwindow.hxx>
 
+#include <cmath>
 #include <sstream>
 
 // core
@@ -37,11 +38,10 @@ MainWindow::MainWindow(const std::string& path) {
 	connect(quitAction, SIGNAL(triggered()), this, SLOT(quitDialog()));
 	fileMenu->addAction(quitAction);
 
-	/*
+	// TODO: Calculate minimum width so MetadataPanel is always completly visible
 	QDesktopWidget dw;
 	QRect screenSize = dw.availableGeometry(dw.primaryScreen());
-	setFixedSize(QSize(screenSize.width() * 0.7f, screenSize.height() * 0.7f));
-    */
+	resize(std::max(width(), (int)(screenSize.width() * 0.7f)), (screenSize.height() * 0.7f));
 }
 
 
