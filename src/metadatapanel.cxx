@@ -4,6 +4,7 @@
 
 // core
 #include <Qt>
+#include <QMargins>
 
 // widgets
 #include <QMessageBox>
@@ -38,7 +39,6 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 				s = NULL;
 				d = NULL;
 			} else {
-				// TODO Seems to mess up QLabel width if less than QScrollArea
 				s = new QScrollArea(this);
 				d = new QLabel(e->data.c_str(), s);
 			}
@@ -47,12 +47,17 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 
 			layout->addWidget(n, (i - skip), 0);
 
+			// TODO QScrollArea height minimum larger than few-line content's
 			if (s != NULL) {
 				d->setWordWrap(true);
 				d->setTextFormat(Qt::RichText);
+				d->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+				//d->setFrameStyle(QFrame::Panel | QFrame::Plain);
 
 				s->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+				s->setWidgetResizable(true);
 				s->setWidget(d);
+
 				layout->addWidget(s, (i - skip), 1);
 			}
 
@@ -66,11 +71,10 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 	grid->setLayout(layout);
 	setWidget(grid);
 
-	// QScrollArea.width() doesn't seem to include the scroll bar,
-	//   verticalScrollBar() isn't initialized (says width == 100),
-	//   and a two-pixel padding exists around the latter (last doubled to
-	//   work with other GUI styles)
-	setFixedWidth(grid->sizeHint().width() + style()->pixelMetric(QStyle::PM_ScrollBarExtent) + 4);
+	// Ensure there is enough space for the vertical scroll bar without covering content
+	//     verticalScrollBar() isn't yet initialized (says width == 100)
+	QMargins m = contentsMargins();
+	setFixedWidth(grid->sizeHint().width() + style()->pixelMetric(QStyle::PM_ScrollBarExtent) + m.left() + m.right());
 }
 
 

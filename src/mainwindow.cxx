@@ -1,5 +1,8 @@
 #include <mainwindow.hxx>
 
+#include <cmath>
+#include <sstream>
+
 // core
 #include <QFileDialog>
 #include <QKeySequence>
@@ -16,7 +19,7 @@ MainWindow::MainWindow(const std::string& path) {
 	core = new ImagePanel(path.c_str());
 	setCentralWidget(core);
 
-	// TODO: Add support for eg. Mac with single bar across all windows (setMenuBar())
+	// TODO Add support for eg. Mac with single bar across all windows (setMenuBar())
 	QMenuBar* menu  = menuBar();
 	fileMenu = menu->addMenu("&File");
 
@@ -35,47 +38,42 @@ MainWindow::MainWindow(const std::string& path) {
 	connect(quitAction, SIGNAL(triggered()), this, SLOT(quitDialog()));
 	fileMenu->addAction(quitAction);
 
+	// TODO Calculate minimum width so MetadataPanel is always completly visible
 	QDesktopWidget dw;
 	QRect screenSize = dw.availableGeometry(dw.primaryScreen());
-	setFixedSize(QSize(screenSize.width() * 0.7f, screenSize.height() * 0.7f));
+	resize(std::max(width(), (int)(screenSize.width() * 0.7f)), (screenSize.height() * 0.7f));
 }
 
 
 void MainWindow::openDialog() {
-	QStringList filters;
-	filters << "PNG image files (*.png)"
-	        << "JPEG image files (*.jpg *.jpeg *.jpe)";
+	std::ostringstream ss;
+	ss << "PNG image files (*.png);;";
+	ss << "JPEG image files (*.jpg *.jpeg *.jpe)";
 
-	QFileDialog dialog(this);
-	dialog.setFileMode(QFileDialog::ExistingFile);
-	dialog.setNameFilters(filters);
-
-	if (dialog.exec()) {
-		// TODO: Handle within ImagePanel so don't need extra creation/deletion
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr(ss.str().c_str()));
+	if (fileName.isEmpty() == false) {
+		// TODO Handle within ImagePanel so don't need extra creation/deletion
 		if (core != NULL) {
 			core->setParent(NULL);
 			delete core;
 		}
 
-		core = new ImagePanel(dialog.selectedFiles()[0]);
+		core = new ImagePanel(fileName);
 		setCentralWidget(core);
 	}
 }
 
 void MainWindow::saveDialog() {
-	// TODO: Handle extension via setDefaultSuffix()
+	// TODO Handle extension via setDefaultSuffix()
 
-	QStringList filters;
-	filters << "PNG image files (*.png)"
-	        << "JPEG image files (*.jpg *.jpeg *.jpe)"
-	        << "Any files (*)";
+	std::ostringstream ss;
+	ss << "PNG image files (*.png);;";
+	ss << "JPEG image files (*.jpg *.jpeg *.jpe);;";
+	ss << "Any files (*)";
 
-	QFileDialog dialog(this);
-	dialog.setFileMode(QFileDialog::AnyFile);
-	dialog.setNameFilters(filters);
-
-	if (dialog.exec()) {
-		core->write(dialog.selectedFiles()[0].toStdString());
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr(ss.str().c_str()));
+	if (fileName.isEmpty() == false) {
+		core->write(fileName.toStdString());
 	}
 }
 

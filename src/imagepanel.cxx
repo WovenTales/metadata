@@ -54,8 +54,5 @@ ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) 
 	layout->setStretch(0, 1);
 	layout->setStretch(1, 0);
 
-	// TODO Doesn't actually work
-	pPanel->resize((width() - mPanel->width() - layout->spacing()), pPanel->height());
-
 	setLayout(layout);
 }

@@ -16,7 +16,6 @@ enum struct ChunkType {
 
 	COLOR,   // color swatch
 	COUNT,   // count and display occurrences of tag
-	TIME,    // timestamp
 };
 
 

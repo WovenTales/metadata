@@ -29,7 +29,6 @@ HEADERS += include/chunk.hxx \
            include/metadataiterator.hxx \
            include/metadatapanel.hxx \
            include/metadatatag.hxx \
-           include/picturelabel.hxx \
            include/pngchunk.hxx \
            include/pngmetadata.hxx \
            include/previewpanel.hxx
@@ -50,7 +49,6 @@ SOURCES += src/chunk.cxx \
            src/metadataiterator.cxx \
            src/metadatapanel.cxx \
            src/metadatatag.cxx \
-           src/picturelabel.cxx \
            src/pngchunk.cxx \
            src/pngmetadata.cxx \
            src/previewpanel.cxx

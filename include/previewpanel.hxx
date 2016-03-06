@@ -2,32 +2,28 @@
 #define PREVIEWPANEL_H
 
 
-#include <picturelabel.hxx>
-
 #include <string>
 
 // core
 #include <Qt>
 
 // gui
-#include <QResizeEvent>
+#include <QPaintEvent>
+#include <QPixmap>
+
 
 // widgets
 #include <QFrame>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 
 
 class PreviewPanel : public QFrame {
 private:
-	PictureLabel* label;
-	QVBoxLayout*  layout;
-	QHBoxLayout*  cross;
+	const QPixmap& img;
+
+	virtual void paintEvent(QPaintEvent*) override;
 
 public:
 	PreviewPanel(const QPixmap&, QWidget* = 0, Qt::WindowFlags = 0);
-
-	virtual void resizeEvent(QResizeEvent*) override;
 
 	bool isValid() const;
 };

@@ -7,19 +7,6 @@
 #include <sstream>
 
 
-std::string Chunk::sanitize(std::string str) {
-	size_t i;
-	while ((i = str.find("\r\n")) != std::string::npos) {
-		str.replace(i, 1, "<br>");
-	}
-	while ((i = str.find('\n')) != std::string::npos) {
-		str.replace(i, 1, "<br>");
-	}
-
-	return str;
-};
-
-
 Chunk::Chunk(const Chunk& c) : typeMap(c.typeMap) {
 	length = c.length;
 	typeCode = c.typeCode;
@@ -60,6 +47,19 @@ Chunk::~Chunk() {
 }
 
 
+std::string Chunk::sanitize(std::string str) {
+	size_t i;
+	while ((i = str.find("\r\n")) != std::string::npos) {
+		str.replace(i, 1, "<br>");
+	}
+	while ((i = str.find('\n')) != std::string::npos) {
+		str.replace(i, 1, "<br>");
+	}
+
+	return str;
+}
+
+
 std::string Chunk::hexString(bool line, unsigned int offset, unsigned int span,
 		unsigned int* print, unsigned int* hex) const {
 	std::ostringstream ss;
@@ -78,14 +78,16 @@ std::string Chunk::hexString(bool line, unsigned int offset, unsigned int span,
 	unsigned int size = (span - offset);
 	if ((raw == NULL) || (size == 0)) {
 		return "";
-	} else if (size > 256) {
+	}
+
+	if (line) {
+	    ss << "<br>";
+	}
+
+	if (size > 256) {
 		// Long QLabels cause a very noticable slowdown
 		ss << size << " bytes";
 	} else {
-		if (line) {
-			ss << "<br>";
-		}
-
 		ss << std::hex << "<code>";
 
 		while (i < span) {
@@ -193,8 +195,6 @@ std::string Chunk::data(ChunkType t) const {
 			return "TODO";
 		case ChunkType::COUNT:
 			return "";
-		case ChunkType::TIME:
-			return "TODO";
 	}
 
 	return "ERROR";

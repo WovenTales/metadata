@@ -13,7 +13,7 @@
 
 //        typeCode                name         type
 std::map< std::string, std::pair< std::string, ChunkType > > JPEGTypeMap = {
-	// TODO: Implement ChunkType::CUSTOM entries
+	// TODO Implement ChunkType::CUSTOM entries
 	{ "\xD8", { "Start of file",                                         ChunkType::NONE   } },
 	{ "\xD9", { "End of file",                                           ChunkType::NONE   } },
 	{ "\xDA", { "Image",                                                 ChunkType::NONE   } },
@@ -234,7 +234,7 @@ std::string JPEGChunk::data(ChunkType type) const {
 				}
 
 				if (ss.tellp() == 0) {
-					return ("(Unrecognized application) " + hexString(true, id.length() + 1));
+					return ("(Unrecognized application)" + hexString(true, id.length() + 1));
 				} else {
 					return ss.str();
 				}
@@ -253,7 +253,7 @@ std::string JPEGChunk::name(ChunkType type, const std::string& title) const {
 		case ChunkType::CUSTOM:
 			if ((t >= 0xE0) && (t <= 0xEF)) {  // Application-specific
 				// Display tag ID in title
-				return (std::string(title).insert(21, ("<" + std::string(raw) + ", ")) + ">");
+				return (std::string(title).insert(21, ("&lt;" + std::string(raw) + ", ")) + "&gt;");
 			}
 		default:
 			return Chunk::name(type, title);
@@ -263,7 +263,7 @@ std::string JPEGChunk::name(ChunkType type, const std::string& title) const {
 
 bool JPEGChunk::dataFreeTag(unsigned char c) {
 	if ((c == 0x01) || ((c >= 0xD0) && (c <= 0xD9))) {
-	    	return true;
+		return true;
 	} else {
 		return false;
 	}

@@ -30,7 +30,7 @@ bin/*
 
 # Auto-generated and temporary files
 *.swp
-Makefile
+Makefile*
 moc_*.cpp
 
 # Test images
@@ -40,5 +40,7 @@ moc_*.cpp
 # Spec reference documents
 *.pdf
 
-# Alternate interfaces
+# Alternate interface folders
+build*
 qtcreator
+metadata.pro.user

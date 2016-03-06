@@ -9,7 +9,7 @@
 
 
 std::map< std::string, std::pair< std::string, ChunkType > > PNGTypeMap = {
-	// TODO: Implement ChunkType::CUSTOM entries
+	// TODO Implement ChunkType::CUSTOM entries
 	{ "IHDR", { "Header",                         ChunkType::CUSTOM } },
 	{ "PLTE", { "Palette",                        ChunkType::CUSTOM } },
 	{ "IDAT", { "Image",                          ChunkType::COUNT  } },
@@ -32,7 +32,7 @@ std::map< std::string, std::pair< std::string, ChunkType > > PNGTypeMap = {
 	{ "pHYs", { "Pixel dimensions",               ChunkType::CUSTOM } },
 	{ "sPLT", { "Suggested palette",              ChunkType::CUSTOM } },
 
-	{ "tIME", { "Last modified",                  ChunkType::TIME   } },
+	{ "tIME", { "Last modified",                  ChunkType::CUSTOM } },
 };
 
 
@@ -86,7 +86,7 @@ std::string PNGChunk::printableTypeCode() const {
 
 std::string PNGChunk::defaultChunkName() const {
 	return (std::string(std::isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
-			+ " chunk <" + typeCode + ">");
+			+ " chunk &lt;" + typeCode + "&lt;");
 }
 
 
@@ -125,7 +125,7 @@ std::string PNGChunk::name(ChunkType type, const std::string& title) const {
 				// Not proper Text tag, but included to handle malformed case
 				return title;
 			} else {
-				return (title + " <" + str.substr(0, n) + ">");
+				return (title + " &lt;" + str.substr(0, n) + "&gt;");
 			}
 		default:
 			return Chunk::name(type, title);
