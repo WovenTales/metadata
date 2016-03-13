@@ -62,9 +62,10 @@ std::map< std::string, std::pair< std::string, ChunkType > > ExifIFDTypeMap = {
 	{ "\x01\x3B", { "Artist/editor",                  ChunkType::TEXT   } },
 	{ "\x82\x98", { "Copyright",                      ChunkType::TEXT   } },
 };
+auto ExifIFDTypeMapReverse = ExifChunk::convertMap(ExifIFDTypeMap);
 
 
-ExifIFDChunk::ExifIFDChunk(std::istream& file, bool b) : Chunk(file, ExifChunk::convertMap(ExifIFDTypeMap, b)) {
+ExifIFDChunk::ExifIFDChunk(std::istream& file, bool b) : Chunk(file, (b ? ExifIFDTypeMap : ExifIFDTypeMapReverse)) {
 	char bytes[12];
 
 	bigEndian = b;
@@ -93,12 +94,15 @@ ExifIFDChunk::ExifIFDChunk(std::istream& file, bool b) : Chunk(file, ExifChunk::
 		}
 		file.seekg(pos);
 	} else {
-		std::copy((bytes + 8), (bytes + length), raw);
-
-		if (bigEndian == false) {
-			std::reverse(raw, (raw + length));
-		}
+		std::copy_n((bytes + 8), length, raw);
 	}
+}
+
+ExifIFDChunk::ExifIFDChunk(const ExifIFDChunk& c) : Chunk(c) {
+	bigEndian = c.bigEndian;
+	exifType = c.exifType;
+	exifCount = c.exifCount;
+	exifOffset = c.exifOffset;
 }
 
 

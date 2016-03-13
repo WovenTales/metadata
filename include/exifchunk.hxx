@@ -39,6 +39,7 @@ protected:
 
 public:
 	ExifChunk(std::istream&, bool, unsigned int&);
+	ExifChunk(const ExifChunk&);
 
 	virtual bool         required()           const override;
 	virtual ChunkType    type()               const override;
@@ -47,7 +48,7 @@ public:
 	        unsigned int getNextOffset()      const { return nextOffset; };
 
 	static  std::map< std::string, std::pair< std::string, ChunkType > > convertMap(
-			std::map< std::string, std::pair< std::string, ChunkType > >, bool);
+			std::map< std::string, std::pair< std::string, ChunkType > >);
 	static  std::string  toBigEndian(std::string, bool);
 
 	static  float        exifRational(const char*, bool);

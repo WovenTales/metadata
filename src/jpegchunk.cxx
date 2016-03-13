@@ -136,7 +136,7 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 		length = data.size();
 
 		raw = new char[length];
-		std::copy(data.data(), (data.data() + length), raw);
+		std::copy_n(data.data(), length, raw);
 	} else {
 		// Get data length
 		file.read(bytes, 2);

@@ -31,6 +31,7 @@ protected:
 
 public:
 	ExifIFDChunk(std::istream&, bool);
+	ExifIFDChunk(const ExifIFDChunk&);
 
 	virtual bool         required()           const override;
 	virtual void         write(std::ostream&) const override;

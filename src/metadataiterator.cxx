@@ -141,7 +141,18 @@ void MetadataIterator::step(bool reverse) {
 			++chunk;
 			updateToChunk(true);
 
-			return;
+			if (reverse) {
+				if (chunk == cStart) {
+					state = State::TOP;
+				}
+				return;
+			} else {
+				if (chunk == cEnd) {
+					// Continue to increment tag
+				} else {
+					return;
+				}
+			}
 		}
 
 		if (reverse) {
@@ -154,6 +165,11 @@ void MetadataIterator::step(bool reverse) {
 
 	} else if (state == State::INNER) {
 		stepInner(reverse);
+
+		if (reverse && (chunk == cStart)) {
+			state = State::TOP;
+			return;
+		}
 	}
 }
 
@@ -178,14 +194,7 @@ void MetadataIterator::stepChunk(bool reverse) {
 		++chunk;
 	}
 
-	if (reverse && (chunk == cStart)) {
-		state = State::TOP;
-	} else if ((reverse == false) && (chunk == cEnd)) {
-		++top;
-		updateToTag(reverse);
-	} else {
-		updateToChunk(reverse);
-	}
+	updateToChunk(reverse);
 }
 
 
@@ -218,14 +227,8 @@ void MetadataIterator::updateToTag(bool reverse) {
 }
 
 void MetadataIterator::updateToChunk(bool reverse) {
-	if (reverse && (chunk == cStart)) {
-		state = State::TOP;
-		return;
-
-	} else if (chunk == cEnd) {
-		++top;
-		updateToTag(reverse);
-
+	if ((reverse && (chunk == cStart)) ||
+			((reverse == false) && (chunk == cEnd))) {
 		return;
 	}
 

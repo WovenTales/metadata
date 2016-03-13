@@ -38,7 +38,7 @@ std::map< std::string, std::pair< std::string, ChunkType > > PNGTypeMap = {
 
 
 PNGChunk::PNGChunk(const PNGChunk& c) : Chunk(c) {
-	std::copy(c.crc, (c.crc + 4), crc);
+	std::copy_n(c.crc, 4, crc);
 }
 
 PNGChunk::PNGChunk(PNGChunk&& c) : Chunk(c) {

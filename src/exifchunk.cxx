@@ -17,24 +17,26 @@ ExifChunk::ExifChunk(std::istream& file, bool b, unsigned int& i) : Chunk(file) 
 	++i;
 
 	// As this is simply a wrapper for IFD entries, don't need to save raw data
-	//subChunks.push_back(new ExifIFDMetadata(file, bigEndian));
+	subChunks.push_back(new ExifIFDMetadata(file, bigEndian));
 }
 
+ExifChunk::ExifChunk(const ExifChunk& c) : Chunk(c) {
+		bigEndian = c.bigEndian;
+		exifIndex = c.exifIndex;
+		nextOffset = c.nextOffset;
+}
+
+
 std::map< std::string, std::pair< std::string, ChunkType > > ExifChunk::convertMap(
-		std::map< std::string, std::pair< std::string, ChunkType > > map, bool isBigEndian) {
-	if (isBigEndian) {
-		return map;
-	} else {
-		std::map< std::string, std::pair< std::string, ChunkType > > out;
-		auto e = map.end();
+		std::map< std::string, std::pair< std::string, ChunkType > > map) {
+	std::map< std::string, std::pair< std::string, ChunkType > > out;
 
-		// Swap the order of (numerical) keys from the standard big endian map
-		for (auto a = map.begin(); a != e; ++a) {
-			out.emplace(std::string({ a->first[1], a->first[0] }), a->second);
-		}
-
-		return out;
+	// Swap the byte order of (numerical) keys from the standard big endian map
+	for (auto a : map) {
+		out.emplace(std::string({ a.first[1], a.first[0] }), a.second);
 	}
+
+	return out;
 }
 
 std::string ExifChunk::toBigEndian(std::string in, bool isBigEndian) {

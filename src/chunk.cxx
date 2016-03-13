@@ -8,15 +8,19 @@
 
 
 Chunk::Chunk(const Chunk& c) : typeMap(c.typeMap) {
+	depth = c.depth;
 	length = c.length;
+	subChunks = c.subChunks;
 	typeCode = c.typeCode;
 
 	raw = new char[length];
-	std::copy(c.raw, (c.raw + length), raw);
+	std::copy_n(c.raw, length, raw);
 }
 
 Chunk::Chunk(Chunk&& c) : typeMap(c.typeMap) {
+	depth = c.depth;
 	length = c.length;
+	subChunks = c.subChunks;
 	typeCode = c.typeCode;
 
 	raw = c.raw;
