@@ -46,17 +46,16 @@ void MetadataTag::write(std::ofstream& out) {
 
 size_t MetadataTag::size() const {
 	if (ref.empty()) {
-		return 0;
+		return 1;
 	}
 
-	size_t out = 0;
-	auto e = ref.end();
-	for (auto i = ref.begin(); i != e; ++i) {
-		if (*i == NULL) {
+	size_t out = 1;
+	for (Chunk* c : ref) {
+		if (c == NULL) {
 			continue;
 		}
 
-		out += (*i)->size();
+		out += c->size();
 	}
 
 	return out;
@@ -68,13 +67,12 @@ bool MetadataTag::empty() const {
 		return true;
 	}
 
-	auto e = ref.end();
-	for (auto i = ref.begin(); i != e; ++i) {
-		if (*i == NULL) {
+	for (Chunk* c : ref) {
+		if (c == NULL) {
 			continue;
 		}
 
-		if ((*i)->empty() == false) {
+		if (c->empty() == false) {
 			return false;
 		}
 	}

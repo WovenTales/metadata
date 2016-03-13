@@ -17,9 +17,6 @@ ChunkIterator::ChunkIterator(Chunk* c, bool reverse) {
 	tStart = --(chunk->subChunks.begin());
 	tEnd   = chunk->subChunks.end();
 
-	// Set to something that won't have an effect on initialize()
-	state = State::VALID;
-
 	initialize(reverse);
 }
 
@@ -55,8 +52,10 @@ ChunkIterator& ChunkIterator::operator--() {
 }
 
 MetadataTag* ChunkIterator::operator->() {
-	if ((chunk == NULL) || (inner == NULL)) {
+	if (chunk == NULL) {
 		throw std::out_of_range("NULL-pointing Chunk* attempted to be dereferenced");
+	} else if (inner == NULL) {
+		throw std::out_of_range("NULL-pointing MetadataIterator* attempted to be dereferenced");
 	}
 
 	switch (state) {
@@ -103,10 +102,6 @@ bool ChunkIterator::atEnd() const {
 
 
 void ChunkIterator::initialize(bool reverse) {
-	if ((reverse && atStart()) || ((reverse == false) && atEnd())) {
-		return;
-	}
-
 	if ((chunk == NULL) || (chunk->empty())) {
 		state = (reverse ? State::BEGIN : State::END);
 		return;
@@ -131,7 +126,6 @@ void ChunkIterator::step(bool reverse) {
 	}
 
 	auto test = [reverse, this](){ return (reverse ? inner->atStart() : inner->atEnd()); };
-
 	if (test() == false) {
 		if (reverse) {
 			--(*inner);

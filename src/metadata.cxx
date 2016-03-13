@@ -70,9 +70,8 @@ size_t Metadata::size() const {
 	size_t out = 0;
 
 	if (tags.empty() == false) {
-		auto e = tags.end();
-		for (auto i = tags.begin(); i != e; ++i) {
-			out += i->size();
+		for (MetadataTag t : tags) {
+			out += t.size();
 		}
 	}
 
@@ -83,6 +82,8 @@ size_t Metadata::size() const {
 bool Metadata::empty() const {
 	if (tags.empty() == false) {
 		auto e = tags.end();
+		// TODO Update to C++11 foreach loop, but for some reason, segfaults if
+		//   attempting to dereference iterator (or assign with foreach)
 		for (auto i = tags.begin(); i != e; ++i) {
 			if (i->size() != 0) {
 				return false;

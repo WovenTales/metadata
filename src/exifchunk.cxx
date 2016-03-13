@@ -17,7 +17,7 @@ ExifChunk::ExifChunk(std::istream& file, bool b, unsigned int& i) : Chunk(file) 
 	++i;
 
 	// As this is simply a wrapper for IFD entries, don't need to save raw data
-	subChunks.push_back(new ExifIFDMetadata(file, bigEndian));
+	//subChunks.push_back(new ExifIFDMetadata(file, bigEndian));
 }
 
 ExifChunk::ExifChunk(const ExifChunk& c) : Chunk(c) {

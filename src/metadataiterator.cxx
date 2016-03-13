@@ -16,9 +16,6 @@ MetadataIterator::MetadataIterator(Metadata* m, bool reverse) {
 	tStart = --(data->tags.begin());
 	tEnd   = data->tags.end();
 
-	// Set to something that won't have an effect on initialize()
-	state = State::TOP;
-
 	initialize(reverse);
 }
 
@@ -107,10 +104,6 @@ bool MetadataIterator::atEnd() const {
 
 
 void MetadataIterator::initialize(bool reverse) {
-	if ((reverse && atStart()) || ((reverse == false) && atEnd())) {
-		return;
-	}
-
 	if ((data == NULL) || (data->empty())) {
 		state = (reverse ? State::BEGIN : State::END);
 		return;
@@ -135,24 +128,9 @@ void MetadataIterator::step(bool reverse) {
 
 	if (state == State::TOP) {
 		if ((reverse == false) && (top->empty() == false)) {
-			state = State::INNER;
-
 			chunk = cStart;
 			++chunk;
 			updateToChunk(true);
-
-			if (reverse) {
-				if (chunk == cStart) {
-					state = State::TOP;
-				}
-				return;
-			} else {
-				if (chunk == cEnd) {
-					// Continue to increment tag
-				} else {
-					return;
-				}
-			}
 		}
 
 		if (reverse) {
@@ -165,11 +143,6 @@ void MetadataIterator::step(bool reverse) {
 
 	} else if (state == State::INNER) {
 		stepInner(reverse);
-
-		if (reverse && (chunk == cStart)) {
-			state = State::TOP;
-			return;
-		}
 	}
 }
 
@@ -212,23 +185,25 @@ void MetadataIterator::updateToTag(bool reverse) {
 	if (reverse) {
 		chunk = cEnd;
 		--chunk;
+
+		state = State::INNER;
 	} else {
 		chunk = cStart;
+
+		state = State::TOP;
 	}
 	--cStart;
 
 	updateToChunk(reverse);
-
-	if (reverse == false) {
-		state = State::TOP;
-	} else {
-		state = State::INNER;
-	}
 }
 
 void MetadataIterator::updateToChunk(bool reverse) {
-	if ((reverse && (chunk == cStart)) ||
-			((reverse == false) && (chunk == cEnd))) {
+	if (reverse && (chunk == cStart)) {
+		state = State::TOP;
+		return;
+	} else if ((reverse == false) && (chunk == cEnd)) {
+		++top;
+		updateToTag(false);
 		return;
 	}
 
@@ -247,7 +222,5 @@ void MetadataIterator::updateToChunk(bool reverse) {
 		if (inner->empty()) {
 			stepInner(reverse);
 		}
-	} else {
-		stepChunk(reverse);
 	}
 }
