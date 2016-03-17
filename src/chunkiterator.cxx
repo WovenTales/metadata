@@ -17,11 +17,13 @@ ChunkIterator::ChunkIterator(Chunk* c, bool reverse) {
 	tStart = --(chunk->subChunks.begin());
 	tEnd   = chunk->subChunks.end();
 
+	std::cout << "constructor" << std::endl;
 	initialize(reverse);
 }
 
 
 ChunkIterator& ChunkIterator::operator++() {
+	std::cout << "increment" << std::endl;
 	switch (state) {
 		case State::BEGIN:
 			initialize(false);
@@ -115,6 +117,7 @@ void ChunkIterator::initialize(bool reverse) {
 		++top;
 	}
 
+	std::cout << "init" << std::endl;
 	updateToMetadata(reverse);
 }
 
@@ -134,12 +137,15 @@ void ChunkIterator::step(bool reverse) {
 		}
 
 		if (test()) {
+			std::cout << "step" << std::endl;
 			if (reverse) {
 				--top;
 			} else {
 				++top;
 			}
+
 			updateToMetadata(reverse);
+
 		} else if ((*inner)->empty()) {
 			step(reverse);
 		}
@@ -148,10 +154,8 @@ void ChunkIterator::step(bool reverse) {
 
 
 void ChunkIterator::updateToMetadata(bool reverse) {
-	if ((chunk == NULL) || (top == tStart)) {
-		state = (reverse ? State::BEGIN : State::END);
-		return;
-	} else if (top == tEnd) {
+	if ((chunk == NULL) || (top == tStart) || (top == tEnd)) {
+		std::cout << "end" << std::endl;
 		state = (reverse ? State::BEGIN : State::END);
 		return;
 	}
@@ -164,6 +168,7 @@ void ChunkIterator::updateToMetadata(bool reverse) {
 		inner = (*top)->beginReference();
 	}
 
+	std::cout << "update" << std::endl;
 	if (((inner->atStart() || inner->atEnd()) == false) && (*inner)->empty()) {
 		step(reverse);
 	}
