@@ -8,7 +8,7 @@
 
 
 MetadataIterator::MetadataIterator(Metadata* m, bool reverse) {
-	data   = m;
+	data = m;
 	if (data == NULL) {
 		return;
 	}
@@ -130,7 +130,7 @@ void MetadataIterator::step(bool reverse) {
 		if ((reverse == false) && (top->empty() == false)) {
 			chunk = cStart;
 			++chunk;
-			updateToChunk(true);
+			updateToChunk(false);
 		}
 
 		if (reverse) {

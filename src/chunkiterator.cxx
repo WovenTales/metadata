@@ -20,6 +20,55 @@ ChunkIterator::ChunkIterator(Chunk* c, bool reverse) {
 	initialize(reverse);
 }
 
+ChunkIterator::ChunkIterator(const ChunkIterator& c) {
+	*this = c;
+}
+
+ChunkIterator::ChunkIterator(ChunkIterator&& c) {
+	chunk = c.chunk;
+	if (chunk == NULL) {
+		return;
+	}
+
+	state = c.state;
+	tEnd = c.tEnd;
+	top = c.top;
+	tStart = c.tStart;
+
+	inner = c.inner;
+	c.inner = NULL;
+}
+
+ChunkIterator::~ChunkIterator() {
+	if (inner != NULL) {
+		// TODO Prematurely deletes critical data somewhere
+		//delete inner;
+	}
+}
+
+
+ChunkIterator& ChunkIterator::operator=(const ChunkIterator& rhs) {
+	chunk = rhs.chunk;
+	if (chunk == NULL) {
+		return *this;
+	}
+
+	state = rhs.state;
+	tEnd = rhs.tEnd;
+	top = rhs.top;
+	tStart = rhs.tStart;
+
+	inner = new MetadataIterator(*top, false);
+	if (rhs.inner->atStart()) {
+		--inner;
+	} else {
+		while (inner != rhs.inner) {
+			++inner;
+		}
+	}
+
+	return *this;
+}
 
 ChunkIterator& ChunkIterator::operator++() {
 	switch (state) {
@@ -158,13 +207,12 @@ void ChunkIterator::updateToMetadata(bool reverse) {
 
 	state = State::VALID;
 
-	if (reverse) {
-		inner = (*top)->rbeginReference();
-	} else {
-		inner = (*top)->beginReference();
+	if (inner != NULL) {
+		delete inner;
 	}
+	inner = new MetadataIterator(*top, reverse);
 
-	if (((inner->atStart() || inner->atEnd()) == false) && (*inner)->empty()) {
+/*	if (((inner->atStart() || inner->atEnd()) == false) && (*inner)->empty()) {
 		step(reverse);
-	}
+	}*/
 }

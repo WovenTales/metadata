@@ -21,11 +21,6 @@ public:
 private:
 	MetadataFileType type;
 
-	// Hack, but allows ChunkIterator to have a
-	//   MetadataIterator*, breaking the circular dependancy
-	MetadataIterator* bRef = NULL;
-	MetadataIterator* rRef = NULL;
-
 	friend MetadataFactory;
 	friend MetadataIterator;
 
@@ -35,14 +30,15 @@ protected:
 	Metadata() = default;
 
 	        void create(const std::string&);
-	        void create(std::istream& file) { read(file); };
+	        void create(std::istream& file) { read(file); }
 	virtual void read(std::istream&) = 0;
 
 public:
 	Metadata(const Metadata&);
 	Metadata(Metadata&&);
 
-	virtual ~Metadata();
+	// Specifically set as virtual to avoid compiler warnings
+	virtual ~Metadata() {}
 
 	Metadata& operator=(Metadata&& rhs);
 
@@ -52,13 +48,10 @@ public:
 	        size_t            size()   const;
 	        bool              empty()  const;
 
-	        MetadataIterator  begin()  noexcept { return   MetadataIterator(this, false); };
-	        MetadataIterator  end()    noexcept { return ++MetadataIterator(this, true);  };
-	        MetadataIterator  rbegin() noexcept { return   MetadataIterator(this, true);  };
-	        MetadataIterator  rend()   noexcept { return --MetadataIterator(this, false); };
-
-	        MetadataIterator* beginReference();
-	        MetadataIterator* rbeginReference();
+	        MetadataIterator  begin()  noexcept { return   MetadataIterator(this, false); }
+	        MetadataIterator  end()    noexcept { return ++MetadataIterator(this, true);  }
+	        MetadataIterator  rbegin() noexcept { return   MetadataIterator(this, true);  }
+	        MetadataIterator  rend()   noexcept { return --MetadataIterator(this, false); }
 
 // protected:
 // int loopChunks< T >(std::istream&, ...);

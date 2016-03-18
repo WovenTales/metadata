@@ -5,21 +5,13 @@
 
 
 Metadata::Metadata(const Metadata& m) {
+	type = m.type;
 	tags = m.tags;
 }
 
 Metadata::Metadata(Metadata&& m) {
+	type = m.type;
 	tags.swap(m.tags);
-}
-
-
-Metadata::~Metadata() {
-	if (bRef != NULL) {
-		delete bRef;
-	}
-	if (rRef != NULL) {
-		delete rRef;
-	}
 }
 
 
@@ -39,6 +31,7 @@ void Metadata::create(const std::string& path) {
 
 
 Metadata& Metadata::operator=(Metadata&& m) {
+	type = m.type;
 	tags.swap(m.tags);
 
 	return (*this);
@@ -81,32 +74,13 @@ size_t Metadata::size() const {
 
 bool Metadata::empty() const {
 	if (tags.empty() == false) {
-		auto e = tags.end();
-		// TODO Update to C++11 foreach loop, but for some reason, segfaults if
-		//   attempting to dereference iterator (or assign with foreach)
-		for (auto i = tags.begin(); i != e; ++i) {
-			if (i->size() != 0) {
+		// For some reason, segfaults here and only here if not reference
+		for (const MetadataTag& t : tags) {
+			if (t.size() != 0) {
 				return false;
 			}
 		}
 	}
 
 	return true;
-}
-
-
-MetadataIterator* Metadata::beginReference() {
-	if (bRef == NULL) {
-		bRef = new MetadataIterator(this, false);
-	}
-
-	return bRef;
-}
-
-MetadataIterator* Metadata::rbeginReference() {
-	if (rRef == NULL) {
-		rRef = new MetadataIterator(this, true);
-	}
-
-	return rRef;
 }

@@ -16,6 +16,7 @@ class MetadataIterator;
 
 struct MetadataTag {
 private:
+	// Use pointer to handle subtyping of Chunk
 	std::list< Chunk* > ref;
 
 	friend Metadata;
@@ -27,9 +28,14 @@ public:
 	std::string data;
 
 	MetadataTag(Chunk*);
+	MetadataTag(const MetadataTag&);
+	MetadataTag(MetadataTag&&);
 	virtual ~MetadataTag();
 
-	void addChunk(Chunk*);
+	MetadataTag& operator=(const MetadataTag&);
+	MetadataTag& operator=(MetadataTag&&);
+
+	void addChunkReference(Chunk*);
 
 	bool   required() const;
 	void   write(std::ofstream&);

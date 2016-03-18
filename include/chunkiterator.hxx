@@ -22,6 +22,7 @@ private:
 
 	Chunk*                           chunk = NULL;
 	std::list< Metadata* >::iterator top;
+	// Make pointer to break otherwise circular dependency
 	MetadataIterator*                inner = NULL;
 
 	State                            state;
@@ -37,7 +38,12 @@ private:
 
 public:
 	ChunkIterator(Chunk* = NULL, bool = false);
+	ChunkIterator(const ChunkIterator&);
+	ChunkIterator(ChunkIterator&&);
 
+	virtual ~ChunkIterator();
+
+	ChunkIterator& operator=(const ChunkIterator&);
 	ChunkIterator& operator++();
 	ChunkIterator& operator--();
 	MetadataTag*   operator->();

@@ -32,13 +32,12 @@ unsigned int loopChunks(std::istream& file, Params... args) {
 		}
 
 		std::string n = c->name();
-		auto i = tags.begin(), e = tags.end();
 		switch (c->type()) {
 			case ChunkType::COUNT:
-				for (; i != e; ++i) {
-					if (i->label == n) {
-						i->addChunk(c);
-						i->data = (std::to_string(i->size()) + " occurences");
+				for (MetadataTag t : tags) {
+					if (t.label == n) {
+						t.addChunkReference(c);
+						t.data = (std::to_string(t.size()) + " occurences");
 
 						/* Need to break out of both for and switch blocks */
 						goto end_switch;
@@ -47,6 +46,7 @@ unsigned int loopChunks(std::istream& file, Params... args) {
 
 				// Note that this has to be emplace_* rather than push_*
 				//   as otherwise the destructor will free in-use memory
+				// TODO Fix above
 				tags.emplace_back(c);
 				tags.back().data = "1 occurence";
 				break;

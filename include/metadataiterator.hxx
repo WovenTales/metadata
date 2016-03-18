@@ -42,7 +42,7 @@ private:
 	void updateToChunk(bool);
 
 public:
-	MetadataIterator(Metadata* = NULL, bool = false);
+	MetadataIterator(Metadata*, bool = false);
 
 	MetadataIterator& operator++();
 	MetadataIterator& operator--();
