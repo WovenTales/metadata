@@ -10,6 +10,14 @@ MetadataTag::MetadataTag(Chunk* r) : ref(1, r) {
 	data = r->data();
 }
 
+MetadataTag::MetadataTag(const MetadataTag& t) {
+	operator=(t);
+}
+
+MetadataTag::MetadataTag(MetadataTag&& t) {
+	operator=(t);
+}
+
 MetadataTag::~MetadataTag() {
 	while (ref.empty() == false) {
 		delete ref.front();
@@ -18,7 +26,30 @@ MetadataTag::~MetadataTag() {
 }
 
 
-void MetadataTag::addChunk(Chunk* c) {
+MetadataTag& MetadataTag::operator=(const MetadataTag& rhs) {
+	type = rhs.type;
+	label = rhs.label;
+	data = rhs.data;
+
+	for (const Chunk* c : rhs.ref) {
+		ref.push_back(c->clone());
+	}
+
+	return *this;
+}
+
+MetadataTag& MetadataTag::operator=(MetadataTag&& rhs) {
+	type = rhs.type;
+	label = rhs.label;
+	data = rhs.data;
+
+	ref = std::move(rhs.ref);
+
+	return *this;
+}
+
+
+void MetadataTag::addChunkReference(Chunk* c) {
 	ref.push_back(c);
 }
 
@@ -27,8 +58,8 @@ bool MetadataTag::required() const {
 	if (ref.empty()) {
 		return true;
 	} else {
-		for (auto i = ref.begin(); i != ref.end(); ++i) {
-			if ((*i)->required() == true) {
+		for (const Chunk* c : ref) {
+			if (c->required() == true) {
 				return true;
 			}
 		}
@@ -38,8 +69,8 @@ bool MetadataTag::required() const {
 
 
 void MetadataTag::write(std::ofstream& out) {
-	for (auto c = ref.begin(); c != ref.end(); ++c) {
-		(*c)->write(out);
+	for (const Chunk* c : ref) {
+		c->write(out);
 	}
 }
 

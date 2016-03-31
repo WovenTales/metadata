@@ -55,10 +55,16 @@ SOURCES += src/chunk.cxx \
 
 # Scopes
 debug {
+	# Perhaps not necessary, but may as well be safe
 	QMAKE_CXXFLAGS_RELEASE -= -O
 	QMAKE_CXXFLAGS_RELEASE -= -O1
 	QMAKE_CXXFLAGS_RELEASE -= -O2
 	QMAKE_CXXFLAGS_RELEASE -= -O3
 
 	QMAKE_CXXFLAGS_RELEASE += -Og
+}
+
+# Copy the DLLs if necessary
+win32:Release {
+	QMAKE_POST_LINK = windeployqt --compiler-runtime $$system_quote($$system_path($${OUT_PWD}/bin/))
 }

@@ -20,8 +20,9 @@ Chunk::Chunk(const Chunk& c) : typeMap(c.typeMap) {
 Chunk::Chunk(Chunk&& c) : typeMap(c.typeMap) {
 	depth = c.depth;
 	length = c.length;
-	subChunks = c.subChunks;
 	typeCode = c.typeCode;
+
+	subChunks = std::move(c.subChunks);
 
 	raw = c.raw;
 	c.raw = NULL;

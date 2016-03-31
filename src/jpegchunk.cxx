@@ -150,7 +150,6 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 		raw = new char[length];
 		file.read(raw, length);
 		if (file.fail()) {
-			delete[] raw;
 			throw 'D';
 		}
 	}

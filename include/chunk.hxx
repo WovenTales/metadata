@@ -16,9 +16,6 @@ class Metadata;
 #include <utility>
 
 
-#define CHUNK_CONSTRUCTORS(_SUBTYPE_)    using Chunk::Chunk;
-
-
 struct Chunk {
 private:
 	const std::map< std::string, std::pair< std::string, ChunkType > >& typeMap;
@@ -53,6 +50,8 @@ public:
 
 	virtual ~Chunk();
 
+	virtual Chunk*        clone()              const = 0;
+
 	        std::string   data()               const;
 	        std::string   name()               const;
 	virtual ChunkType     type()               const;
@@ -65,11 +64,15 @@ public:
 	        size_t        size()               const;
 	        bool          empty()              const;
 
-	        ChunkIterator begin()              noexcept { return ChunkIterator(this, false);   };
-	        ChunkIterator end()                noexcept { return ++ChunkIterator(this, true);  };
-	        ChunkIterator rbegin()             noexcept { return ChunkIterator(this, true);    };
-	        ChunkIterator rend()               noexcept { return --ChunkIterator(this, false); };
+	        ChunkIterator begin()              noexcept { return ChunkIterator(this, false);   }
+	        ChunkIterator end()                noexcept { return ++ChunkIterator(this, true);  }
+	        ChunkIterator rbegin()             noexcept { return ChunkIterator(this, true);    }
+	        ChunkIterator rend()               noexcept { return --ChunkIterator(this, false); }
 };
+
+
+#define CHUNK_CONSTRUCTORS(_SUBTYPE_)            using Chunk::Chunk; \
+                                         public: _SUBTYPE_* clone() const { return new _SUBTYPE_(*this); }
 
 
 #endif
