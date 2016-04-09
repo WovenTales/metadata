@@ -267,7 +267,7 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 					unsigned int offset = (readBytes((raw + 10), 4, bigEndian) + 6);
 
 					unsigned int tagCount;
-					char* data;
+					char* data = NULL;
 					unsigned int tag, type, count;
 					unsigned int value, valueOffset;
 					while (offset != 0) {
@@ -653,6 +653,7 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 
 						// TODO With offset to next tag, can easily leave parts
 						//   of file unread and containing hidden data. Print these.
+
 						offset = (readBytes((data + 4), 4, bigEndian) + 6);
 
 						if (offset == 6) {

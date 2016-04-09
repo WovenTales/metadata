@@ -28,6 +28,9 @@
 *.app
 bin/*
 
+# ...but do include release packages
+!bin/*.zip
+
 # Auto-generated and temporary files
 *.swp
 Makefile*
@@ -43,4 +46,4 @@ moc_*.cpp
 # Alternate interface folders
 build*
 qtcreator/*
-metadata.pro.user
+metadata.pro.user*

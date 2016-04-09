@@ -31,34 +31,28 @@ MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFla
 			}
 
 			QLabel*      n = new QLabel(e->label.c_str(), this);
-			QScrollArea* s;
 			QLabel*      d;
 			QPushButton* b = (e->required() ? NULL : new QPushButton("Clear", this));
 
 			if (e->type == Chunk::Type::NONE) {
-				s = NULL;
 				d = NULL;
 			} else {
-				s = new QScrollArea(this);
-				d = new QLabel(e->data.c_str(), s);
+				d = new QLabel(e->data.c_str(), this);
 			}
 
-			labels.push_back(std::make_tuple((i + skip), n, std::make_pair(s, d), b));
+			labels.push_back(std::make_tuple((i + skip), n, d, b));
 
 			layout->addWidget(n, i, 0);
 
 			// TODO QScrollArea height minimum larger than few-line content's
-			if (s != NULL) {
+			if (d != NULL) {
 				d->setWordWrap(true);
 				d->setTextFormat(Qt::RichText);
 				d->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-				//d->setFrameStyle(QFrame::Panel | QFrame::Plain);
+				d->setFrameStyle(QFrame::Panel | QFrame::Plain);
+				d->setStyleSheet("border: 1px solid dimgray");
 
-				s->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-				s->setWidgetResizable(true);
-				s->setWidget(d);
-
-				layout->addWidget(s, i, 1);
+				layout->addWidget(d, i, 1);
 			}
 
 			if (b != NULL) {
@@ -102,7 +96,7 @@ void MetadataPanel::clearTag(unsigned int index) {
 	auto l = labels[index];
 	unsigned int dataIndex = std::get<0>(l);
 	QLabel*      title     = std::get<1>(l);
-	QLabel*      contents  = std::get<2>(l).second;
+	QLabel*      contents  = std::get<2>(l);
 	QPushButton* tagButton = std::get<3>(l);
 
 	if (tagButton == NULL) {
