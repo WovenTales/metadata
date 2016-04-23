@@ -2,13 +2,11 @@
 
 #include <algorithm>
 #include <locale>
-#include <map>
 #include <string>
 #include <sstream>
-#include <utility>
 
 
-std::map< std::string, std::pair< std::string, Chunk::Type > > PNGTypeMap = {
+Chunk::ChunkTypeMap PNGTypeMap = {
 	// TODO: Implement Chunk::Type::CUSTOM entries
 	{ "IHDR", { "Header",                         Chunk::Type::CUSTOM } },
 	{ "PLTE", { "Palette",                        Chunk::Type::CUSTOM } },

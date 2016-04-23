@@ -10,6 +10,7 @@ CONFIG      += c++11
 DESTDIR      = bin
 INCLUDEPATH += include
 OBJECTS_DIR  = obj
+DOCS_DIR     = docs
 
 # Input
 HEADERS += include/chunk.hxx \
@@ -46,4 +47,35 @@ debug {
 	QMAKE_CXXFLAGS_RELEASE -= -O3
 
 	QMAKE_CXXFLAGS_RELEASE += -Og
+}
+
+win32 {
+	# Check if Doxygen is installed on Windows (tested on Win7)
+	DOXYGEN_BIN = $$system(where doxygen)
+
+	Release {
+		# Copy the DLLs if necessary
+		QMAKE_POST_LINK = windeployqt --compiler-runtime $$system_quote($$system_path($${OUT_PWD}/bin/))
+	}
+}
+
+unix|max {
+	# Check if Doxygen is installed on Linux or Mac (tested on Ubuntu, not yet on the Mac)
+	DOXYGEN_BIN = $$system(which doxygen)
+}
+
+
+# Doxygen test code from answer by spacemig
+# TODO: Set HAVE_DOT = NO in Doxyfile if not on system ('dot' part of Graphviz)
+# <http://stackoverflow.com/questions/30162668/check-if-executable-is-in-the-path-using-qmake>
+isEmpty(DOXYGEN_BIN) {
+	message("Doxygen not found; 'docs' targets not added to makefile")
+} else {
+	docs.depends = docs_dummy
+
+	docs_dummy.target = $$DOCS_DIR/html
+	docs_dummy.depends = $$DOCS_DIR/Doxyfile $$HEADERS $$SOURCES
+	docs_dummy.commands = $$DOXYGEN_BIN $$DOCS_DIR/Doxyfile
+
+	QMAKE_EXTRA_TARGETS += docs docs_dummy
 }

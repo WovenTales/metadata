@@ -1,8 +1,11 @@
+(Listed in rough order of importance)
+(Indented lines depend on the line above them before they may be implemented)
+
 complete PNG tag parsing
 complete JPEG reading (including EXIF tags in APP1)
 fix widget sizes
 
-support for EBP/BMP/GIF formats (probably in order)
+support for PDF/EBP/BMP/GIF formats (probably in order)
 Batch mode
 prevent saving as alternate file type
 

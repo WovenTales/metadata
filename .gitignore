@@ -27,20 +27,22 @@
 *.out
 *.app
 bin/*
-
 # ...but do include release packages
 !bin/*.zip
+
+# Generated documentation
+docs/*
+# ...but do include the file to generate the docs
+!docs/Doxyfile
 
 # Auto-generated and temporary files
 *.swp
 Makefile*
 moc_*.cpp
 
-# Test images
+# Test images and reference documents
 *.png
 *.jpg
-
-# Spec reference documents
 *.pdf
 
 # Alternate interface folders

@@ -3,14 +3,12 @@
 #include <algorithm>
 #include <iomanip>
 #include <locale>
-#include <map>
 #include <string>
 #include <sstream>
-#include <utility>
 
 
 //        typeCode                name         type
-std::map< std::string, std::pair< std::string, Chunk::Type > > JPEGTypeMap = {
+Chunk::ChunkTypeMap JPEGTypeMap = {
 	// TODO: Implement Chunk::Type::CUSTOM entries
 	{ "\xD8", { "Start of file",                                         Chunk::Type::NONE   } },
 	{ "\xD9", { "End of file",                                           Chunk::Type::NONE   } },

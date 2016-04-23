@@ -10,7 +10,7 @@
 
 
 class PNGChunk : public Chunk {
-	CHUNK_CONSTRUCTORS(JPEGChunk);
+	CHUNK_CONSTRUCTORS(PNGChunk);
 
 protected:
 	char crc[4];
