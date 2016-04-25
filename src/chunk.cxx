@@ -9,12 +9,25 @@
 
 /** \def CHUNK_CONSTRUCTORS
  *
+ *  Provides default copy and move constructors (can be overridden if the
+ *  subclass introduces any new member variables), but it is still expected
+ *  to provide its own prototype following the pattern:
+ *  \code _SUBTYPE_(std::istream&); \endcode
+ *
  *  Should be called as early as possible in the subclass definition, with
  *  the name of the class itself passed as \p _SUBTYPE_.
+ *
+ *  \todo Can we remove the requirement for the outside \p istream prototype?
+ *        (ie. is it properly signposted and do all subtypes have it, and does
+ *        EXIF *require* passing around endianness at construction).
+ *  \todo See if it's possible to prevent inheritance of the \p protected
+ *        constructor, but (due not access restrictions) should still be safe.
  */
 
 
+
 // Types
+
 
 /** \class Chunk
  *
@@ -22,9 +35,12 @@
  *  data, it is necessary to provide an abstract, unified wrapper.
  *
  *  \todo Include snippet showing proper subclass construction (with macro)
+ *  \todo Try to find a way to avoid having to \\copybrief on every overridden
+ *        virtual method to remove automatically copied details
  *
  *  \sa CHUNK_CONSTRUCTORS: Required macro call for subclass definitions.
  */
+
 
 /** \enum Chunk::Type
  *
@@ -33,12 +49,15 @@
  *  by not constructing, for example, an empty label.
  *
  *  \todo Better descriptions of values
- *  \todo Implement IMAGE rendering (for thumbnails and files with multiples).
- *        Make sure that all image data is included rather than being cropped.
+ *  \todo Implement IMAGE rendering method (for thumbnails and files with
+ *        multiples). Make sure that all image data is included rather than
+ *        being cropped or otherwise hidden.
  */
 
 
+
 // Variables
+
 
 /** \var Chunk::raw
  *
@@ -47,14 +66,16 @@
  *  writing out the:image.
  */
 
+
 /** \var Chunk::typeCode
  *
  *  This provides the lookup into typeMap, so ensure that the code retrieved
  *  from the file matches the key there.
  *
  *  \warning For filetypes where type is indicated by a numerical value rather
- *           than ASCII, be aware that any 0x00 byte will terminate the code.
+ *           than ASCII, be aware that any \p 0x00 byte will terminate the code.
  */
+
 
 /** \var Chunk::typeMap
  *
@@ -73,13 +94,14 @@
 
 /** \var Chunk::Type Chunk::HIDE
  *
- *  \warning This should only be used for unnecessary chunks *not represented
- *           in the image*, as the user should be able to see every byte.
+ *  \attention This should only be used for unnecessary chunks *not represented
+ *             in the image*, as the user should be able to see every byte.
  */
 
 
 
-// Functions
+// Constructors, destructors, and operators
+
 
 /** \p Protected due to the highly context-sensitive nature of \p file, which
  *  could easily cause issues if not carefully managed, and the requirement
@@ -114,11 +136,15 @@ Chunk::Chunk(Chunk&& c) : typeMap(c.typeMap) {
 	c.raw = NULL;
 }
 
+
 Chunk::~Chunk() {
 	if (raw != NULL) {
 		delete[] raw;
 	}
 }
+
+
+// Functions
 
 
 std::string Chunk::data() const {
@@ -187,6 +213,7 @@ std::string Chunk::data(Chunk::Type t) const {
 	return "ERROR";
 }
 
+
 /** \fn Chunk::defaultChunkName
  *
  *  The resulting string should be properly formatted for all possible codes,
@@ -196,6 +223,7 @@ std::string Chunk::data(Chunk::Type t) const {
  *
  *  \sa Chunk::printableTypeCode: Recommended means of disambiguation.
  */
+
 
 /** Resulting string is comprised of eight space-separated hex bytes (in two-
  *  digit groups) with the ASCII representation of that line to the right; any
@@ -306,6 +334,7 @@ std::string Chunk::hexString(bool line, unsigned int offset, unsigned int span,
 	return ss.str();
 }
 
+
 std::string Chunk::name() const {
 	auto i = typeMap.find(typeCode);
 	if (i != typeMap.end()) {
@@ -320,11 +349,12 @@ std::string Chunk::name() const {
  *  If no modification is desired in a particular case, just return \p title.
  *
  *  \note This will never be called if the code lookup was unsuccessful; see
- *        \ref defaultTypeName for customising the title in that situation.
+ *        \ref defaultChunkName for customising the title in that situation.
  */
 std::string Chunk::name(Chunk::Type, const std::string& title) const {
 	return title;
 }
+
 
 /** \fn Chunk::printableTypeCode
  *
@@ -334,14 +364,16 @@ std::string Chunk::name(Chunk::Type, const std::string& title) const {
  *  \todo Include snippet of skeleton method override
  */
 
+
 /** \fn Chunk::required
  *
  *  Should only return \p true if the image actually *breaks* if the tag is
  *  removed, and not if it only scales the image, for example.
  */
 
+
 /** \todo Move to one of the Qt files, as there's no backend benefit of HTML
- *  \todo Reimplement escaping of \&amp; and \&lt;.
+ *  \todo Reimplement escaping of \&amp; and \&lt;
  */
 std::string Chunk::sanitize(std::string str) {
 	size_t i = -1;
@@ -354,6 +386,7 @@ std::string Chunk::sanitize(std::string str) {
 
 	return str;
 }
+
 
 /** \todo \p unsigned \p int is really not the best type for the output
  *  \todo Might be nice to add a \#define to support little-endian systems
@@ -368,7 +401,7 @@ unsigned int Chunk::readBytes(const char* data, unsigned char length, bool bigEn
 		out += ((unsigned char)(*data) << shift);
 
 		if (bigEndian) {
-			// Will underflow on last loop, but (i < length) fails before next use
+			// Will underflow on the last loop, but (i < length) fails before next use
 			shift -= 8;
 		} else {
 			shift += 8;
@@ -378,6 +411,7 @@ unsigned int Chunk::readBytes(const char* data, unsigned char length, bool bigEn
 	return out;
 }
 
+
 Chunk::Type Chunk::type() const {
 	auto i = typeMap.find(typeCode);
 	if (i != typeMap.end()) {
@@ -386,6 +420,7 @@ Chunk::Type Chunk::type() const {
 		return Type::OTHER;
 	}
 }
+
 
 /** \fn Chunk::write
  *

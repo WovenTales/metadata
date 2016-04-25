@@ -1,8 +1,3 @@
-/** \file chunk.hxx
- *  Base class and utility \p defines for a single tag of metadata.
- */
-
-
 #ifndef CHUNK_H
 #define CHUNK_H
 

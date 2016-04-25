@@ -20,7 +20,7 @@
 
 
 class JPEGChunk : public Chunk {
-	CHUNK_CONSTRUCTORS(JPEGChunk);
+	CHUNK_CONSTRUCTORS(JPEGChunk)
 
 protected:
 	virtual std::string data(Type)                           const override;

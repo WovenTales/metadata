@@ -6,8 +6,20 @@
 #include <sstream>
 
 
+// Variables
+
+
+//! Static reference for Chunk::typeMap
+/** The PNG spec very nicely defines the valid type codes:
+ *    All four characters must be A-Z or a-z
+ *    If and only if the first letter is uppercase, it's a required tag
+ *    If the second character is lowercase, it's defined by and for a given
+ *      program and anything else can safely ignore it
+ *    The third character is always uppercase for potential future use
+ *    I can't quite remember the fourth, but I think it has something to do
+ *      with needing to recalculate the image if it is changed, or vice versa
+ */
 Chunk::ChunkTypeMap PNGTypeMap = {
-	// TODO: Implement Chunk::Type::CUSTOM entries
 	{ "IHDR", { "Header",                         Chunk::Type::CUSTOM } },
 	{ "PLTE", { "Palette",                        Chunk::Type::CUSTOM } },
 	{ "IDAT", { "Image",                          Chunk::Type::COUNT  } },
@@ -34,14 +46,16 @@ Chunk::ChunkTypeMap PNGTypeMap = {
 };
 
 
+/** \var PNGChunk::crc
+ *
+ *  \todo We don't have to worry about this while we still only remove tags,
+ *        but it will have to be recalculated when we implement tag editing
+ */
 
-PNGChunk::PNGChunk(const PNGChunk& c) : Chunk(c) {
-	std::copy(c.crc, (c.crc + 4), crc);
-}
 
-PNGChunk::PNGChunk(PNGChunk&& c) : Chunk(c) {
-	std::move(c.crc, (c.crc + 4), crc);
-}
+
+// Constructors, destructors, and operators
+
 
 PNGChunk::PNGChunk(std::istream& file) : Chunk(file, PNGTypeMap) {
 	char bytes[4];
@@ -51,7 +65,7 @@ PNGChunk::PNGChunk(std::istream& file) : Chunk(file, PNGTypeMap) {
 	if (file.fail()) {
 		throw 'L';
 	}
-	// PNG is strictly big-endian
+	// PNG is strictly big-endian, so we can read this directly
 	length = readBytes(bytes, 4);
 
 	// Get chunk type
@@ -69,25 +83,29 @@ PNGChunk::PNGChunk(std::istream& file) : Chunk(file, PNGTypeMap) {
 		throw 'D';
 	}
 
-	// Swallow CRC (don't need to validate)
+	// Swallow CRC (don't need to validate here)
 	file.read(crc, 4);
 	if (file.fail()) {
 		throw 'C';
 	}
 }
 
+PNGChunk::PNGChunk(const PNGChunk& c) : Chunk(c) {
+	std::copy(c.crc, (c.crc + 4), crc);
+}
 
-std::string PNGChunk::printableTypeCode() const {
-	return typeCode;
+PNGChunk::PNGChunk(PNGChunk&& c) : Chunk(c) {
+	std::move(c.crc, (c.crc + 4), crc);
 }
 
 
-std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
-	return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
-			+ " chunk &lt;" + typeCode + "&gt;");
-}
+
+// Functions
 
 
+/** \todo Implement Chunk::Type::CUSTOM entries; most are tables or otherwise
+ *        require some processing beyond simply reading a value
+ */
 std::string PNGChunk::data(Chunk::Type type) const {
 	size_t n;
 	std::string str;
@@ -96,11 +114,13 @@ std::string PNGChunk::data(Chunk::Type type) const {
 		case Type::CUSTOM:
 			return "TODO<br><br>" + hexString();
 		case Type::TEXT:
+			// All PNG tEXt tags have a label separated from the rest of the
+			//   contents by a \0 character
 			str = std::string(raw, length);
 			n = str.find('\0');
 
 			if (n == std::string::npos) {
-				// Not proper Text tag, but included to handle malformed case
+				// Not proper tEXt tag, but included to handle malformed case
 				return str;
 			} else {
 				return str.substr(n + 1);
@@ -110,17 +130,28 @@ std::string PNGChunk::data(Chunk::Type type) const {
 	}
 }
 
+
+std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
+	// The PNG spec allows anyone to create their own tag codes, as long as
+	// the second character in it (index 1) is lowercase
+	return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
+			+ " chunk &lt;" + typeCode + "&gt;");
+}
+
+
 std::string PNGChunk::name(Chunk::Type type, const std::string& title) const {
 	size_t n;
 	std::string str;
 
 	switch (type) {
 		case Type::TEXT:
+			// All PNG tEXt tags have a label separated from the rest of the
+			//   contents by a \0 character
 			str = std::string(raw, length);
 			n = str.find('\0');
 
 			if (n == std::string::npos) {
-				// Not proper Text tag, but included to handle malformed case
+				// Not proper tEXt tag, but included to handle malformed case
 				return title;
 			} else {
 				return (title + " &lt;" + str.substr(0, n) + "&gt;");
@@ -131,14 +162,19 @@ std::string PNGChunk::name(Chunk::Type type, const std::string& title) const {
 }
 
 
+std::string PNGChunk::printableTypeCode() const {
+	return typeCode;
+}
+
+
 bool PNGChunk::required() const {
 	return isupper(typeCode[0], std::locale("C"));
 }
 
 
 void PNGChunk::write(std::ostream& out) const {
-	// Automatically truncates to single byte
 	// Copy byte-by-byte to ensure proper order
+	// Automatically truncates to single byte as put() expects a char
 	out.put(length >> (8 * 3));
 	out.put(length >> (8 * 2));
 	out.put(length >> 8);
