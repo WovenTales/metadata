@@ -6,20 +6,34 @@
 #include <sstream>
 
 
+namespace metadata {
+
+
+// Types
+
+
+/*! \class PNGChunk
+ *  \sa PNGTypeMap
+ */
+
+
 // Variables
 
 
-//! Static reference for Chunk::typeMap
-/** The PNG spec very nicely defines the valid type codes:
- *    All four characters must be A-Z or a-z
- *    If and only if the first letter is uppercase, it's a required tag
- *    If the second character is lowercase, it's defined by and for a given
- *      program and anything else can safely ignore it
- *    The third character is always uppercase for potential future use
- *    I can't quite remember the fourth, but I think it has something to do
- *      with needing to recalculate the image if it is changed, or vice versa
+//! Global reference for Chunk::typeMap
+/*! The PNG spec very nicely defines the valid type codes:
+ *    - All four characters must be A-Z or a-z
+ *    - If and only if the first letter is uppercase, it's a required tag
+ *    - If the second character is lowercase, it's defined by and for a given
+ *        program and anything else can safely ignore it
+ *    - The third character is always uppercase for potential future use
+ *    - A lowercase fourth character means it doesn't special handling once we
+ *        start editing chunks; if it's uppercase, it probably can't be copied
+ *        if any of the critical chunks (first letter) have been changed
+ *
+ *  \sa PNGChunk
  */
-Chunk::ChunkTypeMap PNGTypeMap = {
+static const Chunk::ChunkTypeMap PNGTypeMap = {
 	{ "IHDR", { "Header",                         Chunk::Type::CUSTOM } },
 	{ "PLTE", { "Palette",                        Chunk::Type::CUSTOM } },
 	{ "IDAT", { "Image",                          Chunk::Type::COUNT  } },
@@ -46,7 +60,7 @@ Chunk::ChunkTypeMap PNGTypeMap = {
 };
 
 
-/** \var PNGChunk::crc
+/*! \var PNGChunk::crc
  *
  *  \todo We don't have to worry about this while we still only remove tags,
  *        but it will have to be recalculated when we implement tag editing
@@ -103,7 +117,7 @@ PNGChunk::PNGChunk(PNGChunk&& c) : Chunk(c) {
 // Functions
 
 
-/** \todo Implement Chunk::Type::CUSTOM entries; most are tables or otherwise
+/*! \todo Implement Chunk::Type::CUSTOM entries; most are tables or otherwise
  *        require some processing beyond simply reading a value
  */
 std::string PNGChunk::data(Chunk::Type type) const {
@@ -183,4 +197,7 @@ void PNGChunk::write(std::ostream& out) const {
 	out.write(typeCode.c_str(), 4);
 	out.write(raw, length);
 	out.write(crc, 4);
+}
+
+
 }

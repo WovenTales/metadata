@@ -9,6 +9,9 @@
 #include <string>
 
 
+namespace metadata {
+
+
 //! Specialize Chunk for tags in PNG images
 class PNGChunk : public Chunk {
 	CHUNK_CONSTRUCTORS(PNGChunk)
@@ -42,4 +45,5 @@ public:
 };
 
 
+}
 #endif

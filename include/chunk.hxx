@@ -15,6 +15,9 @@
 #define CHUNK_CONSTRUCTORS(_SUBTYPE_)    using Chunk::Chunk;
 
 
+namespace metadata {
+
+
 //! Manage and wrap the raw data comprising a particular metadata tag.
 class Chunk {
 public:
@@ -96,4 +99,5 @@ public:
 };
 
 
+}
 #endif

@@ -20,6 +20,9 @@
 #include <QScrollArea>
 
 
+namespace metadata {
+
+
 class MetadataPanel : public QScrollArea {
 	Q_OBJECT
 
@@ -45,4 +48,5 @@ public slots:
 };
 
 
+}
 #endif

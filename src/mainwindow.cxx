@@ -15,6 +15,19 @@
 #include <QMenuBar>
 
 
+/*! Namespace documentation is included in \link include/mainwindow.hxx
+ *  mainwindow.* \endlink as those are the "base" files for the project -- the
+ *  header is the file to include to ensure the entire codebase is loaded, and
+ *  the source includes the \p main() function.
+ *
+ *  \todo Find a better base for documentation and main(); likely going to be
+ *        most relevant once the GUI/backend distinction is stronger
+ *
+ *  \todo Implement a deeper hierarchy of namespaces rather than it being flat
+ */
+namespace metadata {
+
+
 MainWindow::MainWindow(const std::string& path) {
 	core = new ImagePanel(path.c_str());
 	setCentralWidget(core);
@@ -82,10 +95,12 @@ void MainWindow::quitDialog() {
 }
 
 
-int main(int argc, char *argv[])
-{
+}
+
+
+int main(int argc, char *argv[]) {
 	QApplication a(argc, argv);
-	MainWindow w((argc > 1 ? argv[1] : ""));
+	metadata::MainWindow w((argc > 1 ? argv[1] : ""));
 
 	w.show();
 	return a.exec();

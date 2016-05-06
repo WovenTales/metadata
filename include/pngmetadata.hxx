@@ -8,6 +8,9 @@
 #include <string>
 
 
+namespace metadata {
+
+
 class PNGMetadata : public Metadata {
 	METADATA_CONSTRUCTORS(PNGMetadata);
 
@@ -19,4 +22,5 @@ public:
 };
 
 
+}
 #endif

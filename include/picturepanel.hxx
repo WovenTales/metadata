@@ -16,6 +16,9 @@
 #include <QVBoxLayout>
 
 
+namespace metadata {
+
+
 class PicturePanel : public QFrame {
 private:
 	QVBoxLayout*  layout;
@@ -30,4 +33,5 @@ public:
 };
 
 
+}
 #endif

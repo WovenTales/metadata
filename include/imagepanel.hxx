@@ -20,6 +20,9 @@
 #include <QWidget>
 
 
+namespace metadata {
+
+
 class ImagePanel : public QFrame {
 private:
 	QPixmap img;
@@ -36,4 +39,5 @@ public:
 };
 
 
+}
 #endif

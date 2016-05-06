@@ -8,6 +8,9 @@
 #include <string>
 
 
+namespace metadata {
+
+
 class JPEGMetadata : public Metadata {
 	METADATA_CONSTRUCTORS(JPEGMetadata);
 
@@ -19,4 +22,5 @@ public:
 };
 
 
+}
 #endif

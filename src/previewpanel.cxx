@@ -6,6 +6,10 @@
 // gui
 #include <QPainter>
 
+
+namespace metadata {
+
+
 PreviewPanel::PreviewPanel(const QPixmap& i, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f), img(i) { }
 
 
@@ -21,4 +25,7 @@ void PreviewPanel::paintEvent(QPaintEvent* e) {
 
 bool PreviewPanel::isValid() const {
 	return !img.isNull();
+}
+
+
 }

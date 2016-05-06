@@ -9,6 +9,9 @@
 #include <fstream>
 
 
+namespace metadata {
+
+
 Metadata* MetadataFactory::generate(const std::string& path) {
 	Metadata* out;
 
@@ -45,4 +48,7 @@ Metadata* MetadataFactory::generate(const Metadata* m) {
 	out->tags = m->tags;
 
 	return out;
+}
+
+
 }

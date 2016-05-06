@@ -16,6 +16,9 @@
 #include <QFrame>
 
 
+namespace metadata {
+
+
 class PreviewPanel : public QFrame {
 private:
 	const QPixmap& img;
@@ -29,4 +32,5 @@ public:
 };
 
 
+}
 #endif

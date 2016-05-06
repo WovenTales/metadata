@@ -11,6 +11,9 @@
 #include <QStyle>
 
 
+namespace metadata {
+
+
 MetadataPanel::MetadataPanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QScrollArea(parent) {
 	grid   = new QFrame(this, f);
 	layout = new QGridLayout;
@@ -124,4 +127,7 @@ void MetadataPanel::clearTag(unsigned int index) {
 		contents->setText("<s>" + contents->text() + "</s>");
 	}
 	tagButton->setEnabled(false);
+}
+
+
 }

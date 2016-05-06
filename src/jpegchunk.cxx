@@ -7,9 +7,90 @@
 #include <sstream>
 
 
-//        typeCode                name         type
+namespace metadata {
+
+
+// Preprocessor
+
+/*! \def EXIF_BYTE
+ *
+ *  \brief Numerical type indicating an EXIF tag is an unsigned one-byte value
+ */
+/*! \def EXIF_ASCII
+ *
+ *  \brief Numerical type indicating an EXIF tag is a NULL-terminated ASCII
+ *         string
+ */
+/*! \def EXIF_SHORT
+ *
+ *  \brief Numerical type indicating an EXIF tag is an unsigned two-byte value
+ */
+/*! \def EXIF_LONG
+ *
+ *  \brief Numerical type indicating an EXIF tag is an unsigned four-byte value
+ */
+/*! \def EXIF_RATIONAL
+ *
+ *  \brief Numerical type indicating an EXIF tag is an unsigned "float"
+ *
+ *  The eight bytes that this type uses are divided into two EXIF_LONGs where
+ *  the first is the numerator and the second is the denominator.
+ *
+ *  \sa JPEGChunk::exifRational
+ */
+/*! \def EXIF_UNDEFINED
+ *
+ *  \brief Numerical type indicating an EXIF tag is a single byte with a syntax
+ *         determined by the tag
+ */
+/*! \def EXIF_SLONG
+ *
+ *  \brief Numerical type indicating an EXIF tag is a signed four-byte value
+ */
+/*! \def EXIF_SRATIONAL
+ *
+ *  \brief Numerical type indicating an EXIF tag is a signed "float"
+ *
+ *  The eight bytes that this type uses are divided into two EXIF_SLONGs where
+ *  the first is the numerator and the second is the denominator.
+ *
+ *  \sa JPEGChunk::exifSRational
+ */
+
+
+// Types
+
+
+/*! \class JPEGChunk
+ *
+ *  \todo Split out EXIF data into its own class to avoid clutter. Note that
+ *        this is the primary driver behind the \p subchunk branch of the the
+ *        repo, as the best way of doing so requires that (currently buggy)
+ *        tree-aware iterator to display properly.
+ *
+ *  \sa JPEGTypeMap
+ */
+
+
+// Variables
+
+
+//! Global reference for Chunk::typeMap
+/*! JPEG chunk markers follow the pattern \p 0xFF__ (with optional \p 0xFF
+ *  strings preceeding as padding); as the second byte is the only part that
+ *  differs, it is simpler to treat the type code as a single \p char.
+ *  However, as Chunk::typeMap expects the key to be a \p string, it needs to
+ *  be stored in that format.
+ *
+ *  \attention JPEGChunk makes use of this alternate typing to allow, for
+ *             example, comparing the code against its integer representation,
+ *             and only uses \p strings for storage and lookup. To maintain
+ *             that standard, it's easiest to initialize a local variable:
+ *  \code unsigned char t = typeCode[0]; \endcode
+ *
+ *  \sa JPEGChunk
+ */
 Chunk::ChunkTypeMap JPEGTypeMap = {
-	// TODO: Implement Chunk::Type::CUSTOM entries
 	{ "\xD8", { "Start of file",                                         Chunk::Type::NONE   } },
 	{ "\xD9", { "End of file",                                           Chunk::Type::NONE   } },
 	{ "\xDA", { "Image",                                                 Chunk::Type::NONE   } },
@@ -22,20 +103,20 @@ Chunk::ChunkTypeMap JPEGTypeMap = {
 	{ "\xC5", { "Start Huffman frame (differential sequential DCT)",     Chunk::Type::CUSTOM } },
 	{ "\xC6", { "Start Huffman frame (differential progressive DCT)",    Chunk::Type::CUSTOM } },
 	{ "\xC7", { "Start Huffman frame (differential lossless)",           Chunk::Type::CUSTOM } },
-	{ "\xC9", { "Start arithmatic frame (extended sequential DCT)",      Chunk::Type::CUSTOM } },
-	{ "\xCA", { "Start arithmatic frame (progressive DCT)",              Chunk::Type::CUSTOM } },
-	{ "\xCB", { "Start arithmatic frame (lossless)",                     Chunk::Type::CUSTOM } },
-	{ "\xCD", { "Start arithmatic frame (differential sequential DCT)",  Chunk::Type::CUSTOM } },
-	{ "\xCE", { "Start arithmatic frame (differential progressive DCT)", Chunk::Type::CUSTOM } },
-	{ "\xCF", { "Start arithmatic frame (differential lossless)",        Chunk::Type::CUSTOM } },
+	{ "\xC9", { "Start arithmetic frame (extended sequential DCT)",      Chunk::Type::CUSTOM } },
+	{ "\xCA", { "Start arithmetic frame (progressive DCT)",              Chunk::Type::CUSTOM } },
+	{ "\xCB", { "Start arithmetic frame (lossless)",                     Chunk::Type::CUSTOM } },
+	{ "\xCD", { "Start arithmetic frame (differential sequential DCT)",  Chunk::Type::CUSTOM } },
+	{ "\xCE", { "Start arithmetic frame (differential progressive DCT)", Chunk::Type::CUSTOM } },
+	{ "\xCF", { "Start arithmetic frame (differential lossless)",        Chunk::Type::CUSTOM } },
 
 	{ "\xC4", { "Huffman table(s)",                                      Chunk::Type::HEX    } },
-	{ "\xCC", { "Arithmatic coding conditioning(s)",                     Chunk::Type::HEX    } },
+	{ "\xCC", { "Arithmetic coding conditioning(s)",                     Chunk::Type::HEX    } },
 	{ "\xDB", { "Quantization table(s)",                                 Chunk::Type::HEX    } },
 	{ "\xF1", { "Temporary private use",                                 Chunk::Type::HEX    } },
 
 	{ "\xDC", { "Number of lines",                                       Chunk::Type::DIGIT  } },
-	{ "\xDE", { "Hiearchical progression",                               Chunk::Type::CUSTOM } },
+	{ "\xDE", { "Hierarchical progression",                              Chunk::Type::CUSTOM } },
 	{ "\xDF", { "Reference component(s)",                                Chunk::Type::HEX    } },
 
 	{ "\xDD", { "Restart interval",                                      Chunk::Type::DIGIT  } },
@@ -83,6 +164,10 @@ Chunk::ChunkTypeMap JPEGTypeMap = {
 };
 
 
+
+// Constructors, destructors, and operators
+
+
 JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 	char bytes[2];
 
@@ -91,7 +176,12 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 	if (file.fail() || ((unsigned char)bytes[0] != 0xFF)) {
 		throw 'T';
 	}
-	// Handle marker padding (NOTE: won't be saved in new file)
+
+	// Handle variable-length marker padding
+	/*! \todo Save length so output file can be byte-identical to input?
+	 *            Likely best if "Save" when unchanged does so, but not
+	 *            necessary with "Save As" or after any change.
+	 */
 	while (((unsigned char)bytes[1] == 0xFF) && (file.eof() == false)) {
 		bytes[1] = file.get();
 	}
@@ -153,41 +243,12 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 }
 
 
-std::string JPEGChunk::printableTypeCode() const {
-	std::ostringstream ss;
 
-	ss << std::hex << std::setw(2) << std::setfill('0');
-	ss << "0xFF" << ((unsigned int)typeCode[0] & 0xFF);
-
-	return ss.str();
-}
+// Functions
 
 
-std::string JPEGChunk::defaultChunkName(const std::string& typeCode) const {
-	std::ostringstream ss;
-
-	ss << "Unrecognized chunk &lt;0xFF";
-	ss << std::hex << std::setw(2) << std::setfill('0') << ((unsigned int)typeCode[0] & 0xFF) << "&gt;";
-
-	return ss.str();
-}
-
-
-unsigned int JPEGChunk::exifRational(const char* offset, bool bigEndian) const {
-	float out = readBytes(offset, 4, bigEndian);
-	out /= readBytes((offset + 4), 4, bigEndian);
-
-	return (unsigned int)out;
-}
-
-int JPEGChunk::exifSRational(const char* offset, bool bigEndian) const {
-	float out = (int)readBytes(offset, 4, bigEndian);
-	out /= (int)readBytes((offset + 4), 4, bigEndian);
-
-	return (int)out;
-}
-
-
+/*! \todo Implement better handling of Type::CUSTOM fields
+ */
 std::string JPEGChunk::data(Chunk::Type type) const {
 	unsigned char t = typeCode[0];
 	std::ostringstream ss;
@@ -676,6 +737,57 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 	}
 }
 
+
+/*! If this returns \p true, then the two-byte tag label is directly followed
+ *  by the next (separate) tag; otherwise, it wraps some amount of data
+ */
+bool JPEGChunk::dataFreeTag(unsigned char c) {
+	if ((c == 0x01) || ((c >= 0xD0) && (c <= 0xD9))) {
+		// 0x01         Arithmetic coding temporary private use
+		// 0xD0 - 0xD7  Restart markers
+		// 0xD8         Start of file
+		// 0xD9         End of file
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+std::string JPEGChunk::defaultChunkName(const std::string& typeCode) const {
+	std::ostringstream ss;
+
+	ss << "Unrecognized chunk &lt;0xFF";
+	ss << std::hex << std::setw(2) << std::setfill('0') << ((unsigned int)typeCode[0] & 0xFF) << "&gt;";
+
+	return ss.str();
+}
+
+
+/*! \todo This really should be returning a float rather than an int
+ *
+ *  \sa EXIF_RATIONAL
+ */
+unsigned int JPEGChunk::exifRational(const char* offset, bool bigEndian) const {
+	float out = readBytes(offset, 4, bigEndian);
+	out /= readBytes((offset + 4), 4, bigEndian);
+
+	return (unsigned int)out;
+}
+
+
+/*! \todo This really should be returning a float rather than an int
+ *
+ *  \sa EXIF_SRATIONAL
+ */
+int JPEGChunk::exifSRational(const char* offset, bool bigEndian) const {
+	float out = (int)readBytes(offset, 4, bigEndian);
+	out /= (int)readBytes((offset + 4), 4, bigEndian);
+
+	return (int)out;
+}
+
+
 std::string JPEGChunk::name(Chunk::Type type, const std::string& title) const {
 	unsigned char t = typeCode[0];
 
@@ -691,14 +803,13 @@ std::string JPEGChunk::name(Chunk::Type type, const std::string& title) const {
 }
 
 
+std::string JPEGChunk::printableTypeCode() const {
+	std::ostringstream ss;
 
+	ss << std::hex << std::setw(2) << std::setfill('0');
+	ss << "0xFF" << ((unsigned int)typeCode[0] & 0xFF);
 
-bool JPEGChunk::dataFreeTag(unsigned char c) {
-	if ((c == 0x01) || ((c >= 0xD0) && (c <= 0xD9))) {
-		return true;
-	} else {
-		return false;
-	}
+	return ss.str();
 }
 
 
@@ -743,4 +854,7 @@ void JPEGChunk::write(std::ostream& out) const {
 
 		out.write(raw, length);
 	}
+}
+
+
 }

@@ -5,6 +5,9 @@
 #include <iostream>
 
 
+namespace metadata {
+
+
 void PNGMetadata::read(std::ifstream& file) {
 	char header[9];
 	// NULL-terminate to emulate C-string
@@ -87,4 +90,7 @@ void PNGMetadata::write(const std::string& path) const {
 	}
 
 	out.close();
+}
+
+
 }

@@ -8,6 +8,9 @@
 #include <QMessageBox>
 
 
+namespace metadata {
+
+
 ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f) {
 	// Don't show another dialog if "cannot be opened" was already displayed
 	bool trigger = false;
@@ -55,4 +58,7 @@ ImagePanel::ImagePanel(const QString& path, QWidget* parent, Qt::WindowFlags f) 
 	layout->setStretch(1, 0);
 
 	setLayout(layout);
+}
+
+
 }

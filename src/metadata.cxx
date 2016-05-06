@@ -4,6 +4,9 @@
 #include <iostream>
 
 
+namespace metadata {
+
+
 Metadata::Tag::Tag(const Chunk* r) : ref(1, r) {
 	type = r->type();
 	label = r->name();
@@ -90,4 +93,7 @@ bool Metadata::remove(unsigned int index) {
 
 	tags.erase(iTag);
 	return true;
+}
+
+
 }

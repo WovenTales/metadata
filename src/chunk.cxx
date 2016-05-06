@@ -5,9 +5,12 @@
 #include <sstream>
 
 
+namespace metadata {
+
+
 // Preprocessor
 
-/** \def CHUNK_CONSTRUCTORS
+/*! \def CHUNK_CONSTRUCTORS
  *
  *  Provides default copy and move constructors (can be overridden if the
  *  subclass introduces any new member variables), but it is still expected
@@ -29,7 +32,7 @@
 // Types
 
 
-/** \class Chunk
+/*! \class Chunk
  *
  *  Due to the many formats and the frequent complexity of reading the binary
  *  data, it is necessary to provide an abstract, unified wrapper.
@@ -42,7 +45,7 @@
  */
 
 
-/** \enum Chunk::Type
+/*! \enum Chunk::Type
  *
  *  The GUI might treat some formats differently, whether through
  *  further processing before display, or streamlining construction
@@ -59,7 +62,7 @@
 // Variables
 
 
-/** \var Chunk::raw
+/*! \var Chunk::raw
  *
  *  Not all segments of the data (for example, the CRC checksum of PNG) need to
  *  be saved in this field, as long as they may be perfectly reconstructed when
@@ -67,17 +70,20 @@
  */
 
 
-/** \var Chunk::typeCode
+/*! \var Chunk::typeCode
  *
  *  This provides the lookup into typeMap, so ensure that the code retrieved
  *  from the file matches the key there.
  *
  *  \warning For filetypes where type is indicated by a numerical value rather
  *           than ASCII, be aware that any \p 0x00 byte will terminate the code.
+ *
+ *  \todo Is \p string really the best way to store this, or would a \p char
+ *        array or even a template be better?
  */
 
 
-/** \var Chunk::typeMap
+/*! \var Chunk::typeMap
  *
  *  When constructing an entry for this, the key should be one of the potential
  *  codes identifying a metadata tag, while the first parameter in the mapped
@@ -92,7 +98,7 @@
  */
 
 
-/** \var Chunk::Type Chunk::HIDE
+/*! \var Chunk::Type Chunk::HIDE
  *
  *  \attention This should only be used for unnecessary chunks *not represented
  *             in the image*, as the user should be able to see every byte.
@@ -103,7 +109,7 @@
 // Constructors, destructors, and operators
 
 
-/** \p Protected due to the highly context-sensitive nature of \p file, which
+/*! \p Protected due to the highly context-sensitive nature of \p file, which
  *  could easily cause issues if not carefully managed, and the requirement
  *  that the keys of \p tm be hard-coded in the same format as read from the file.
  *
@@ -152,7 +158,7 @@ std::string Chunk::data() const {
 	return sanitize(data(type()));
 }
 
-/** Subclasses are expected to override this -- especially in the case of
+/*! Subclasses are expected to override this -- especially in the case of
  *  \p t \p == \p Type::CUSTOM -- to support formatting specific to that
  *  image format, but to call back to this version in the default case.
  *
@@ -214,7 +220,7 @@ std::string Chunk::data(Chunk::Type t) const {
 }
 
 
-/** \fn Chunk::defaultChunkName
+/*! \fn Chunk::defaultChunkName
  *
  *  The resulting string should be properly formatted for all possible codes,
  *  but should still be unique for each separate type of unrecognised tag.
@@ -225,7 +231,7 @@ std::string Chunk::data(Chunk::Type t) const {
  */
 
 
-/** Resulting string is comprised of eight space-separated hex bytes (in two-
+/*! Resulting string is comprised of eight space-separated hex bytes (in two-
  *  digit groups) with the ASCII representation of that line to the right; any
  *  non-printable characters are represented by a period.
  *
@@ -344,7 +350,7 @@ std::string Chunk::name() const {
 	}
 }
 
-/** The title retrieved from the \ref typeMap is passed into the function to
+/*! The title retrieved from the \ref typeMap is passed into the function to
  *  allow, for example, appending the type code to an application-specific tag.
  *  If no modification is desired in a particular case, just return \p title.
  *
@@ -356,7 +362,7 @@ std::string Chunk::name(Chunk::Type, const std::string& title) const {
 }
 
 
-/** \fn Chunk::printableTypeCode
+/*! \fn Chunk::printableTypeCode
  *
  *  The resulting string should be properly formatted for all possible codes,
  *  so a lookup table is not advised.
@@ -365,14 +371,14 @@ std::string Chunk::name(Chunk::Type, const std::string& title) const {
  */
 
 
-/** \fn Chunk::required
+/*! \fn Chunk::required
  *
  *  Should only return \p true if the image actually *breaks* if the tag is
  *  removed, and not if it only scales the image, for example.
  */
 
 
-/** \todo Move to one of the Qt files, as there's no backend benefit of HTML
+/*! \todo Move to one of the Qt files, as there's no backend benefit of HTML
  *  \todo Reimplement escaping of \&amp; and \&lt;
  */
 std::string Chunk::sanitize(std::string str) {
@@ -388,7 +394,7 @@ std::string Chunk::sanitize(std::string str) {
 }
 
 
-/** \todo \p unsigned \p int is really not the best type for the output
+/*! \todo \p unsigned \p int is really not the best type for the output
  *  \todo Might be nice to add a \#define to support little-endian systems
  */
 unsigned int Chunk::readBytes(const char* data, unsigned char length, bool bigEndian) {
@@ -422,8 +428,11 @@ Chunk::Type Chunk::type() const {
 }
 
 
-/** \fn Chunk::write
+/*! \fn Chunk::write
  *
  *  If the tag hasn't been changed, should output the data *exactly* as it was
  *  in the original file.
  */
+
+
+}

@@ -19,26 +19,41 @@
 #define EXIF_SRATIONAL  10
 
 
+namespace metadata {
+
+
+//! Specialize Chunk for tags in JPEG images
 class JPEGChunk : public Chunk {
 	CHUNK_CONSTRUCTORS(JPEGChunk)
 
 protected:
-	virtual std::string data(Type)                           const override;
-	virtual std::string name(Type, const std::string&)       const override;
+	//! \copybrief Chunk::data
+	virtual std::string  data(Type)                           const override;
+	//! \copybrief Chunk::name
+	virtual std::string  name(Type, const std::string&)       const override;
 
-	virtual std::string printableTypeCode()                  const override;
-	virtual std::string defaultChunkName(const std::string&) const override;
+	//! \copybrief Chunk::printableTypeCode
+	virtual std::string  printableTypeCode()                  const override;
+	//! \copybrief Chunk::defaultChunkName
+	virtual std::string  defaultChunkName(const std::string&) const override;
 
-	static bool         dataFreeTag(unsigned char);
-	       unsigned int exifRational(const char*, bool)      const;
-	                int exifSRational(const char*, bool)     const;
+	//! Encapsulate calculations to determine whether a tag has associated data
+	static  bool         dataFreeTag(unsigned char);
+	//! Read the eight bytes at the pointer as representing an EXIF "float"
+	        unsigned int exifRational(const char*, bool)      const;
+	//! Read the eight bytes at the pointer as representing a signed EXIF "float"
+	                 int exifSRational(const char*, bool)     const;
 
 public:
+	//! Parse the next tag in the stream, following the JPEG specification
 	JPEGChunk(std::istream&);
 
-	virtual bool        required()           const override;
-	virtual void        write(std::ostream&) const override;
+	//! \copybrief Chunk::required
+	virtual bool         required()                           const override;
+	//! \copybrief Chunk::write
+	virtual void         write(std::ostream&)                 const override;
 };
 
 
+}
 #endif

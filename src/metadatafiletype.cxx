@@ -1,6 +1,9 @@
 #include <metadatafiletype.hxx>
 
 
+namespace metadata {
+
+
 MetadataFileType detectFileType(const std::string& path) {
 	if (path.empty()) {
 		return MetadataFileType::INVALID;
@@ -16,4 +19,7 @@ MetadataFileType detectFileType(const std::string& path) {
 	} else {
 		return MetadataFileType::INVALID;
 	}
+}
+
+
 }

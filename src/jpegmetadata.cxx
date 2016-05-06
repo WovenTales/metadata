@@ -5,6 +5,9 @@
 #include <iostream>
 
 
+namespace metadata {
+
+
 void JPEGMetadata::read(std::ifstream& file) {
 	while (file.peek() != EOF) {
 		Chunk* c = NULL;
@@ -65,4 +68,7 @@ void JPEGMetadata::write(const std::string& path) const {
 	}
 
 	out.close();
+}
+
+
 }

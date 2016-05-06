@@ -1,6 +1,9 @@
 #include "picturepanel.hxx"
 
 
+namespace metadata {
+
+
 PicturePanel::PicturePanel(const QPixmap& i, QWidget* parent, Qt::WindowFlags f) : QFrame(parent) {
 
 }
@@ -62,3 +65,6 @@ void ImageLabel2::setPixmap (const QPixmap &pixmap){
     pix = pixmap;
 }
 */
+
+
+}

@@ -7,6 +7,9 @@
 #include <string>
 
 
+namespace metadata {
+
+
 struct MetadataFactory {
 public:
 	MetadataFactory() = delete;
@@ -16,4 +19,5 @@ public:
 };
 
 
+}
 #endif

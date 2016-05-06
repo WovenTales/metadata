@@ -5,6 +5,9 @@
 #include <string>
 
 
+namespace metadata {
+
+
 enum struct MetadataFileType {
 	INVALID,
 	JPEG,
@@ -14,4 +17,5 @@ enum struct MetadataFileType {
 MetadataFileType detectFileType(const std::string&);
 
 
+}
 #endif

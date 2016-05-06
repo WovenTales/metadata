@@ -66,13 +66,18 @@ unix|max {
 
 
 # Doxygen test code from answer by spacemig
-# TODO: Set HAVE_DOT = NO in Doxyfile if not on system ('dot' part of Graphviz)
 # <http://stackoverflow.com/questions/30162668/check-if-executable-is-in-the-path-using-qmake>
+
+# TODO: Set HAVE_DOT = NO in Doxyfile if not on system ('dot' part of Graphviz)
+# TODO: Create 'clean' command for docs
+
 isEmpty(DOXYGEN_BIN) {
 	message("Doxygen not found; 'docs' targets not added to makefile")
 } else {
+	# Create a separate target for proper naming
 	docs.depends = docs_dummy
 
+	# Choose one of the resulting folders to determine whether to regenerate
 	docs_dummy.target = $$DOCS_DIR/html
 	docs_dummy.depends = $$DOCS_DIR/Doxyfile $$HEADERS $$SOURCES
 	docs_dummy.commands = $$DOXYGEN_BIN $$DOCS_DIR/Doxyfile

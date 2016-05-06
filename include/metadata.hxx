@@ -3,7 +3,7 @@
 
 
 #include <chunk.hxx>
-class MetadataFactory;
+namespace metadata { class MetadataFactory; }
 #include <metadatafiletype.hxx>
 
 #include <fstream>
@@ -15,6 +15,9 @@ class MetadataFactory;
                                             private:   _SUBTYPE_() = default; \
                                                        friend MetadataFactory; \
                                             protected: _SUBTYPE_(const std::string& path) : Metadata(path) { create(); }
+
+
+namespace metadata {
 
 
 class Metadata {
@@ -78,4 +81,5 @@ public:
 };
 
 
+}
 #endif

@@ -12,6 +12,10 @@
 #include <QMenu>
 
 
+//! Top-level namespace enclosing the entire project
+namespace metadata {
+
+
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
@@ -35,4 +39,5 @@ public slots:
 };
 
 
+}
 #endif
