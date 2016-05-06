@@ -185,29 +185,32 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 	while (((unsigned char)bytes[1] == 0xFF) && (file.eof() == false)) {
 		bytes[1] = file.get();
 	}
-	// Assumes raw code not 0xFF00, but that is invalid anyway
+	// Assumes raw code is not 0xFF00, but that is invalid anyway
 	typeCode = std::string({ bytes[1] });
 
-	// Break on tags without further data
+	// Break on tags without further data as no further processing needed
 	if (dataFreeTag(typeCode[0])) {
-	    	length = 0;
-	    	return;
+		length = 0;
+		return;
+
+	// Image doesn't specify a length, so we need to read byte-by-byte
 	} else if (typeCode == "\xDA") {
-		// Swallow image
 		std::vector< unsigned char > data;
 		
 		unsigned char c = file.get();
-		// Read a byte at a time
 		while (file.eof() == false) {
-			// May be end-of-image tag or a legitimate 0xFF in the image
+			// May be end-of-image tag or a legitimate 0xFF00 in the image
 			if (c == 0xFF) {
 				// Only peek at next char so easier to undo if it /is/ a tag
 				unsigned char p = file.peek();
 
-				// dataFreeTag() consolidates the 'Repeat' tags, but EOF needs to be managed
+				// dataFreeTag() consolidates the 'Repeat' tags (which can be treated
+				// - like normal bytes), but EOF tag still needs to be managed
 				if ((p == 0x00) || (dataFreeTag(p) && (p != 0xD9))) {
 					data.push_back(c);
 					data.push_back(file.get());
+
+				// For any non-Repeat tag, rewind and end Image data
 				} else {
 					file.unget();
 					break;
@@ -247,7 +250,8 @@ JPEGChunk::JPEGChunk(std::istream& file) : Chunk(file, JPEGTypeMap) {
 // Functions
 
 
-/*! \todo Implement better handling of Type::CUSTOM fields
+/*! \todo Implement better handling of Type::CUSTOM fields. Note that the APP*
+ *        tags might be best with the developments in the \p subchunks branch.
  */
 std::string JPEGChunk::data(Chunk::Type type) const {
 	unsigned char t = typeCode[0];
@@ -256,11 +260,11 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 	switch (type) {
 		case Type::CUSTOM:
 			if ((t >= 0xE0) && (t <= 0xEF)) {  // Application-specific
-				// All APP tags should have 0x00-terminated ID at beginning
+				// All APP* tags should have 0x00-terminated ID at beginning
 				std::string id(raw);
 
-				// Most have specific tag number that must be used
-				//   (JFIF must be in APP0) but all still have ID string
+				// Most have specific tag number that must be used (eg.
+				// - JFIF must be in APP0) but all still have ID string
 
 				if (id == "JFIF") {
 					ss << std::dec;
@@ -313,16 +317,17 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 
 				// This entire thing except 'Exif\0\0' is essentially a TIFF file
 				// Basic Exif spec implemented, but not all original TIFF tags
-				//     Once image format split off (no QPixmap support by default),
-				//       continue working from page 33 of the latter spec.
+				//     Once image format is split off (note no QPixmap support by
+				//     - default), continue working from page 33 of the latter spec
+				//! \todo Get \p subtags branch working, where this has been split out
 				} else if (id == "Exif") {
 					// ID encoded with two-NULL termination rather than single
 
-					// Just as easy to access as 0x49/0x4D in 6-7
+					// Just as easy to access as 0x49/0x4D in bytes 6-7
 					bool bigEndian = ((unsigned char)raw[9] == 0x2A);
 
-					// Will almost always be immediately after header,
-					//   but should check for support of edge cases
+					// Will almost always be immediately after header, but
+					// - should check anyway for support of edge cases
 					unsigned int offset = (readBytes((raw + 10), 4, bigEndian) + 6);
 
 					unsigned int tagCount;
@@ -366,7 +371,6 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 									break;
 							}
 
-							// TODO Perfect candidate for splitting into subtags
 							switch (tag) {
 								case 256:
 									ss << "Image width: " << value << " pixels";
@@ -446,8 +450,8 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 								case 272:
 									ss << "Equipment model: ";
 									goto ascii_goto;
-								// TODO See about displaying strips, if possible
 								case 273:
+									//! \todo See about displaying strips, if possible
 									ss << "Image data location(s): ";
 									ss << std::hex;
 									if (count == 1) {
@@ -662,7 +666,7 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 								case 33432:
 									ss << "Copyright: ";
 									goto ascii_goto;
-								// TODO For next three, follow offset to print values
+								//! \todo For next three, follow offset to print values
 								case 34665:
 									ss << "EXIF IFD location: ";
 									ss << "0x" << std::setw(8) << std::setfill('0');
@@ -680,11 +684,11 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 									break;
 								default:
 									ss << "Unknown tag " << tag << ": ";
-									// TODO Make use of type/count to properly render
+									//! \todo Make use of type/count to properly render
 									ss << hexString(true, (offset + 8), count) << std::dec;
 									break;
 							ascii_goto:
-									// NULL-termination included in count
+									// NULL-termination is included in count
 									{
 										char* bytes = (count > 4 ? (raw + valueOffset) : data);
 										std::string str;
@@ -710,8 +714,9 @@ std::string JPEGChunk::data(Chunk::Type type) const {
 							offset += 12;
 						}
 
-						// TODO With offset to next tag, can easily leave parts
-						//   of file unread and containing hidden data. Print these.
+						/*! \todo With offset to next tag, we can easily leave parts of
+						 *        the file unread and containing hidden data. Print these.
+						 */
 
 						offset = (readBytes((data + 4), 4, bigEndian) + 6);
 

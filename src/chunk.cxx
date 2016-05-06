@@ -18,7 +18,7 @@ namespace metadata {
  *  \code _SUBTYPE_(std::istream&); \endcode
  *
  *  Should be called as early as possible in the subclass definition, with
- *  the name of the class itself passed as \p _SUBTYPE_.
+ *  the name of the class itself replacing \p _SUBTYPE_.
  *
  *  \todo Can we remove the requirement for the outside \p istream prototype?
  *        (ie. is it properly signposted and do all subtypes have it, and does
@@ -193,7 +193,7 @@ std::string Chunk::data(Chunk::Type t) const {
 
 		case Type::DIGIT:
 			// Read through each byte and add to output, independent of the
-			//   size of the datatypes used by the system
+			// - size of the datatypes used by the system
 			//! \todo Move little-endian support here from the EXIF extension
 			for (unsigned int i = 0; i < length; ++i) {
 				sum = sum << 8;
@@ -209,7 +209,7 @@ std::string Chunk::data(Chunk::Type t) const {
 			return "TODO";
 		case Type::COUNT:
 			// Although this is a very legitimate type, it only has meaning when
-			//   considering multiple Chunks, and so is handled in MetadataTag
+			// - considering multiple Chunks, and so is handled in MetadataTag
 			return "Should not be shown";
 		case Type::TIME:
 			//! \todo Format timecode
@@ -400,7 +400,7 @@ std::string Chunk::sanitize(std::string str) {
 unsigned int Chunk::readBytes(const char* data, unsigned char length, bool bigEndian) {
 	unsigned int out   = 0;
 	// Awkward assignment is required with shift *crements after the out increment,
-	//   but still a lot easier than switching those and having little-endian awkwardness
+	// - but still a lot easier than switching those and having little-endian awkwardness
 	         int shift = (bigEndian ? ((length - 1) * 8) : 0);
 
 	for (unsigned char i = 0; i < length; ++i, ++data) {

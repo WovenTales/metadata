@@ -22,14 +22,14 @@ namespace metadata {
 
 //! Global reference for Chunk::typeMap
 /*! The PNG spec very nicely defines the valid type codes:
- *    - All four characters must be A-Z or a-z
- *    - If and only if the first letter is uppercase, it's a required tag
- *    - If the second character is lowercase, it's defined by and for a given
- *        program and anything else can safely ignore it
- *    - The third character is always uppercase for potential future use
- *    - A lowercase fourth character means it doesn't special handling once we
- *        start editing chunks; if it's uppercase, it probably can't be copied
- *        if any of the critical chunks (first letter) have been changed
+ *    * All four characters must be A-Z or a-z
+ *    * If and only if the first letter is uppercase, it's a required tag
+ *    * If the second character is lowercase, it's defined by and for a given
+ *      program and anything else can safely ignore it
+ *    * The third character is always uppercase for potential future use
+ *    * A lowercase fourth character means it doesn't special handling once we
+ *      start editing chunks; if it's uppercase, it probably can't be copied if
+ *      any of the critical chunks (first letter) have been changed
  *
  *  \sa PNGChunk
  */
@@ -129,7 +129,7 @@ std::string PNGChunk::data(Chunk::Type type) const {
 			return "TODO<br><br>" + hexString();
 		case Type::TEXT:
 			// All PNG tEXt tags have a label separated from the rest of the
-			//   contents by a \0 character
+			// - contents by a \0 character
 			str = std::string(raw, length);
 			n = str.find('\0');
 
@@ -147,7 +147,7 @@ std::string PNGChunk::data(Chunk::Type type) const {
 
 std::string PNGChunk::defaultChunkName(const std::string& typeCode) const {
 	// The PNG spec allows anyone to create their own tag codes, as long as
-	// the second character in it (index 1) is lowercase
+	// - the second character in it (index 1) is lowercase
 	return (std::string(isupper(typeCode[1], std::locale("C")) ? "Unrecognized" : "Private-use")
 			+ " chunk &lt;" + typeCode + "&gt;");
 }
@@ -160,7 +160,7 @@ std::string PNGChunk::name(Chunk::Type type, const std::string& title) const {
 	switch (type) {
 		case Type::TEXT:
 			// All PNG tEXt tags have a label separated from the rest of the
-			//   contents by a \0 character
+			// - contents by a \0 character
 			str = std::string(raw, length);
 			n = str.find('\0');
 
